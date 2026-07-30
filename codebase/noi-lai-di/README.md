@@ -8,20 +8,23 @@ Tất cả đều giữ học viên ở thế **nhận vào**. Không có độn
 
 `Nói lại` là động từ đó.
 
-## Chạy — không cần cài gì
-
-**Cách 1 (nhanh nhất):** pull về rồi **bấm đúp vào `index.html`**. Xong.
-
-Một file HTML duy nhất, CSS/JS/icon nhúng hết bên trong. Không `npm install`,
-không build, không server, không gọi mạng, không cần API key. Mở bằng `file://` chạy đủ 100%.
-
-**Cách 2 (nếu muốn URL sạch):**
+## Chạy
 
 ```bash
 python -m http.server 8899
 ```
 
 rồi vào `http://127.0.0.1:8899/` (chạy lệnh trong đúng thư mục này).
+
+Không `npm install`, không build, không cần mạng, không cần API key.
+
+> **Phải chạy qua http, đừng bấm đúp file.** Tính năng đọc slide upload dùng
+> PDF.js (`vendor/`) để vẽ **từng trang một** ra canvas — worker của nó bị trình
+> duyệt chặn khi mở bằng `file://`. Các phần khác vẫn chạy với `file://`, riêng
+> phần xem PDF thì không.
+
+`vendor/pdf.min.js` + `vendor/pdf.worker.min.js` là pdfjs-dist 3.11 (Apache-2.0),
+để sẵn trong repo nên chạy offline được.
 
 ## Nối backend — khi nào cần
 

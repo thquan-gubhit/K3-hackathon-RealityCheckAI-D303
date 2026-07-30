@@ -188,7 +188,15 @@ svg{flex:0 0 auto}
 .pdfbar{display:flex;align-items:center;gap:11px;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--surface-2)}
 .pdfbar .pgn{font-family:var(--mono);font-size:11px;color:var(--faint)}
 .pdfbar .kutitle{font-size:12.5px;color:var(--navy-ink);font-weight:700}
-.pdfframe{width:100%;height:min(70vh,660px);border:0;display:block;background:#f3f5f9}
+.pdfstage{padding:16px;background:#eef1f6;display:flex;align-items:center;justify-content:center;min-height:min(70vh,620px)}
+.pdfstage canvas{max-width:100%;height:auto;box-shadow:0 3px 14px rgba(15,36,68,.18);border-radius:4px;background:#fff}
+.lockbox{text-align:center;color:var(--muted);padding:44px 22px;max-width:430px}
+.lockbox .lk{font-size:38px;margin-bottom:12px;opacity:.55}
+.lockbox b{display:block;color:var(--navy-ink);font-size:15.5px;margin-bottom:7px}
+.lockbox p{margin:0;font-size:13px;line-height:1.6}
+.lockchip{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border);
+  border-radius:var(--r-pill);padding:3px 11px;font-size:11px;font-weight:800}
+:root[data-theme="dark"] .pdfstage{background:#0c1422}
 .kuend{display:flex;align-items:center;gap:16px;padding:16px 20px;border-top:1px solid var(--border);
   background:var(--chip-blue-bg);flex-wrap:wrap}
 .kuend b{color:var(--navy-ink);font-size:14.5px}
@@ -618,6 +626,7 @@ svg{flex:0 0 auto}
 
 <div class="proto">PROTOTYPE · không phải VLearn thật</div>
 
+<script src="vendor/pdf.min.js"></script>
 <script>
 document.querySelectorAll('[id]').forEach(el=>{ window[el.id.replace(/-/g,'_')] = el; });
 
@@ -1003,7 +1012,7 @@ async function runUpload(dayN, file){
 
   const kus = await buildKUs(docId, total, file.name, async (i,list)=>draw(i,list));
   DOCS[docId]={ name:file.name, code:'uploaded_'+docId, total, pages:[],
-                blobUrl: URL.createObjectURL(file) };   /* nội dung slide THẬT */
+                blobUrl: URL.createObjectURL(file), file };   /* nội dung slide THẬT */
   day.files.push(docId);
   S.kus[docId]=kus;
   S.openDays[dayN]=true;
@@ -1085,42 +1094,84 @@ function curPage(){
 /* ============================================================
    XEM PDF THẬT (dùng trình xem PDF sẵn có của trình duyệt — không thư viện)
    ============================================================ */
-function renderPdfDoc(id){
+/* Vẽ ĐÚNG MỘT trang ra canvas -> số trang hiển thị luôn khớp, và khoá được. */
+if(window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc='vendor/pdf.worker.min.js';
+
+async function loadPdf(id){
+  const d=DOCS[id];
+  if(d._pdf) return d._pdf;
+  if(!window.pdfjsLib) return null;
+  d._pdf = await pdfjsLib.getDocument({data: await d.file.arrayBuffer()}).promise;
+  d.total = d._pdf.numPages;                 /* số trang THẬT, không đoán nữa */
+  pvTot.textContent = d.total;
+  return d._pdf;
+}
+
+/* Đang làm bài thì KHOÁ TOÀN BỘ slide — không nhìn lại được các trang của KU
+   vừa đọc, cũng không xem trước được trang sau. Đó chính là gợi nhớ chủ động:
+   phải nói ra từ đầu mình, không phải chép lại từ màn hình.
+   Xong bài / Bỏ qua / Ôn lại -> unlock() mở lại tất cả. */
+function pageLocked(id,p){ return !!S.gate; }
+
+async function renderPdfDoc(id){
   const d=DOCS[id], p=S.pdfPage||1, ku=kuOfPage(id,p);
-  const lastOfKU = ku && p===ku.to;
+  const lastOfKU = ku && p===ku.to, locked=pageLocked(id,p);
   pagewrap.innerHTML=`
     <div class="pdfwrap">
       <div class="pdfbar">
         <span class="pgn">Trang ${p} / ${d.total}</span>
         ${ku?`<span class="ku-badge">KU${ku.pos} · trang ${ku.from}–${ku.to}</span>
               <span class="kutitle">${ku.title}</span>`:''}
-        <span class="sp"></span><span class="pgn">${d.name}</span>
+        <span class="sp"></span>
+        ${S.gate?`<span class="lockchip">🔒 đang làm bài KU${S.gate.pos}</span>`:''}
+        <span class="pgn">${d.name}</span>
       </div>
-      <iframe class="pdfframe" id="pdfFrame" src="${d.blobUrl}#page=${p}&toolbar=0&navpanes=0&view=FitH"></iframe>
-      ${lastOfKU?`
+      <div class="pdfstage" id="pdfStage">
+        ${locked?`<div class="lockbox">
+            <div class="lk">🔒</div>
+            <b>Slide đang tạm khoá — bạn đang làm bài KU${S.gate.pos}</b>
+            <p>Nói lại bằng lời của mình trước đã. Nhìn lại được thì không còn là tự kiểm nữa.<br><br>
+            Làm xong, hoặc bấm <b>Để sau</b> ở panel bên phải, slide sẽ mở lại ngay.</p>
+          </div>`:`<canvas id="pdfCanvas"></canvas>`}
+      </div>
+      ${(lastOfKU&&!locked)?`
       <div class="kuend">
         <div><b>Hết phần KU${ku.pos} — ${ku.title}</b>
-          <p>Bạn vừa đọc xong trang ${ku.from}–${ku.to}. Kiểm tra lại xem mình có thật sự nắm không?</p></div>
+          <p>Bạn vừa đọc xong trang ${ku.from}–${ku.to}. Kiểm tra xem mình có thật sự nắm không?</p></div>
         <span class="sp"></span>
         <button class="btn-primary" onclick="openReview()">
-          ${S.kuDone[ku.id]?'Ôn lại KU'+ku.pos:'Làm câu hỏi KU'+ku.pos} →</button>
+          ${S.kuDone[ku.id]?'Ôn lại KU'+ku.pos:'Ôn tập theo Knowledge Unit'} →</button>
       </div>`:''}
     </div>`;
   pvNum.textContent=p; syncReviewBtn();
+  if(locked) return;
+
+  const pdf=await loadPdf(id);
+  const cv=document.getElementById('pdfCanvas'); if(!cv) return;
+  if(!pdf){ cv.replaceWith(Object.assign(document.createElement('div'),
+      {className:'lockbox',innerHTML:'<b>Không nạp được PDF.js</b><p>Mở bằng <code>python -m http.server</code> thay vì file://.</p>'}));
+    return; }
+  const page=await pdf.getPage(Math.min(p,pdf.numPages));
+  const stageW=document.getElementById('pdfStage').clientWidth-32;
+  const v0=page.getViewport({scale:1}), scale=Math.min(2, stageW/v0.width);
+  const vp=page.getViewport({scale});
+  cv.width=vp.width; cv.height=vp.height;
+  await page.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;
 }
+
 function gotoPdfPage(n){
   const d=DOCS[S.doc]; if(!d||!d.blobUrl) return;
-  S.pdfPage=Math.max(1,Math.min(d.total,n));
-  renderPdfDoc(S.doc);
+  const t=Math.max(1,Math.min(d.total,n));
+  if(pageLocked(S.doc,t)) return;            /* không cho lách sang trang bị khoá */
+  S.pdfPage=t; renderPdfDoc(S.doc);
 }
 
 /* ============================================================ ÔN TẬP THEO TRANG */
+/* Nút chỉ hiện ở TRANG CUỐI của mỗi KU — đọc hết phần rồi mới được ôn. */
 function syncReviewBtn(){
-  const list=S.kus[S.doc];
-  if(!list||!list.length){ reviewBtn.classList.add('hide'); return; }
+  const list=S.kus[S.doc], p=curPage(), ku=list&&list.length?kuOfPage(S.doc,p):null;
+  if(!ku || p!==ku.to){ reviewBtn.classList.add('hide'); return; }
   reviewBtn.classList.remove('hide');
-  const ku=kuOfPage(S.doc,curPage());
-  if(!ku){ reviewLbl.textContent='Ôn tập'; reviewBtn.classList.remove('done'); return; }
   const done=S.kuDone[ku.id];
   reviewBtn.classList.toggle('done', !!done);
   reviewLbl.textContent = done ? `KU${ku.pos} · đã học` : `Ôn tập KU${ku.pos}`;
@@ -1144,8 +1195,8 @@ function renderDone(ku,done){
      <p>Lần trước bạn nói lại được <b>${done.score}/${done.total}</b> câu.</p></div>
    <div class="acts" style="display:flex;gap:10px;flex-wrap:wrap">
      <button class="btn-primary" onclick="startQuiz(S.kus[S.doc][${ku.pos-1}],true)">Ôn lại</button>
-     ${next?`<button class="ghost" onclick="jumpToKU('${next.id}')">Bỏ qua → KU${next.pos}</button>`
-           :`<button class="ghost" onclick="showPanel('chat')">Bỏ qua</button>`}
+     ${next?`<button class="ghost" onclick="unlock();jumpToKU('${next.id}')">Bỏ qua → KU${next.pos}</button>`
+           :`<button class="ghost" onclick="unlock();showPanel('chat')">Bỏ qua</button>`}
    </div>
    <p class="hint">Bỏ qua sẽ đưa bạn tới phần bạn chưa ôn, không bắt làm lại.</p>`;
 }
@@ -1160,8 +1211,12 @@ function jumpToKU(id){
 
 function startQuiz(ku,again){
   S.quiz={ku,i:0,score:0,again:!!again};
+  S.gate={kuId:ku.id,pos:ku.pos};              /* khoá: chỉ xem được trong KU này */
   showPanel('review'); renderQuestion();
+  if(DOCS[S.doc]&&DOCS[S.doc].blobUrl) renderPdfDoc(S.doc);
 }
+/* mở khoá: xem lại được KU vừa làm + đọc tiếp KU sau */
+function unlock(){ S.gate=null; if(DOCS[S.doc]&&DOCS[S.doc].blobUrl) renderPdfDoc(S.doc); }
 
 function renderQuestion(){
   const {ku,i}=S.quiz, q=ku.questions[i];
@@ -1176,7 +1231,7 @@ function renderQuestion(){
    <textarea id="qin" placeholder="Trả lời bằng lời của bạn…"></textarea>
    <div class="acts">
      <button class="btn-primary" id="qsend">Gửi</button>
-     <button class="ghost" onclick="showPanel('chat')">Để sau</button>
+     <button class="ghost" onclick="S.quiz=null;unlock();showPanel('chat')">Để sau</button>
    </div>
    <p class="hint">Không có điểm số. Mình chỉ đối chiếu câu của bạn với đoạn tài liệu của KU này.</p>`;
   qsend.onclick=submitQuizAnswer; setTimeout(()=>qin.focus(),60);
@@ -1239,8 +1294,8 @@ function finishQuiz(){
    <div class="acts" style="display:flex;gap:10px;flex-wrap:wrap">
      ${next?`<button class="btn-primary" onclick="jumpToKU('${next.id}')">Sang KU${next.pos} →</button>`
            :`<button class="btn-primary" onclick="showPanel('chat')">Đã ôn hết tài liệu</button>`}
-     <button class="ghost" onclick="showPanel('chat')">Quay lại đọc</button></div>`;
-  S.quiz=null; syncReviewBtn();
+     <button class="ghost" onclick="unlock();showPanel('chat')">Quay lại đọc</button></div>`;
+  S.quiz=null; unlock(); syncReviewBtn();
 }
 
 function syncPage(){
