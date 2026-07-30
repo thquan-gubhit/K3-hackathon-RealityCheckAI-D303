@@ -38,8 +38,17 @@ Loại: [ ] Tối ưu tính năng có sẵn  [ ] Tính năng mới
 ## §3. Giải pháp tương tự đã nghiên cứu
 > **Gợi ý (từ Guide §2.2):** Từng thành viên dùng 1 app (vd: ChatGPT study, NotebookLM...). Rút ra 1 điều học, 1 điều né.
 
-- **[Sản phẩm 1]**: flow: ... / đáng học: ... / đáng né: ... / mình khác gì: ...
-- **[Sản phẩm 2]**: flow: ... / đáng học: ... / đáng né: ... / mình khác gì: ...
+- **[NotebookLM]**: 
+  - **flow**: Người dùng tải tài liệu (PDF, slide) lên -> AI tự động tóm tắt, sau đó người dùng có thể chat hoặc yêu cầu sinh câu hỏi ôn tập dựa trên tài liệu đó. 
+  - **đáng học**: Luôn có trích dẫn nguồn chính xác (số trang, đoạn văn) ngay bên cạnh câu trả lời để người dùng dễ dàng kiểm chứng. 
+  - **đáng né**: Hoạt động hoàn toàn thụ động (đợi người dùng hỏi), không đo lường được mức độ hiểu bài thực sự của người học theo thời gian. 
+  - **mình khác gì**: Hệ thống của nhóm chủ động bóc tách thành các Đơn vị Kiến thức (KU), tự động sinh câu hỏi bám sát mục tiêu học tập và ghi nhận tiến độ (Mastery) của người học.
+
+- **[Khanmigo (Khan Academy)]**: 
+  - **flow**: Tích hợp trực tiếp vào bài tập. Khi học viên làm sai hoặc bí ý tưởng, họ nhấn nút gọi AI. AI sẽ đặt câu hỏi gợi mở (Socratic method) để học viên tự tìm ra đáp án. 
+  - **đáng học**: Không bao giờ đưa thẳng đáp án cho học viên mà kiên nhẫn hướng dẫn từng bước một, khuyến khích tư duy lập luận. 
+  - **đáng né**: Đôi khi hỏi ngược quá nhiều và lặp lại khiến học viên nản lòng nếu họ thực sự bị hổng kiến thức căn bản. 
+  - **mình khác gì**: Sử dụng Barem điểm (Rubric) đa chiều (Nội dung, Lập luận) để phân loại lỗi sai. Nếu học viên hổng kiến thức nghiêm trọng (Misconception), hệ thống sẽ chủ động bổ sung kiến thức hoàn chỉnh thay vì chỉ liên tục hỏi gợi mở.
 
 ## §4. Thiết kế
 > **Gợi ý (từ Guide §2.3, §2.4 & Rubric R2):**
@@ -47,23 +56,23 @@ Loại: [ ] Tối ưu tính năng có sẵn  [ ] Tính năng mới
 > - **Automation:** Augment (gợi ý), Conditional (tuỳ đk), hay Automate (làm luôn)? Dựa vào chi phí lỗi (cost-of-error).
 > - **Nguyên tắc:** Chọn ≥4 nguyên tắc HAX/PAIR, trỏ đúng vào vị trí áp dụng (VD: HAX G10 - Thu hẹp phạm vi).
 
-- **Lát cắt MỘT CÂU** (1 user · 1 việc · 1 quyết định AI · 1 kết quả): 
+- **Lát cắt MỘT CÂU** (1 user · 1 việc · 1 quyết định AI · 1 kết quả): Một người học tự do (self-directed learner) trả lời câu hỏi ôn tập, AI (Evaluator) quyết định chấm điểm câu trả lời dựa trên tài liệu gốc/rubric, từ đó đưa ra nhận xét chi tiết (đúng, thiếu, hiểu sai) và cập nhật điểm thành thạo (mastery).
 - **Non-goals** (≥3 thứ KHÔNG build): 
-  1. 
-  2. 
-  3. 
-- **Mức prototype nhắm tới:** [ ] Sketch [ ] Mock [ ] Working 
-  - Phần nào mock: 
-  - Phần nào thật (phải có ≥1 gọi AI thật): 
-- **Automation:** [ ] augment [ ] conditional [ ] automate 
-  - Lý do theo cost-of-error: 
+  1. Không có hệ thống Identity/Login, thanh toán phức tạp hoặc triển khai Production.
+  2. Không xử lý Video, âm thanh, không áp dụng OCR nâng cao (chỉ đọc text từ PDF).
+  3. Không sử dụng cơ sở dữ liệu Vector (Vector DB), fine-tuning mô hình hay hệ thống Multi-agent tự do.
+- **Mức prototype nhắm tới:** [ ] Sketch [ ] Mock [x] Working 
+  - Phần nào mock: Lịch sử học tập dài hạn (chỉ test trong phạm vi 1 session), Hệ thống user login.
+  - Phần nào thật (phải có ≥1 gọi AI thật): AI đọc PDF tách Knowledge Unit (KU), AI tự động sinh câu hỏi (Q&A) & Barem (Rubric), AI đánh giá câu trả lời của user.
+- **Automation:** [ ] augment [x] conditional [ ] automate 
+  - Lý do theo cost-of-error: Workflow được điều khiển bằng hệ thống luật tĩnh (Deterministic Rules) để giới hạn rủi ro. LLM chỉ thực hiện các tác vụ ngữ nghĩa, và Agent chỉ can thiệp ở các tình huống đặc biệt (khi user lặp lại lỗi sai). Khi AI có độ tự tin thấp, hệ thống không tự động đưa ra kết luận (tránh lưu sai lịch sử học tập) mà sẽ chuyển hướng sang "yêu cầu giải thích rõ hơn", giảm thiểu cost-of-error.
 - **§4b. Nguyên tắc đã áp dụng** (≥4 — HAX/PAIR, xem guide):
   | Nguyên tắc | Áp cụ thể vào đâu trong prototype |
   |---|---|
-  | 1. | |
-  | 2. | |
-  | 3. | |
-  | 4. | |
+  | **HAX G10** (Thu hẹp phạm vi khi nghi ngờ) | Khi AI (Evaluator) có độ tự tin thấp khi chấm bài, nó không tự ghi nhận là user bị "misconception" mà chuyển hướng sang khuyên học viên làm rõ ý (ASK_CLARIFICATION). |
+  | **HAX G2** (Làm rõ hệ thống làm tốt đến đâu) | Hệ thống chỉ trả lời và kiểm tra trong phạm vi tài liệu PDF được cung cấp (Source-grounded). Thiếu căn cứ sẽ báo lỗi INSUFFICIENT_CONTEXT. |
+  | **PAIR Explainability + Trust** (Sự minh bạch) | AI sinh ra barem (rubric) TRƯỚC khi học viên trả lời. Khi chấm điểm sẽ trả về chính xác điểm nào thiếu (missing_points), điểm nào sai, giúp user hiểu vì sao mình chưa qua bài. |
+  | **PAIR Graceful Failure** (Thất bại êm đẹp) | Có chế độ tắt Gia sư (Agent-disabled mode). Nếu hệ thống Agent bị lỗi hoặc hết quota, luồng học tập tự động chuyển sang chế độ sửa lỗi tĩnh (deterministic remediation) để user không bị gián đoạn. |
 
 ## §5. Kiểu lỗi — 4 lớp chỗ khó + kịch bản (≥8)
 > **Gợi ý (từ Rubric R3):** 4 lớp bao gồm: ① Nguồn sự thật (bịa ra), ② Mơ hồ/thiếu thông tin, ③ Ngoài phạm vi, ④ Đặc thù domain.
