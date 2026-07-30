@@ -1,24 +1,23 @@
-# AI SPEC — [Tên lát cắt] · Nhóm [XX] · Zone [X]
-Hướng: [ ] A — VLearn  [ ] B — Trợ lý Học viên  [ ] C — Làn mở
-Loại: [ ] Tối ưu tính năng có sẵn  [ ] Tính năng mới
+# AI SPEC — Kiểm chứng hiểu bài bằng Active Recall thích ứng · Nhóm [XX] · Zone [X]
+Hướng: [x] A — VLearn  [ ] B — Trợ lý Học viên  [ ] C — Làn mở
+Loại: [ ] Tối ưu tính năng có sẵn  [x] Tính năng mới
 
 
 ## §1. User & Job
 
-- **Job executor + workflow:** Học viên đang trong buổi học trên VLearn, vừa gặp một khái niệm, đoạn chữ hoặc biểu đồ trên slide mà mình chưa hiểu. Họ bôi chọn đoạn và hỏi ngay trong trang; nếu câu trả lời chưa đủ, họ phải hỏi người khác, tự tìm kiếm hoặc bỏ qua để theo tiếp bài. Worksheet chi tiết: [`docs/jtbd-section1.md`](docs/jtbd-section1.md).
-- **Core JTBD:** Làm rõ ngay đoạn bài học vừa gặp mà mình chưa hiểu để tiếp tục theo kịp buổi học.
-- **Problem statement:** Hiện tại học viên dùng hộp hỏi đáp ngay trong trang vì nhanh và giữ được đoạn đang xem. Luồng này fail khi không truy được đúng nội dung, trả lời thiếu căn cứ hoặc dừng ở việc đưa lời giải mà không xác nhận người học đã hiểu; chuyển sang hỏi người khác hay tự tìm kiếm lại làm gián đoạn nhịp học, còn bỏ qua dễ để lại lỗ hổng.
-- **Evidence** (mining data; phương pháp và giới hạn ghi đầy đủ tại [`docs/evidence-section1.md`](docs/evidence-section1.md)):
-  - Trong 1.261 lượt hỏi của 369 học viên, proxy từ khóa xác định 578 lượt làm rõ nội dung (45,8%), đến từ 239 học viên (64,8%).
-  - Trong 578 câu trả lời tương ứng, 156 câu (27,0%) không có citation và chỉ 1 câu (0,17%) đặt câu hỏi kiểm tra hiểu.
-  - Rating chỉ có ở 30/578 lượt (5,2%); 14/30 là down-rating. Đây là mẫu tự chọn rất nhỏ nên chỉ dùng như tín hiệu phụ, không suy rộng cho toàn bộ người học.
+- **Job executor + workflow:** Học viên tự học trên VLearn, vừa đọc xong một đơn vị kiến thức trong tài liệu dạng chữ và cần quyết định học tiếp hay ôn lại. Workflow đầy đủ: [`docs/jtbd-section1.md`](docs/jtbd-section1.md).
+- **Core JTBD:** Kiểm chứng mình có thể nhớ, giải thích và áp dụng một đơn vị kiến thức sau khi đọc để quyết định học tiếp hay ôn lại.
+- **Problem statement:** Hiện tại học viên thường đọc lại, tự tóm tắt, tự nghĩ câu hỏi hoặc dùng hộp hỏi đáp để tạo quiz vì các cách này nhanh và sẵn có. Chúng fail khi cảm giác quen thuộc bị nhầm với hiểu thật, câu hỏi hoặc tiêu chí chấm không ổn định, phản hồi không tách rõ ý đúng–thiếu–sai và quyết định học tiếp vẫn dựa nhiều vào cảm giác.
+- **Evidence** (mining data; phương pháp, giới hạn và liên hệ prototype tại [`docs/evidence-section1.md`](docs/evidence-section1.md)):
+  - Gán nhãn tay sau bước lọc từ khóa xác định 11/1.261 lượt (0,9%), từ 10/369 học viên (2,7%), chủ động xin quiz hoặc đưa cách hiểu ra để xác nhận. Đây là bằng chứng hành vi tồn tại, **không đủ để kết luận pain phổ biến**.
+  - Trong toàn bộ 1.261 câu trả lời tutor, chỉ 3 câu (0,24%) chủ động hỏi kiểm tra hiểu và không câu nào ghi nhận misconception (`0/1.261`), cho thấy luồng hiện tại gần như không tạo vòng đánh giá–sửa sai.
   - Ví dụ nguyên văn + nguồn:
-    1. “giải thích 4 chiến lược” — `C0002 / T0959`, trang 45.
-    2. “tại sao có lưu ý như trang 25” — `C0004 / T0154`, trang 25.
-    3. “Giải thích đoạn bôi đen ở Trang 15.” — `C0007 / T0020`, trang 15.
-    4. “"Context" là gì” — `C0013 / T0990`, trang 31.
-    5. “Designt Pattern ReAct là gì có lưu ý gì về nó?” — `C0015 / T0811`, trang 2.
-    6. “Giải thích biều đồ đc bôi đỏ” — `C0023 / T0399`, trang 6.
+    1. “TẠO QUIZ ĐỂ TÔI HIỂU RÕ VÀ ÔN LẠI TOÀN BỘ SLIDE NÀY” — `C0063 / T0849`, trang 9.
+    2. “dựa vào tài liệu này bạn hãy cho tôi bộ quizz liên quan” — `C0287 / T1113`, trang 47.
+    3. “vậy prompt engineerig có phải là mô tả lại ngữ cảnh của câu để cho AI hiểu rõ hơn không” — `C0242 / T0720`, trang 4.
+    4. “benchmark là gì? Mỗi đề bài thì phải tự tạo benchmark đúng không, cho ví dụ” — `C0343 / T0633`, trang 23.
+    5. “tức là trang này đang nói đến việc nên kiểm định giả thuyết nào, nên kiểm chứng nào chứ ko phải là nên xây dựng sản phẩm nào đúng không” — `C0350 / T0521`, trang 13.
+    6. “Có phải là một câu hỏi có 4 câu thì transformer sẽ xử lý đồng loạt 4 câu đó thay vì xử lý từng câu đúng k?” — `C0468 / T1015`, trang 22.
 
 ## §2. Impact & quyết định chọn
 > **Gợi ý (từ Rubric R1):** Lập bảng ít nhất 3 ứng viên.
