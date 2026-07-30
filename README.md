@@ -15,7 +15,7 @@
 |---|---|---|
 | Trần Hoàng Quân | 2A202601805 | Structure, Workflow, Prompts và Evidence |
 | Đinh Huy Mạnh | 2A202601677 | Prompt |
-| Nguyễn Quang Hưng | 2A202601523 | Product Prototype, UI/UX, Workflow & Prompts, Live Demo |
+| Nguyễn Quang Hưng | 2A202601523 | Product Prototype Lead — UI/UX, End-to-end Workflow, Prompt Integration & Live Demo, Spec |
 | Lê Minh Khiêm | 2A202601645 | Canvas, Spec, Evidence |
 | Đàm Minh Tuấn | 2A202601169 |  Evaluator, Structure, Workflow và Prompts |
 
