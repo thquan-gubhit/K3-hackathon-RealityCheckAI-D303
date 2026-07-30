@@ -1,0 +1,342 @@
+[
+  {
+    "id": "TC-001",
+    "topic": "Generalization and Data Splits",
+    "question": "What is the primary purpose of a validation set in machine learning, and how does it differ from a test set?",
+    "rubric": "- A validation set helps compare choices like model complexity and regularization.\n- A test set should remain untouched until the final evaluation to provide an unbiased estimate.\n- Using the test set repeatedly leads to optimistic estimates.",
+    "learner_answer": "The validation set is used to tune hyperparameters and choose model complexity. The test set is only used once at the very end to evaluate the final model, preventing optimistic bias.",
+    "expected_correctness_score": [
+      0.8,
+      1.0
+    ],
+    "expected_coverage_score": [
+      0.6,
+      1.0
+    ],
+    "expected_has_misconception": false,
+    "scenario_type": "Happy Path"
+  },
+  {
+    "id": "TC-002",
+    "topic": "Generalization and Data Splits",
+    "question": "Why is it problematic to repeatedly use the test set for making decisions about the model?",
+    "rubric": "- If decisions repeatedly use the test set, the test result becomes optimistic.\n- The separation protects the credibility of the final estimate.",
+    "learner_answer": "If you keep using the test set to tweak the model, the results become too optimistic and biased, ruining the credibility of your final evaluation.",
+    "expected_correctness_score": [
+      0.8,
+      1.0
+    ],
+    "expected_coverage_score": [
+      0.8,
+      1.0
+    ],
+    "expected_has_misconception": false,
+    "scenario_type": "Happy Path"
+  },
+  {
+    "id": "TC-003",
+    "topic": "Overfitting and Its Evidence",
+    "question": "What evidence indicates that a model is overfitting?",
+    "rubric": "- A widening training-validation gap is evidence of overfitting.\n- The model achieves very low training error but substantially higher validation error.",
+    "learner_answer": "Overfitting is shown when there is a large gap between training and validation error, specifically when training error is very low but validation error is much higher.",
+    "expected_correctness_score": [
+      0.8,
+      1.0
+    ],
+    "expected_coverage_score": [
+      0.8,
+      1.0
+    ],
+    "expected_has_misconception": false,
+    "scenario_type": "Happy Path"
+  },
+  {
+    "id": "TC-004",
+    "topic": "Regularization and Early Stopping",
+    "question": "How do L1 and L2 regularization discourage unnecessarily complex solutions?",
+    "rubric": "- L1 and L2 penalties add a cost for large parameter values.",
+    "learner_answer": "They add a penalty or cost for having large parameter values, which forces the model to stay simpler.",
+    "expected_correctness_score": [
+      0.8,
+      1.0
+    ],
+    "expected_coverage_score": [
+      0.8,
+      1.0
+    ],
+    "expected_has_misconception": false,
+    "scenario_type": "Happy Path"
+  },
+  {
+    "id": "TC-005",
+    "topic": "Generalization and Data Splits",
+    "question": "What is the primary purpose of a validation set in machine learning, and how does it differ from a test set?",
+    "rubric": "- A validation set helps compare choices like model complexity and regularization.\n- A test set should remain untouched until the final evaluation to provide an unbiased estimate.\n- Using the test set repeatedly leads to optimistic estimates.",
+    "learner_answer": "The validation set is used to tune hyperparameters.",
+    "expected_correctness_score": [
+      0.4,
+      1.0
+    ],
+    "expected_coverage_score": [
+      0.2,
+      0.5
+    ],
+    "expected_has_misconception": false,
+    "scenario_type": "Incomplete"
+  },
+  {
+    "id": "TC-006",
+    "topic": "Overfitting and Its Evidence",
+    "question": "What evidence indicates that a model is overfitting?",
+    "rubric": "- A widening training-validation gap is evidence of overfitting.\n- The model achieves very low training error but substantially higher validation error.",
+    "learner_answer": "You can tell it's overfitting when the training error becomes really small.",
+    "expected_correctness_score": [
+      0.4,
+      1.0
+    ],
+    "expected_coverage_score": [
+      0.2,
+      0.6
+    ],
+    "expected_has_misconception": false,
+    "scenario_type": "Incomplete"
+  },
+  {
+    "id": "TC-007",
+    "topic": "Regularization and Early Stopping",
+    "question": "What is regularization and how does it help?",
+    "rubric": "- Regularization discourages unnecessarily complex solutions.\n- L1 and L2 penalties add a cost for large parameter values.\n- Dropout reduces reliance on individual activations.",
+    "learner_answer": "It helps prevent the model from overfitting by making it less complex.",
+    "expected_correctness_score": [
+      0.4,
+      1.0
+    ],
+    "expected_coverage_score": [
+      0.3,
+      0.6
+    ],
+    "expected_has_misconception": false,
+    "scenario_type": "Incomplete"
+  },
+  {
+    "id": "TC-008",
+    "topic": "Regularization and Early Stopping",
+    "question": "What is early stopping?",
+    "rubric": "- Early stopping monitors validation performance and stops training when further optimization begins to reduce generalization.",
+    "learner_answer": "It means you stop the training process early before it reaches the maximum number of epochs.",
+    "expected_correctness_score": [
+      0.4,
+      1.0
+    ],
+    "expected_coverage_score": [
+      0.2,
+      0.5
+    ],
+    "expected_has_misconception": false,
+    "scenario_type": "Incomplete"
+  },
+  {
+    "id": "TC-009",
+    "topic": "Generalization and Data Splits",
+    "question": "What does data leakage mean in the context of data splits?",
+    "rubric": "- Data leakage must be ruled out before interpreting the result.\n- The test set should remain untouched.",
+    "learner_answer": "Data leakage is when your computer's hard drive is corrupted and you lose your training data during the process.",
+    "expected_correctness_score": [
+      0.0,
+      0.2
+    ],
+    "expected_coverage_score": [
+      0.0,
+      0.2
+    ],
+    "expected_has_misconception": true,
+    "scenario_type": "Misconception"
+  },
+  {
+    "id": "TC-010",
+    "topic": "Generalization and Data Splits",
+    "question": "How should the test set be used during the model development process?",
+    "rubric": "- A test set should remain untouched until the final evaluation.",
+    "learner_answer": "The test set should be used constantly during training to adjust the model's weights and choose the best regularization technique.",
+    "expected_correctness_score": [
+      0.0,
+      0.2
+    ],
+    "expected_coverage_score": [
+      0.0,
+      0.2
+    ],
+    "expected_has_misconception": true,
+    "scenario_type": "Misconception"
+  },
+  {
+    "id": "TC-011",
+    "topic": "Overfitting and Its Evidence",
+    "question": "Describe the characteristics of an overfitted model.",
+    "rubric": "- Overfitting occurs when a model captures details or noise that do not generalize.\n- Very low training error but substantially higher validation error.",
+    "learner_answer": "An overfitted model is one that is too simple to learn the patterns, resulting in very high training error and high validation error.",
+    "expected_correctness_score": [
+      0.0,
+      0.2
+    ],
+    "expected_coverage_score": [
+      0.0,
+      0.2
+    ],
+    "expected_has_misconception": true,
+    "scenario_type": "Misconception"
+  },
+  {
+    "id": "TC-012",
+    "topic": "Overfitting and Its Evidence",
+    "question": "If a model achieves 99.9% training accuracy, what does this prove about the model?",
+    "rubric": "- High training accuracy alone does not prove that a model is good.\n- Performance must be checked on unseen data.",
+    "learner_answer": "It proves that the model is excellent and ready to be deployed, because high accuracy means it has learned everything perfectly.",
+    "expected_correctness_score": [
+      0.0,
+      0.2
+    ],
+    "expected_coverage_score": [
+      0.0,
+      0.2
+    ],
+    "expected_has_misconception": true,
+    "scenario_type": "Misconception"
+  },
+  {
+    "id": "TC-013",
+    "topic": "Regularization and Early Stopping",
+    "question": "What is the effect of regularization on model complexity?",
+    "rubric": "- Regularization discourages unnecessarily complex solutions.",
+    "learner_answer": "Regularization increases the model's complexity so it can memorize more noise from the training data.",
+    "expected_correctness_score": [
+      0.0,
+      0.2
+    ],
+    "expected_coverage_score": [
+      0.0,
+      0.2
+    ],
+    "expected_has_misconception": true,
+    "scenario_type": "Misconception"
+  },
+  {
+    "id": "TC-014",
+    "topic": "Generalization and Data Splits",
+    "question": "What is generalization?",
+    "rubric": "- Generalization is a model's ability to perform well on examples that were not used during training.",
+    "learner_answer": "Generalization is a psychological concept where a person responds to a new stimulus in the same way as a previously encountered stimulus.",
+    "expected_correctness_score": [
+      0.0,
+      0.2
+    ],
+    "expected_coverage_score": [
+      0.0,
+      0.2
+    ],
+    "expected_has_misconception": true,
+    "scenario_type": "Hallucination"
+  },
+  {
+    "id": "TC-015",
+    "topic": "Regularization and Early Stopping",
+    "question": "What is dropout in machine learning?",
+    "rubric": "- Dropout reduces reliance on individual activations.",
+    "learner_answer": "Dropout is when a student decides to leave college or high school before obtaining their degree.",
+    "expected_correctness_score": [
+      0.0,
+      0.2
+    ],
+    "expected_coverage_score": [
+      0.0,
+      0.2
+    ],
+    "expected_has_misconception": true,
+    "scenario_type": "Hallucination"
+  },
+  {
+    "id": "TC-016",
+    "topic": "Generalization and Data Splits",
+    "question": "What is a training set used for?",
+    "rubric": "- A training set is used to fit parameters.",
+    "learner_answer": "A training set is a set of dumbbells used by athletes to build muscle mass.",
+    "expected_correctness_score": [
+      0.0,
+      0.2
+    ],
+    "expected_coverage_score": [
+      0.0,
+      0.2
+    ],
+    "expected_has_misconception": true,
+    "scenario_type": "Hallucination"
+  },
+  {
+    "id": "TC-017",
+    "topic": "Regularization and Early Stopping",
+    "question": "What are L1 and L2?",
+    "rubric": "- L1 and L2 penalties add a cost for large parameter values.",
+    "learner_answer": "L1 and L2 are Lagrange points in space where the gravitational forces of two large bodies cancel out.",
+    "expected_correctness_score": [
+      0.0,
+      0.2
+    ],
+    "expected_coverage_score": [
+      0.0,
+      0.2
+    ],
+    "expected_has_misconception": true,
+    "scenario_type": "Hallucination"
+  },
+  {
+    "id": "TC-018",
+    "topic": "Overfitting and Its Evidence",
+    "question": "What is overfitting?",
+    "rubric": "- Overfitting occurs when a model captures details or noise that do not generalize.",
+    "learner_answer": "It's bad.",
+    "expected_correctness_score": [
+      0.0,
+      0.4
+    ],
+    "expected_coverage_score": [
+      0.0,
+      0.2
+    ],
+    "expected_has_misconception": false,
+    "scenario_type": "Low Confidence / Mumbling"
+  },
+  {
+    "id": "TC-019",
+    "topic": "Regularization and Early Stopping",
+    "question": "How does early stopping work?",
+    "rubric": "- Early stopping monitors validation performance and stops training when further optimization begins to reduce generalization.",
+    "learner_answer": "It stops.",
+    "expected_correctness_score": [
+      0.0,
+      0.4
+    ],
+    "expected_coverage_score": [
+      0.0,
+      0.2
+    ],
+    "expected_has_misconception": false,
+    "scenario_type": "Low Confidence / Mumbling"
+  },
+  {
+    "id": "TC-020",
+    "topic": "Generalization and Data Splits",
+    "question": "Why do we need a test set?",
+    "rubric": "- A test set should remain untouched until the final evaluation to provide an unbiased estimate.",
+    "learner_answer": "I don't know, maybe for testing stuff.",
+    "expected_correctness_score": [
+      0.0,
+      0.4
+    ],
+    "expected_coverage_score": [
+      0.0,
+      0.2
+    ],
+    "expected_has_misconception": false,
+    "scenario_type": "Low Confidence / Mumbling"
+  }
+]
