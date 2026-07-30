@@ -1,0 +1,154 @@
+# Test Plan
+
+> **Delivery status:** Phase 1 has 15 passing tests on Python 3.11.9,
+> including configuration, database bootstrap, health API, structured logging,
+> frontend transport, and Streamlit Home execution. Tests for Phases 2–6 remain
+> pending.
+
+## Strategy
+
+Use a test pyramid:
+
+1. many fast unit tests for typed configuration, pure rules, calculations, validators, and adapters;
+2. focused integration tests for API/workflow/repository boundaries with temporary SQLite storage; and
+3. a small acceptance suite for the local learner flow.
+
+Default tests must be deterministic, offline, and free of real provider credentials.
+
+## Test environments
+
+| Environment | Database | LLM | Purpose |
+| --- | --- | --- | --- |
+| Unit | None or in-memory fixture | Stub/fake | Pure behavior and boundaries |
+| Integration | Temporary SQLite file | Scripted mock | API-to-persistence workflow |
+| Local acceptance | Disposable local database | Mock by default; live only by explicit opt-in | Demo-flow verification |
+
+Do not call a real LLM in CI or in the default `pytest` command.
+
+## Phase 1 tests
+
+| Area | Coverage |
+| --- | --- |
+| Configuration | Environment/dotenv parsing, typed values, host debug alias, project-root paths, secret redaction |
+| Startup validation | Missing `LLM_API_KEY`, `LLM_BASE_URL`, and `LLM_MODEL` produce actionable names without exposing values |
+| Database | SQLite initialization writes the schema marker and accepts a query |
+| Health API | `GET /health` returns HTTP 200 and the stable response contract under test configuration |
+| Frontend client | URL selection, offline handling, malformed URL, and false-green response rejection |
+| Streamlit Home | Page executes without exception and renders the connected-backend state |
+| Logging | Quotes/newlines remain valid structured JSON |
+
+Current locations:
+
+```text
+tests/unit/test_config.py
+tests/unit/test_frontend_api_client.py
+tests/unit/test_logging.py
+tests/integration/test_database.py
+tests/integration/test_frontend_home.py
+tests/integration/test_health.py
+```
+
+The Phase 1 suite contains **15 tests** and all pass on Python 3.11.9. The
+coverage run reports **89% total statement/branch coverage** across `app` and
+`frontend`. The only emitted warning is a non-failing upstream
+`Starlette TestClient`/`httpx` deprecation warning.
+
+## Unit tests for later phases
+
+| Target | Required cases | Phase |
+| --- | --- | --- |
+| KU split rules | Objective, concept, and reading-time thresholds; exact boundaries | 2 |
+| KU merge rules | Small fragment, example-only, no independent question, adjacent overlap | 2 |
+| Structured outputs | Valid/invalid KU, question, rubric, and evaluation JSON | 2–3 |
+| Question validation | Grounding, objective mismatch, answer leak, ambiguity, external facts, duplicate | 3 |
+| Question selection | First recall, low recall scaffold, score bands, application gap, cap | 4 |
+| Mastery | Formula, difficulty, clamp, repeated evidence weights, all mastery predicates | 4 |
+| Agent triggers | Disabled gate, repeat count, failed remediation, score gap | 5 |
+| Agent runner | Allow list, schema retry, stop conditions, exact maximum steps | 5 |
+
+Every rule in `07_RULE_ENGINE.md` should have a corresponding test named in its `Test` column.
+
+## Integration tests
+
+### Phase 1
+
+```text
+FastAPI lifespan with test settings
+→ GET /health
+→ validate status/app_name/environment/database response
+```
+
+### Target pipeline
+
+```text
+PDF fixture
+→ page extraction
+→ Knowledge Units
+→ question/reference answer/rubric
+→ answer evaluation
+→ mastery update
+→ next-action selection
+```
+
+Integration assertions include:
+
+- source pages survive each transformation;
+- a rubric is stored before answer submission;
+- invalid LLM JSON exhausts only bounded retries;
+- a failed evaluation does not update mastery;
+- agent-disabled mode uses deterministic remediation; and
+- persistence can reload the same session state.
+
+## Acceptance tests
+
+| ID | Scenario | Expected result | Status |
+| --- | --- | --- | --- |
+| AT-001 | Start configured backend and request `/health` | HTTP 200 with stable health payload | Passed — local smoke test |
+| AT-002 | Execute Streamlit home with backend running | Connectivity and Phase 1 status shown | Passed — server health + AppTest |
+| AT-003 | Upload readable demo PDF | Upload succeeds | Pending Phase 2 |
+| AT-004 | Process demo PDF | At least three valid KUs with objectives/concepts/pages | Pending Phase 2 |
+| AT-005 | Generate questions | Recall, Explain, and Apply are available | Pending Phase 3 |
+| AT-006 | Submit strong, incomplete, and misconception answers | Feedback distinguishes all three | Pending Phase 3 |
+| AT-007 | Answer several questions | Mastery changes and respects evidence gates | Pending Phase 4 |
+| AT-008 | Repeat one misconception | Agent triggers when enabled | Pending Phase 5 |
+| AT-009 | Reach agent step limit | Agent stops at or before configured maximum | Pending Phase 5 |
+| AT-010 | Disable agent | Normal learning workflow remains usable | Pending Phase 5 |
+
+## Mock strategy
+
+- Define an LLM client interface and inject a scripted fake.
+- Key fake scenarios by prompt/task name, not by brittle full prompt text.
+- Include valid response, malformed JSON, schema mismatch, timeout, retry-then-success, and insufficient-context fixtures.
+- Never use a committed real API key.
+- Freeze timestamps or assert shapes instead of exact wall-clock values.
+- Use `tmp_path` for SQLite files and upload directories.
+
+## Fixtures
+
+Later phases should add:
+
+- a short machine-learning PDF/text fixture;
+- one valid overfitting KU;
+- a correct answer;
+- an answer missing a required point;
+- an answer containing the target misconception; and
+- a scripted repeated-misconception history.
+
+## Commands
+
+From the project root after installing Python 3.11 and dependencies:
+
+```bash
+pytest -v
+pytest -v tests/unit
+pytest -v tests/integration
+pytest --cov=app --cov=frontend --cov-report=term-missing
+```
+
+## Exit criteria
+
+- Phase tests run without live network calls.
+- All tests in scope pass on Python 3.11.
+- Important rules cover both sides and exact values of thresholds.
+- No failed/schema-invalid evaluation mutates learning state.
+- Any skipped test has a documented reason and owner/phase.
