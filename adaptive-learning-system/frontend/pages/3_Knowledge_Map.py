@@ -41,7 +41,7 @@ def _show_string_list(label: str, values: Any) -> None:
         for value in values:
             st.write(f"- {value}")
     else:
-        st.caption("None recorded.")
+        st.caption("Không có.")
 
 
 def _show_unit(unit: dict[str, Any]) -> None:
@@ -92,15 +92,15 @@ def _show_unit(unit: dict[str, Any]) -> None:
 
 
 st.set_page_config(
-    page_title="Knowledge Map",
+    page_title="Bản đồ Kiến thức",
     page_icon="🗺️",
     layout="wide",
 )
 
-st.title("Knowledge Map")
+st.title("🗺️ Bản đồ Kiến thức")
 st.write(
-    "Inspect each Knowledge Unit, its objectives, concepts, prerequisites, "
-    "misconceptions, and source-page traceability."
+    "Xem chi tiết từng Đơn vị Kiến thức: mục tiêu học tập, khái niệm chính, "
+    "điều kiện tiên quyết, hiểu lầm thường gặp và trang nguồn."
 )
 
 try:
@@ -116,19 +116,19 @@ documents_by_id = {
 }
 
 if not documents_by_id:
-    st.info("No documents are available. Upload and process a PDF first.")
+    st.info("Chưa có tài liệu nào. Hãy tải lên và xử lý PDF trước.")
 else:
     selected_document_id = st.selectbox(
-        "Document",
+        "Tài liệu",
         options=list(documents_by_id),
         format_func=lambda identifier: _document_label(
             documents_by_id[identifier]
         ),
     )
 
-    if st.button("Load Knowledge Map", type="primary"):
+    if st.button("Tải Bản đồ Kiến thức", type="primary"):
         try:
-            with st.spinner("Loading Knowledge Map..."):
+            with st.spinner("Đang tải Bản đồ Kiến thức..."):
                 knowledge_map = get_knowledge_map(selected_document_id)
         except BackendApiError as exc:
             _show_api_error("Could not load Knowledge Map", exc)
@@ -146,11 +146,11 @@ else:
             st.caption(f"Map status: {status}")
 
         units = knowledge_map.get("knowledge_units", [])
-        st.subheader(f"Knowledge Units ({len(units)})")
+        st.subheader(f"Đơn vị Kiến thức ({len(units)})")
         if not units:
             st.info(
-                "This document has no Knowledge Units yet. Process it from "
-                "the Upload Document page."
+                "Tài liệu này chưa có Đơn vị Kiến thức nào. Hãy xử lý nó "
+                "từ trang Tải tài liệu lên."
             )
         else:
             for unit in units:
@@ -161,9 +161,9 @@ else:
             ]
             if unit_ids:
                 st.divider()
-                st.subheader("Knowledge Unit detail")
+                st.subheader("Chi tiết Đơn vị Kiến thức")
                 selected_unit_id = st.selectbox(
-                    "Knowledge Unit",
+                    "Đơn vị Kiến thức",
                     options=unit_ids,
                     format_func=lambda unit_id: next(
                         (
@@ -174,9 +174,9 @@ else:
                         unit_id,
                     ),
                 )
-                if st.button("Refresh unit detail"):
+                if st.button("Làm mới chi tiết"):
                     try:
-                        with st.spinner("Loading Knowledge Unit..."):
+                        with st.spinner("Đang tải Đơn vị Kiến thức..."):
                             detail = get_knowledge_unit(selected_unit_id)
                     except BackendApiError as exc:
                         _show_api_error(

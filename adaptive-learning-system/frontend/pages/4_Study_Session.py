@@ -34,22 +34,22 @@ def _show_list(label: str, values: Any) -> None:
         for value in values:
             st.write(f"- {value}")
     else:
-        st.caption("None.")
+        st.caption("Không có.")
 
 
 def _load_next(session_id: str) -> None:
     try:
-        with st.spinner("Selecting the next activity..."):
+        with st.spinner("Đang chọn hoạt động tiếp theo..."):
             st.session_state["study_next"] = get_next_question(session_id)
     except BackendApiError as exc:
-        _show_error("Could not select the next activity", exc)
+        _show_error("Không thể chọn hoạt động tiếp theo", exc)
 
 
-st.set_page_config(page_title="Study Session", page_icon="🧠", layout="wide")
-st.title("Study Session")
+st.set_page_config(page_title="Phiên học", page_icon="🧠", layout="wide")
+st.title("🧠 Phiên học")
 st.write(
-    "Read one Knowledge Unit, hide it, answer from memory, then use the "
-    "rubric-based feedback and mastery update."
+    "Đọc một Đơn vị Kiến thức, ẩn nó đi, trả lời từ trí nhớ, sau đó nhận "
+    "phản hồi dựa trên barem và cập nhật điểm thành thạo."
 )
 
 try:
@@ -63,11 +63,11 @@ except BackendApiError as exc:
     _show_error("Could not load documents", exc)
 
 if not ready_documents:
-    st.info("Process a PDF before starting a study session.")
+    st.info("Hãy xử lý một file PDF trước khi bắt đầu phiên học.")
 else:
     documents = {_id(document): document for document in ready_documents}
     document_id = st.selectbox(
-        "Document",
+        "Tài liệu",
         options=list(documents),
         format_func=lambda key: documents[key].get("filename", key),
     )
@@ -81,15 +81,15 @@ else:
     if units:
         units_by_id = {_id(unit): unit for unit in units}
         unit_id = st.selectbox(
-            "Knowledge Unit",
+            "Đơn vị Kiến thức",
             options=list(units_by_id),
             format_func=lambda key: units_by_id[key].get("title", key),
         )
         unit = units_by_id[unit_id]
 
-        if st.button("Start learning session", type="primary"):
+        if st.button("Bắt đầu phiên học", type="primary"):
             try:
-                with st.spinner("Preparing Recall, Explain, and Apply..."):
+                with st.spinner("Đang chuẩn bị câu hỏi..."):
                     learning_session = create_learning_session(
                         document_id,
                         unit_id,
@@ -127,16 +127,16 @@ else:
                         unit.get("common_misconceptions"),
                     )
                     _show_list("Prerequisites", unit.get("prerequisites"))
-                if st.button("Tôi đã đọc xong — hide the unit"):
+                if st.button("Tôi đã đọc xong — ẩn đơn vị kiến thức"):
                     st.session_state["study_read_done"] = True
                     _load_next(session_id)
                     st.rerun()
             else:
                 st.info(
-                    "The unit is hidden. Retrieve the answer from memory."
+                    "Đơn vị kiến thức đã được ẩn. Hãy tự nhớ lại và trả lời."
                 )
                 if "study_next" not in st.session_state:
-                    if st.button("Load next question", type="primary"):
+                    if st.button("Tải câu hỏi tiếp theo", type="primary"):
                         _load_next(session_id)
 
                 next_activity = st.session_state.get("study_next")
@@ -148,23 +148,26 @@ else:
                     st.caption(next_activity.get("route_reason", ""))
                     if isinstance(question, dict):
                         st.subheader(
-                            f"{str(question.get('question_type', '')).title()} "
-                            "question"
+                            f"Câu hỏi {str(question.get('question_type', '')).title()}"
                         )
                         st.write(question.get("question_text", ""))
                         answer = st.text_area(
-                            "Your answer",
+                            "Câu trả lời của bạn",
                             key=f"answer_{question.get('id')}",
                             height=160,
+                            placeholder=(
+                                "Gõ câu trả lời từ trí nhớ...\n"
+                                "(Mẹo: Có thể dùng ký tự thường thay cho ký hiệu Toán học: u thay cho ∪, n thay cho ∩, <= thay cho ≤...)"
+                            ),
                         )
                         if st.button(
-                            "Submit answer",
+                            "Gửi câu trả lời",
                             type="primary",
                             disabled=not answer.strip(),
                         ):
                             try:
                                 with st.spinner(
-                                    "Evaluating against the stored rubric..."
+                                    "Đang chấm điểm theo barem..."
                                 ):
                                     result = submit_answer(
                                         session_id,
@@ -178,7 +181,7 @@ else:
                                 st.session_state.pop("study_next", None)
                                 st.rerun()
                     elif next_activity.get("next_action") == "ACTIVATE_TUTOR_AGENT":
-                        if st.button("Run Tutor Agent", type="primary"):
+                        if st.button("Chạy Gia sư AI", type="primary"):
                             try:
                                 result = run_tutor_agent(
                                     session_id,
@@ -189,30 +192,30 @@ else:
                             else:
                                 st.session_state["agent_result"] = result
                     else:
-                        st.info("No normal question is pending.")
+                        st.info("Không còn câu hỏi ở thời điểm này.")
 
                 result = st.session_state.get("study_result")
                 if isinstance(result, dict):
                     evaluation = result.get("evaluation", {})
                     mastery = result.get("mastery", {})
-                    st.subheader("Feedback")
+                    st.subheader("Phản hồi")
                     first, second = st.columns(2)
                     with first:
                         _show_list(
-                            "Correct points",
+                            "Ý đúng",
                             evaluation.get("correct_points"),
                         )
                         _show_list(
-                            "Missing points",
+                            "Ý còn thiếu",
                             evaluation.get("missing_points"),
                         )
                     with second:
                         _show_list(
-                            "Incorrect points",
+                            "Ý chưa đúng",
                             evaluation.get("incorrect_points"),
                         )
                         _show_list(
-                            "Misconceptions",
+                            "Hiểu lầm được phát hiện",
                             evaluation.get("detected_misconceptions"),
                         )
                     st.write(evaluation.get("feedback", ""))
@@ -223,14 +226,14 @@ else:
                     st.caption(
                         f"Next action: {result.get('next_action', 'CONTINUE')}"
                     )
-                    if st.button("Continue"):
+                    if st.button("Tiếp tục"):
                         st.session_state.pop("study_result", None)
                         _load_next(session_id)
                         st.rerun()
 
                 agent_result = st.session_state.get("agent_result")
                 if isinstance(agent_result, dict):
-                    st.subheader("Tutor Agent")
+                    st.subheader("Gia sư AI")
                     st.caption(
                         f"Status: {agent_result.get('status')} · "
                         f"Steps: {len(agent_result.get('steps', []))}"
@@ -242,7 +245,7 @@ else:
                         ):
                             st.write(step.get("observation", {}))
 
-                if st.button("Finish unit"):
+                if st.button("Hoàn thành đơn vị kiến thức"):
                     try:
                         finished = finish_unit(session_id)
                     except BackendApiError as exc:
@@ -250,4 +253,4 @@ else:
                     else:
                         st.success(f"Session status: {finished.get('status')}")
     else:
-        st.info("The selected document has no Knowledge Units.")
+        st.info("Tài liệu được chọn không có Đơn vị Kiến thức nào.")

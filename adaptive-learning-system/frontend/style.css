@@ -1,0 +1,338 @@
+/* ═══════════════════════════════════════════════════════════════
+   Adaptive Learning System — Premium Dark Theme
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Google Fonts ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* ── CSS Custom Properties ── */
+:root {
+    --bg-primary: #0f0f1a;
+    --bg-secondary: #161625;
+    --bg-card: rgba(30, 30, 50, 0.65);
+    --bg-glass: rgba(255, 255, 255, 0.04);
+    --border-glass: rgba(255, 255, 255, 0.08);
+    --text-primary: #e8e8f0;
+    --text-secondary: #9d9db5;
+    --text-muted: #6b6b85;
+    --accent-primary: #7c5cfc;
+    --accent-secondary: #5ce1e6;
+    --accent-gradient: linear-gradient(135deg, #7c5cfc 0%, #5ce1e6 100%);
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+    --neutral: #6b7280;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --shadow-glow: 0 0 20px rgba(124, 92, 252, 0.15);
+    --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.25);
+    --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Slide Blur Overlay ── */
+.slide-blur-overlay {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+}
+
+.slide-blur-overlay img {
+    filter: blur(18px) brightness(0.5);
+    transition: filter var(--transition-smooth);
+    transform: scale(1.05);
+}
+
+.slide-blur-overlay .blur-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 10;
+    color: var(--text-primary);
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.slide-blur-overlay .blur-message .blur-icon {
+    font-size: 3rem;
+    margin-bottom: 0.75rem;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.slide-blur-overlay .blur-message .blur-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.slide-blur-overlay .blur-message .blur-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+/* ── Glass Card ── */
+.glass-card {
+    background: var(--bg-card);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-card);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    animation: fadeIn 0.5s ease-out;
+}
+
+.glass-card:hover {
+    border-color: rgba(124, 92, 252, 0.2);
+    box-shadow: var(--shadow-glow);
+}
+
+/* ── Feedback Cards ── */
+.feedback-correct {
+    background: rgba(52, 211, 153, 0.08);
+    border-left: 3px solid var(--success);
+    border-radius: var(--radius-sm);
+    padding: 0.85rem 1rem;
+    margin-bottom: 0.5rem;
+    animation: slideInLeft 0.4s ease-out;
+}
+
+.feedback-missing {
+    background: rgba(251, 191, 36, 0.08);
+    border-left: 3px solid var(--warning);
+    border-radius: var(--radius-sm);
+    padding: 0.85rem 1rem;
+    margin-bottom: 0.5rem;
+    animation: slideInLeft 0.5s ease-out;
+}
+
+.feedback-misconception {
+    background: rgba(248, 113, 113, 0.08);
+    border-left: 3px solid var(--danger);
+    border-radius: var(--radius-sm);
+    padding: 0.85rem 1rem;
+    margin-bottom: 0.5rem;
+    animation: slideInLeft 0.6s ease-out;
+}
+
+.feedback-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.3rem;
+}
+
+.feedback-correct .feedback-label { color: var(--success); }
+.feedback-missing .feedback-label { color: var(--warning); }
+.feedback-misconception .feedback-label { color: var(--danger); }
+
+.feedback-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.88rem;
+    color: var(--text-primary);
+    line-height: 1.5;
+}
+
+/* ── Progress Tree (Sidebar) ── */
+.ku-tree-item {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.25rem;
+    cursor: pointer;
+    transition: background var(--transition-fast);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    color: var(--text-primary);
+}
+
+.ku-tree-item:hover {
+    background: var(--bg-glass);
+}
+
+.ku-tree-item.active {
+    background: rgba(124, 92, 252, 0.12);
+    border: 1px solid rgba(124, 92, 252, 0.25);
+}
+
+.ku-status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.ku-status-dot.mastered { background: var(--success); box-shadow: 0 0 6px rgba(52, 211, 153, 0.5); }
+.ku-status-dot.in-progress { background: var(--warning); box-shadow: 0 0 6px rgba(251, 191, 36, 0.5); }
+.ku-status-dot.misconception { background: var(--danger); box-shadow: 0 0 6px rgba(248, 113, 113, 0.5); animation: pulse 2s infinite; }
+.ku-status-dot.not-started { background: var(--neutral); }
+
+/* ── Mastery Progress Bar ── */
+.mastery-bar-container {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 0.5rem 0;
+}
+
+.mastery-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: var(--accent-gradient);
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Radar Chart (SVG) ── */
+.radar-container {
+    display: flex;
+    justify-content: center;
+    padding: 1rem 0;
+    animation: fadeIn 0.6s ease-out;
+}
+
+.radar-container svg {
+    max-width: 280px;
+    width: 100%;
+}
+
+.radar-grid { stroke: rgba(255, 255, 255, 0.08); stroke-width: 1; fill: none; }
+.radar-axis { stroke: rgba(255, 255, 255, 0.06); stroke-width: 1; }
+.radar-area { fill: rgba(124, 92, 252, 0.2); stroke: var(--accent-primary); stroke-width: 2; }
+.radar-point { fill: var(--accent-secondary); stroke: var(--accent-primary); stroke-width: 2; }
+
+.radar-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    fill: var(--text-secondary);
+    text-anchor: middle;
+    dominant-baseline: central;
+}
+
+/* ── Phase Indicator ── */
+.phase-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.85rem;
+    border-radius: 100px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.phase-badge.reading {
+    background: rgba(92, 225, 230, 0.12);
+    color: var(--accent-secondary);
+    border: 1px solid rgba(92, 225, 230, 0.25);
+}
+
+.phase-badge.recall {
+    background: rgba(124, 92, 252, 0.12);
+    color: var(--accent-primary);
+    border: 1px solid rgba(124, 92, 252, 0.25);
+    animation: pulse 2.5s infinite;
+}
+
+.phase-badge.evaluated {
+    background: rgba(52, 211, 153, 0.12);
+    color: var(--success);
+    border: 1px solid rgba(52, 211, 153, 0.25);
+}
+
+.phase-badge.tutor {
+    background: rgba(251, 191, 36, 0.12);
+    color: var(--warning);
+    border: 1px solid rgba(251, 191, 36, 0.25);
+}
+
+/* ── Section Header ── */
+.section-header {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-glass);
+}
+
+/* ── Peek Warning ── */
+.peek-warning {
+    background: rgba(251, 191, 36, 0.08);
+    border: 1px solid rgba(251, 191, 36, 0.2);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 0.85rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    color: var(--warning);
+    text-align: center;
+}
+
+/* ── Overall Progress Header ── */
+.progress-header {
+    font-family: 'Inter', sans-serif;
+    text-align: center;
+    padding: 1rem 0;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.progress-header .progress-fraction {
+    font-size: 2rem;
+    font-weight: 800;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.progress-header .progress-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 0.15rem;
+}
+
+/* ── Animations ── */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translate(-50%, -40%); }
+    to { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+@keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-16px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+}

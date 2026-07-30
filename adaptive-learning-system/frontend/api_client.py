@@ -166,11 +166,24 @@ def _request_json(
     """Send one backend request and decode its JSON response."""
 
     base_url = _require_backend_api_url(backend_api_url)
+    headers = {"Accept": "application/json"}
+    
+    try:
+        import streamlit as st
+        lang = st.session_state.get("ui_language", "vi")
+        if lang == "English":
+            lang = "en"
+        elif lang == "Tiếng Việt":
+            lang = "vi"
+        headers["Accept-Language"] = lang
+    except Exception:
+        pass
+
     try:
         response = requests.request(
             method,
             f"{base_url}{path}",
-            headers={"Accept": "application/json"},
+            headers=headers,
             files=files,
             json=json_body,
             timeout=timeout_seconds,

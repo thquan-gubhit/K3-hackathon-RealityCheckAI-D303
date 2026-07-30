@@ -54,34 +54,34 @@ def _show_document_summary(document: dict[str, Any]) -> None:
 
 
 st.set_page_config(
-    page_title="Upload Document",
+    page_title="Tải tài liệu lên",
     page_icon="📄",
     layout="wide",
 )
 
-st.title("Upload Document")
+st.title("📄 Tải tài liệu lên")
 st.write(
-    "Upload one text-based PDF, then ask the backend to extract pages and "
-    "build its Knowledge Map."
+    "Tải lên một file PDF có chứa văn bản, sau đó hệ thống sẽ trích xuất nội dung "
+    "và xây dựng Bản đồ Kiến thức (Knowledge Map)."
 )
 
-st.subheader("1. Upload a PDF")
+st.subheader("1. Tải PDF lên")
 uploaded_file = st.file_uploader(
-    "Choose a PDF",
+    "Chọn file PDF",
     type=["pdf"],
     accept_multiple_files=False,
-    help="The backend validates file type and configured size limits.",
+    help="Hệ thống sẽ kiểm tra loại file và giới hạn kích thước.",
 )
 
 if st.button(
-    "Upload PDF",
+    "Tải PDF lên",
     type="primary",
     disabled=uploaded_file is None,
     use_container_width=False,
 ):
     if uploaded_file is not None:
         try:
-            with st.spinner("Uploading PDF..."):
+            with st.spinner("Đang tải PDF lên..."):
                 uploaded_document = upload_document(
                     uploaded_file.name,
                     uploaded_file.getvalue(),
@@ -91,11 +91,11 @@ if st.button(
             _show_api_error("Upload failed", exc)
         else:
             st.session_state["last_uploaded_document"] = uploaded_document
-            st.success("PDF uploaded successfully.")
+            st.success("Đã tải PDF lên thành công!")
             _show_document_summary(uploaded_document)
 
 st.divider()
-st.subheader("2. Process a document")
+st.subheader("2. Xử lý tài liệu")
 
 documents: list[dict[str, Any]] = []
 try:
@@ -116,10 +116,10 @@ documents_by_id = {
 }
 
 if not documents_by_id:
-    st.info("No documents are available yet. Upload a PDF to continue.")
+    st.info("Chưa có tài liệu nào. Hãy tải PDF lên để tiếp tục.")
 else:
     selected_id = st.selectbox(
-        "Document",
+        "Tài liệu",
         options=list(documents_by_id),
         format_func=lambda identifier: _document_label(
             documents_by_id[identifier]
@@ -127,18 +127,18 @@ else:
     )
     _show_document_summary(documents_by_id[selected_id])
 
-    if st.button("Process selected document", type="primary"):
+    if st.button("Xử lý tài liệu đã chọn", type="primary"):
         try:
             with st.spinner(
-                "Extracting pages and building Knowledge Units. "
-                "This can take a moment..."
+                "Đang trích xuất nội dung và tạo Đơn vị Kiến thức. "
+                "Quá trình này có thể mất vài phút..."
             ):
                 result = process_document(selected_id)
         except BackendApiError as exc:
             _show_api_error("Processing failed", exc)
         else:
             st.session_state["last_processing_result"] = result
-            st.success("Document processing completed.")
+            st.success("Đã xử lý tài liệu thành công!")
 
     processing_result = st.session_state.get("last_processing_result")
     if (
@@ -147,7 +147,7 @@ else:
     ):
         units = processing_result.get("knowledge_units", [])
         coverage = processing_result.get("coverage", {})
-        st.subheader("Processing result")
+        st.subheader("Kết quả xử lý")
         metric_columns = st.columns(4)
         metric_columns[0].metric("Knowledge Units", len(units))
         metric_columns[1].metric(
@@ -161,4 +161,4 @@ else:
         ratio = coverage.get("coverage_ratio")
         ratio_label = f"{ratio:.0%}" if isinstance(ratio, (int, float)) else "—"
         metric_columns[3].metric("Coverage", ratio_label)
-        st.info("Open the Knowledge Map page to inspect the generated units.")
+        st.info("Mở trang Bản đồ Kiến thức để xem chi tiết các đơn vị đã tạo.")
