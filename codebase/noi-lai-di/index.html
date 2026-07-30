@@ -142,6 +142,9 @@ svg{flex:0 0 auto}
   border-radius:var(--r-sm);padding:13px 16px;font-size:13.5px;font-weight:700;color:var(--muted);background:transparent}
 .upbtn:hover{border-color:var(--navy);color:var(--navy-deep);background:var(--chip-blue-bg)}
 .ku-badge{background:var(--green-bg);color:var(--green);border-radius:var(--r-pill);padding:3px 10px;font-size:10.5px;font-weight:800}
+.delx{margin-left:11px;width:20px;height:20px;border-radius:50%;display:inline-grid;place-items:center;
+  font-size:11px;color:var(--faint);border:1px solid var(--border);flex:0 0 auto}
+.delx:hover{background:var(--red-soft);color:var(--red-ink);border-color:var(--red-ink)}
 .steps{border:1px solid var(--border);border-radius:var(--r-sm);padding:14px 16px;margin-bottom:9px;background:var(--surface-2)}
 .step{display:flex;align-items:center;gap:11px;font-size:13.5px;color:var(--muted);padding:5px 0}
 .step .ic{width:19px;height:19px;border-radius:50%;border:2px solid var(--border-strong);display:grid;place-items:center;font-size:10px;flex:0 0 auto}
@@ -914,6 +917,69 @@ async function buildKUs(docId, total, name, onStep){
   }
 }
 const sleep = ms => new Promise(r=>setTimeout(r,ms));
+
+/* ============================================================
+   LƯU LẠI SAU KHI F5
+   File PDF -> IndexedDB (giữ nguyên nhị phân, không giới hạn 5MB).
+   KU + tiến độ + vị trí trong Day -> localStorage.
+   blobUrl KHÔNG sống qua refresh nên phải tạo lại từ blob đã lưu.
+   ============================================================ */
+const DBN='noilaidi', STORE='files';
+const idb=()=>new Promise((res,rej)=>{const r=indexedDB.open(DBN,1);
+  r.onupgradeneeded=()=>r.result.createObjectStore(STORE);
+  r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error);});
+const idbPut=async(k,v)=>{const db=await idb();return new Promise((res,rej)=>{
+  const t=db.transaction(STORE,'readwrite');t.objectStore(STORE).put(v,k);
+  t.oncomplete=()=>res();t.onerror=()=>rej(t.error);});};
+const idbGet=async k=>{const db=await idb();return new Promise((res,rej)=>{
+  const t=db.transaction(STORE,'readonly'),q=t.objectStore(STORE).get(k);
+  q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error);});};
+const idbDel=async k=>{const db=await idb();return new Promise((res,rej)=>{
+  const t=db.transaction(STORE,'readwrite');t.objectStore(STORE).delete(k);
+  t.oncomplete=()=>res();t.onerror=()=>rej(t.error);});};
+
+function saveState(){
+  try{
+    const docs={};
+    Object.entries(DOCS).forEach(([id,d])=>{
+      if(d.uploaded) docs[id]={name:d.name,code:d.code,total:d.total};
+    });
+    const dayMap={};
+    DAYS.forEach(d=>{ const f=d.files.filter(x=>docs[x]); if(f.length) dayMap[d.n]=f; });
+    const kus={}; Object.keys(docs).forEach(id=>{ if(S.kus[id]) kus[id]=S.kus[id]; });
+    localStorage.setItem('nld_state',JSON.stringify({docs,dayMap,kus,kuDone:S.kuDone}));
+  }catch(e){ console.warn('Không lưu được trạng thái:',e.message); }
+}
+
+async function restoreState(){
+  let st=null;
+  try{ st=JSON.parse(localStorage.getItem('nld_state')||'null'); }catch(e){}
+  if(!st) return;
+  S.kuDone=st.kuDone||{};
+  for(const [id,meta] of Object.entries(st.docs||{})){
+    let blob=null;
+    try{ blob=await idbGet(id); }catch(e){}
+    if(!blob) continue;                       /* mất file thì bỏ qua, không dựng rác */
+    DOCS[id]={...meta, pages:[], uploaded:true, file:blob,
+              blobUrl:URL.createObjectURL(blob)};
+    if((st.kus||{})[id]) S.kus[id]=st.kus[id];
+  }
+  Object.entries(st.dayMap||{}).forEach(([n,files])=>{
+    const day=DAYS.find(d=>d.n===n); if(!day) return;
+    files.forEach(f=>{ if(DOCS[f] && !day.files.includes(f)) day.files.push(f); });
+  });
+}
+
+async function removeUploaded(id){
+  const d=DOCS[id]; if(!d) return;
+  if(!confirm(`Xoá "${d.name}" khỏi học liệu?`)) return;
+  if(d.blobUrl) URL.revokeObjectURL(d.blobUrl);
+  DAYS.forEach(day=>{ day.files=day.files.filter(f=>f!==id); });
+  (S.kus[id]||[]).forEach(k=>delete S.kuDone[k.id]);
+  delete S.kus[id]; delete DOCS[id];
+  try{ await idbDel(id); }catch(e){}
+  saveState(); paintDays();
+}
 const kuOfPage = (docId,p) => (S.kus[docId]||[]).find(k=>p>=k.from && p<=k.to) || null;
 const V={home:'v-home',mycourses:'v-mycourses',course:'v-course',book:'v-book',reader:'v-reader'};
 function go(v){
@@ -950,7 +1016,8 @@ function paintDays(){
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8l-5-5z"/><path d="M14 3v5h5"/></svg>
         ${DOCS[f].name}<span class="sp"></span>
         ${S.kus[f]?`<span class="ku-badge">✦ ${S.kus[f].length} KU · ${S.kus[f].length*3} câu</span>`:''}
-        <em>${DOCS[f].total} trang</em></button>
+        <em>${DOCS[f].total} trang</em>
+        ${DOCS[f].uploaded?`<span class="delx" data-del="${f}" title="Xoá tài liệu đã tải">✕</span>`:''}</button>
       ${S.kus[f]?`<div class="kubox">${S.kus[f].map(k=>{
         const dn=S.kuDone[k.id];
         return `<button class="kuitem ${dn?'done':''}" data-doc="${f}" data-ku="${k.id}">
@@ -969,7 +1036,10 @@ function paintDays(){
     const row=b.parentNode, d=row.dataset.day;
     S.openDays[d]=!S.openDays[d]; row.classList.toggle('open');
   });
-  daylist.querySelectorAll('.dfile').forEach(b=>b.onclick=()=>openDoc(b.dataset.doc));
+  daylist.querySelectorAll('.dfile').forEach(b=>b.onclick=e=>{
+    if(e.target.dataset.del){ e.stopPropagation(); removeUploaded(e.target.dataset.del); return; }
+    openDoc(b.dataset.doc);
+  });
   daylist.querySelectorAll('.upbtn').forEach(b=>b.onclick=()=>pickFile(b.dataset.up));
   /* bấm thẳng vào một KU: mở tài liệu, nhảy tới trang đầu của KU đó rồi mở bộ câu hỏi */
   daylist.querySelectorAll('.kuitem').forEach(b=>b.onclick=e=>{
@@ -1011,11 +1081,13 @@ async function runUpload(dayN, file){
   S.pendingForm = (()=>{ const f=new FormData(); f.append('file',file); return f; })();
 
   const kus = await buildKUs(docId, total, file.name, async (i,list)=>draw(i,list));
-  DOCS[docId]={ name:file.name, code:'uploaded_'+docId, total, pages:[],
+  DOCS[docId]={ name:file.name, code:'uploaded_'+docId, total, pages:[], uploaded:true,
                 blobUrl: URL.createObjectURL(file), file };   /* nội dung slide THẬT */
   day.files.push(docId);
   S.kus[docId]=kus;
   S.openDays[dayN]=true;
+  try{ await idbPut(docId,file); }catch(e){ console.warn('Không lưu được file:',e.message); }
+  saveState();                                  /* F5 vẫn còn */
 
   draw(3,kus);
   await sleep(500);
@@ -1295,7 +1367,7 @@ function finishQuiz(){
      ${next?`<button class="btn-primary" onclick="jumpToKU('${next.id}')">Sang KU${next.pos} →</button>`
            :`<button class="btn-primary" onclick="showPanel('chat')">Đã ôn hết tài liệu</button>`}
      <button class="ghost" onclick="unlock();showPanel('chat')">Quay lại đọc</button></div>`;
-  S.quiz=null; unlock(); syncReviewBtn();
+  S.quiz=null; unlock(); syncReviewBtn(); saveState();
 }
 
 function syncPage(){
@@ -1486,7 +1558,10 @@ function paintBook(){
 }
 
 /* ---- init ---- */
-openDoc('d03b'); showChat(); go('home');
+(async()=>{
+  await restoreState();          /* lấy lại slide đã tải + KU + tiến độ trước khi vẽ */
+  openDoc('d03b'); showChat(); go('home');
+})();
 </script>
 </body>
 </html>
