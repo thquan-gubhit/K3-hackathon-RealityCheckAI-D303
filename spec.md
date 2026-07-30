@@ -41,13 +41,6 @@ Loại: [ ] Tối ưu tính năng có sẵn  [x] Tính năng mới
 - **Ứng viên CHỌN + vì sao (bằng số):** Chọn ứng viên 3. Hướng tới giúp người học khắc phục việc đọc thụ động. Đảm bảo an toàn thông qua hệ thống luật (Rule Engine) và Barem (Rubric) được sinh ra từ trước. 
 
 ## §3. Giải pháp tương tự đã nghiên cứu
-- **[NotebookLM (Google)]**: 
-  - **flow**: Tải PDF -> AI tóm tắt -> Hỏi đáp với tài liệu.
-  - **đáng học**: Trích dẫn nguồn (source grounding) rất xuất sắc, chính xác tới từng trang.
-  - **đáng né**: Hoạt động hoàn toàn thụ động (chờ user hỏi). Không có lộ trình đánh giá mức độ hiểu bài.
-  - **mình khác gì**: Chủ động cắt tài liệu thành các Knowledge Unit, ép user phải trả lời câu hỏi và lưu trữ điểm Mastery.
-
-<<<<<<< Updated upstream
 - **[NotebookLM]**: 
   - **flow**: Người dùng tải tài liệu (PDF, slide) lên -> AI tự động tóm tắt, sau đó người dùng có thể chat hoặc yêu cầu sinh câu hỏi ôn tập dựa trên tài liệu đó. 
   - **đáng học**: Luôn có trích dẫn nguồn chính xác (số trang, đoạn văn) ngay bên cạnh câu trả lời để người dùng dễ dàng kiểm chứng. 
@@ -61,19 +54,14 @@ Loại: [ ] Tối ưu tính năng có sẵn  [x] Tính năng mới
   - **mình khác gì**: Sử dụng Barem điểm (Rubric) đa chiều (Nội dung, Lập luận) để phân loại lỗi sai. Nếu học viên hổng kiến thức nghiêm trọng (Misconception), hệ thống sẽ chủ động bổ sung kiến thức hoàn chỉnh thay vì chỉ liên tục hỏi gợi mở.
 
 ## §4. Thiết kế
-> **Gợi ý (từ Guide §2.3, §2.4 & Rubric R2):**
-> - **Lát cắt:** 1 user · 1 việc · 1 quyết định AI · 1 kết quả.
-> - **Automation:** Augment (gợi ý), Conditional (tuỳ đk), hay Automate (làm luôn)? Dựa vào chi phí lỗi (cost-of-error).
-> - **Nguyên tắc:** Chọn ≥4 nguyên tắc HAX/PAIR, trỏ đúng vào vị trí áp dụng (VD: HAX G10 - Thu hẹp phạm vi).
-
 - **Lát cắt MỘT CÂU** (1 user · 1 việc · 1 quyết định AI · 1 kết quả): Một viên học tự do (self-directed learner) trả lời câu hỏi ôn tập, AI (Evaluator) quyết định chấm điểm câu trả lời dựa trên tài liệu gốc/rubric, từ đó đưa ra nhận xét chi tiết (đúng, thiếu, hiểu sai) và cập nhật điểm thành thạo (mastery).
 - **Non-goals** (≥3 thứ KHÔNG build): 
   1. Không có hệ thống Identity/Login, thanh toán phức tạp hoặc triển khai Production.
   2. Không xử lý Video, âm thanh, không áp dụng OCR nâng cao (chỉ đọc text từ PDF).
   3. Không sử dụng cơ sở dữ liệu Vector (Vector DB), fine-tuning mô hình hay hệ thống Multi-agent tự do.
 - **Mức prototype nhắm tới:** [ ] Sketch [ ] Mock [x] Working 
-  - Phần nào mock: Lịch sử học tập dài hạn (chỉ test trong phạm vi 1 session).
-  - Phần nào thật (phải có ≥1 gọi AI thật): AI đọc PDF tách Knowledge Unit (KU), AI tự động sinh câu hỏi (Q&A) & Barem (Rubric), AI đánh giá câu trả lời của user.
+  - Phần mock: Lịch sử học tập dài hạn (chỉ test trong phạm vi 1 session).
+  - Phần working (phải có ≥1 gọi AI thật): AI đọc PDF tách Knowledge Unit (KU), AI tự động sinh câu hỏi (Q&A) & Barem (Rubric), AI đánh giá câu trả lời của user.
 - **Automation:** [ ] augment [x] conditional [ ] automate 
   - Lý do theo cost-of-error: Workflow được điều khiển bằng hệ thống luật tĩnh (Deterministic Rules) để giới hạn rủi ro. LLM chỉ thực hiện các tác vụ ngữ nghĩa, và Agent chỉ can thiệp ở các tình huống đặc biệt (khi user lặp lại lỗi sai). Khi AI có độ tự tin thấp, hệ thống không tự động đưa ra kết luận (tránh lưu sai lịch sử học tập) mà sẽ chuyển hướng sang "yêu cầu giải thích rõ hơn", giảm thiểu cost-of-error.
 - **§4b. Nguyên tắc đã áp dụng** (≥4 — HAX/PAIR, xem guide):
@@ -83,32 +71,6 @@ Loại: [ ] Tối ưu tính năng có sẵn  [x] Tính năng mới
   | **HAX G2** (Làm rõ hệ thống làm tốt đến đâu) | Hệ thống chỉ trả lời và kiểm tra trong phạm vi tài liệu PDF được cung cấp (Source-grounded). Thiếu căn cứ sẽ báo lỗi INSUFFICIENT_CONTEXT. |
   | **PAIR Explainability + Trust** (Sự minh bạch) | AI sinh ra barem (rubric) TRƯỚC khi học viên trả lời. Khi chấm điểm sẽ trả về chính xác điểm nào thiếu (missing_points), điểm nào sai, giúp user hiểu vì sao mình chưa qua bài. |
   | **PAIR Graceful Failure** (Thất bại êm đẹp) | Có chế độ tắt Gia sư (Agent-disabled mode). Nếu hệ thống Agent bị lỗi hoặc hết quota, luồng học tập tự động chuyển sang chế độ sửa lỗi tĩnh (deterministic remediation) để user không bị gián đoạn. |
-=======
-- **[Khanmigo (Khan Academy)]**: 
-  - **flow**: Đang làm bài bị bí -> Gọi AI -> AI dùng phương pháp Socratic để hỏi ngược lại gợi mở.
-  - **đáng học**: Không bao giờ đưa thẳng đáp án, giúp user tự tư duy.
-  - **đáng né**: Đôi khi hỏi ngược quá đà làm user mất gốc bị nản.
-  - **mình khác gì**: Sử dụng chấm điểm bám Rubric để phân loại lỗi sai. Nếu lỗi nặng (Misconception) lặp lại nhiều lần, mới kích hoạt AI Agent can thiệp sâu, bình thường thì dùng Rule tĩnh để tiết kiệm cost và thời gian.
-
-## §4. Thiết kế
-- **Lát cắt MỘT CÂU** (1 user · 1 việc · 1 quyết định AI · 1 kết quả): Học viên trả lời câu hỏi tự luận để ôn bài, AI quyết định chấm điểm dựa trên Rubric sinh sẵn, từ đó cho ra nhận xét chi tiết (điểm đúng, điểm thiếu, lỗi sai) và cập nhật tiến độ học tập (Mastery).
-- **Non-goals** (≥3 thứ KHÔNG build): 
-  1. Triển khai Production với hệ thống User Login/Identity phức tạp.
-  2. Áp dụng OCR nâng cao đọc file ảnh/video (chỉ xử lý PDF text).
-  3. Dùng Vector DB hoặc hệ thống Multi-agent thả nổi tự do.
-- **Mức prototype nhắm tới:** [ ] Sketch [ ] Mock [x] Working 
-  - Phần nào mock: Lịch sử học tập dài hạn (chỉ test lưu trữ trong 1 phiên), hệ thống người dùng đa tài khoản.
-  - Phần nào thật: Đọc PDF tách ra Knowledge Unit, sinh câu hỏi & Rubric, chấm điểm bằng LLM.
-- **Automation:** [ ] augment [x] conditional [ ] automate 
-  - Lý do theo cost-of-error: Việc AI đánh giá sai một câu tự luận có thể khiến học viên hiểu sai kiến thức. Do đó, quy trình được bọc bởi hệ thống Luật (Rule Engine). LLM chỉ đưa ra các phân tích ngữ nghĩa, còn Hệ thống Luật sẽ quyết định cập nhật điểm. Nếu AI không tự tin (Confidence thấp), nó sẽ không kết luận ngay mà chuyển sang hỏi làm rõ (Conditional), giúp giảm thiểu cost-of-error.
-- **§4b. Nguyên tắc đã áp dụng** (≥4 — HAX/PAIR):
-  | Nguyên tắc | Áp cụ thể vào đâu trong prototype |
-  |---|---|
-  | **HAX G10** (Thu hẹp phạm vi khi nghi ngờ) | Khi AI (Evaluator) có độ tự tin thấp, nó không lưu lỗi Misconception cho học viên mà yêu cầu giải thích làm rõ (ASK_CLARIFICATION). |
-  | **HAX G2** (Làm rõ AI làm tốt đến đâu) | Hệ thống chỉ trả lời và đặt câu hỏi dựa trên PDF gốc (Source-grounded). Báo lỗi INSUFFICIENT_CONTEXT nếu thiếu căn cứ. |
-  | **PAIR Explainability + Trust** (Minh bạch) | Sinh Rubric TRƯỚC khi user trả lời. Khi chấm điểm, luôn hiển thị rõ `missing_points` để user biết mình thiếu ý gì. |
-  | **PAIR Graceful Failure** (Thất bại êm đẹp) | Hỗ trợ tính năng `AGENT_ENABLED=false`. Khi tắt AI Agent, luồng học tập vẫn chạy mượt mà bằng các luật sửa lỗi tĩnh. |
->>>>>>> Stashed changes
 
 ## §5. Kiểu lỗi — 4 lớp chỗ khó + kịch bản (≥8)
 | Tình huống cụ thể | Lớp (①/②/③/④) | Hành vi mong muốn (nói gì, hiện gì, làm gì tiếp) | Nguyên tắc áp (G../PAIR) |
@@ -131,6 +93,10 @@ Loại: [ ] Tối ưu tính năng có sẵn  [x] Tính năng mới
 - **Case đặc thù domain (④)**: Học viên liên tục nhầm lẫn khái niệm. Nếu để trôi qua sẽ mất gốc. Hệ thống từ chối cập nhật Mastery (BR-005) và buộc user phải trải qua luồng Remediation (Tutor Agent) trước khi đi tiếp.
 
 ## §7. Kiểm thử
+- **Các Metric đánh giá độ chính xác của AI (LLM) qua từng bước Workflow:**
+  - **Bước 1 (Đọc PDF chia Knowledge Unit):** Đo lường độ chính xác bằng các cờ (flags) ngữ nghĩa: `has_independent_objective`, `can_generate_independent_question` và `is_only_example`. Đảm bảo 100% trang PDF phải được bao phủ (Source Coverage).
+  - **Bước 2 (Sinh Câu hỏi & Rubric):** LLM bị ép đánh giá chéo bằng các Pydantic boolean metrics: `source_grounded = True` (Bám sát tài liệu), `answer_leak = False` (Không lộ đáp án), `requires_external_knowledge = False`. Tổng trọng số của Rubric bắt buộc = 1.0 (INVALID_RUBRIC nếu sai).
+  - **Bước 3 (Đánh giá Câu trả lời):** Đo lường qua 4 chiều (Correctness, Coverage, Reasoning, Application) với điểm từ [0, 1]. Ngoài ra còn sử dụng metric `confidence` (độ tự tin, nếu < 0.5 -> chặn chấm điểm) và mảng `detected_misconceptions` để bắt lỗi sai bản chất.
 - **Chiều chất lượng + định nghĩa kiểm chứng được:** 
   - Đánh giá theo 4 chiều: Correctness (Đúng đắn), Coverage (Đầy đủ), Reasoning (Lập luận), Application (Áp dụng).
   - Điểm dao động từ [0, 1]. Người dùng đạt `Mastered` khi trả lời qua một mốc điểm và không có Misconception.
