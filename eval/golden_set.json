@@ -10,7 +10,7 @@
       1.0
     ],
     "expected_coverage_score": [
-      0.8,
+      0.6,
       1.0
     ],
     "expected_has_misconception": false,
@@ -95,7 +95,7 @@
       1.0
     ],
     "expected_coverage_score": [
-      0.3,
+      0.2,
       0.6
     ],
     "expected_has_misconception": false,

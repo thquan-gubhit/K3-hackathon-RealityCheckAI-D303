@@ -1,6 +1,11 @@
 import json
 import logging
+import sys
 from pathlib import Path
+
+# Thêm thư mục gốc vào sys.path để Python tìm được module 'app'
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.append(str(PROJECT_ROOT))
 
 from app.config import get_settings
 from app.llm.adapter import LLMClient
@@ -12,7 +17,8 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-GOLDEN_SET_PATH = PROJECT_ROOT / "eval" / "golden_set.json"
+# Trỏ ra thư mục eval nằm ở ngoài root repo (cùng cấp với adaptive-learning-system)
+GOLDEN_SET_PATH = PROJECT_ROOT.parent / "eval" / "golden_set.json"
 
 def run_evaluation() -> None:
     if not GOLDEN_SET_PATH.exists():
@@ -37,9 +43,9 @@ def run_evaluation() -> None:
         rubric_points = [{"point": line, "weight": weight_per_point} for line in rubric_lines]
         
         # Adjust sum to exactly 1.0 to satisfy Pydantic validator
-        total = sum(rp["weight"] for rp in rubric_points)
-        if abs(total - 1.0) > 1e-6 and rubric_points:
-            rubric_points[-1]["weight"] += (1.0 - total)
+        total_weight = sum(rp["weight"] for rp in rubric_points)
+        if abs(total_weight - 1.0) > 1e-6 and rubric_points:
+            rubric_points[-1]["weight"] += (1.0 - total_weight)
 
         rubric = QuestionRubric(
             required_points=rubric_points,
