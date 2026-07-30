@@ -1,23 +1,32 @@
-# AI SPEC — Reality Check AI · Nhóm [XX] · Zone [X]
-Hướng: [x] A — VLearn  [ ] B — Trợ lý Học viên  [ ] C — Làn mở
+# AI SPEC — Lát cắt: Hệ thống Học tập Thích ứng (Adaptive Learning) · Nhóm [XX] · Zone [X]
+Hướng: [ ] A — VLearn  [ ] B — Trợ lý Học viên  [x] C — Làn mở
 Loại: [ ] Tối ưu tính năng có sẵn  [x] Tính năng mới
 
-
 ## §1. User & Job
+- **Job executor**: Học viên tự học (self-directed learner).
+- **Workflow**: Đọc một tài liệu PDF dài/phức tạp -> Tóm tắt ý chính -> Gấp tài liệu lại và cố gắng nhớ lại/giải thích (active recall) -> Kiểm tra xem mình hiểu đúng hay sai.
+- **Core JTBD**: Tự kiểm chứng mức độ hiểu và khả năng giải thích một văn bản dài (ngay sau khi đọc xong) để tránh ảo giác hiểu biết. *(Verb: tự kiểm chứng + Object: mức độ hiểu/khả năng giải thích một văn bản dài + Contextual clarifier: ngay sau khi đọc xong để tránh ảo giác)*.
+- **Problem statement**: Hiện nay, người học chủ yếu ôn tập bằng cách đọc lại tài liệu (rereading) hoặc sao chép nội dung vào ChatGPT để tạo câu hỏi luyện tập. Tuy nhiên, nhiều nghiên cứu trong tâm lý học nhận thức cho thấy rereading là chiến lược được sử dụng phổ biến nhưng mang lại lợi ích hạn chế đối với khả năng ghi nhớ dài hạn, trong khi retrieval practice (tự kiểm tra kiến thức) hiệu quả hơn đáng kể. Mặt khác, mặc dù ChatGPT hỗ trợ tạo câu hỏi và phản hồi nhanh, các nghiên cứu chỉ ra rằng LLM vẫn có thể xảy ra hiện tượng hallucination và phản hồi đôi khi mang tính tổng quát (generic), khiến người học khó đánh giá chính xác mức độ đạt được theo yêu cầu của từng tài liệu hoặc từng rubric cụ thể.
+- **Evidence** (chuẩn A và/hoặc B — log đầy đủ trong repo):
+  - Số liệu mining / kết quả khảo sát (n = 17):
+  Người học cho biết họ gặp tình trạng "đọc hiểu ngay nhưng lúc thi hoặc làm bài tập thì không biết giải thích từ đâu":
+    - 23,5% rất thường xuyên.
+    - 47,1% thường xuyên.
+    - 29,4% thỉnh thoảng.
+  - ≥5 quote/ví dụ nguyên văn + nguồn:
 
-- **Job executor + workflow:** Học viên tự học trên VLearn, vừa đọc xong một đơn vị kiến thức trong tài liệu dạng chữ và cần quyết định học tiếp hay ôn lại. Workflow đầy đủ: [`docs/jtbd-section1.md`](docs/jtbd-section1.md).
-- **Core JTBD:** Kiểm chứng mình có thể nhớ, giải thích và áp dụng một đơn vị kiến thức sau khi đọc để quyết định học tiếp hay ôn lại.
-- **Problem statement:** Hiện tại học viên thường đọc lại, tự tóm tắt, tự nghĩ câu hỏi hoặc dùng hộp hỏi đáp để tạo quiz vì các cách này nhanh và sẵn có. Chúng fail khi cảm giác quen thuộc bị nhầm với hiểu thật, câu hỏi hoặc tiêu chí chấm không ổn định, phản hồi không tách rõ ý đúng–thiếu–sai và quyết định học tiếp vẫn dựa nhiều vào cảm giác.
-- **Evidence** (mining data; phương pháp, giới hạn và liên hệ prototype tại [`docs/evidence-section1.md`](docs/evidence-section1.md)):
-  - Gán nhãn tay sau bước lọc từ khóa xác định 11/1.261 lượt (0,9%), từ 10/369 học viên (2,7%), chủ động xin quiz hoặc đưa cách hiểu ra để xác nhận. Đây là bằng chứng hành vi tồn tại, **không đủ để kết luận pain phổ biến**.
-  - Trong toàn bộ 1.261 câu trả lời tutor, chỉ 3 câu (0,24%) chủ động hỏi kiểm tra hiểu và không câu nào ghi nhận misconception (`0/1.261`), cho thấy luồng hiện tại gần như không tạo vòng đánh giá–sửa sai.
-  - Ví dụ nguyên văn + nguồn:
-    1. “TẠO QUIZ ĐỂ TÔI HIỂU RÕ VÀ ÔN LẠI TOÀN BỘ SLIDE NÀY” — `C0063 / T0849`, trang 9.
-    2. “dựa vào tài liệu này bạn hãy cho tôi bộ quizz liên quan” — `C0287 / T1113`, trang 47.
-    3. “vậy prompt engineerig có phải là mô tả lại ngữ cảnh của câu để cho AI hiểu rõ hơn không” — `C0242 / T0720`, trang 4.
-    4. “benchmark là gì? Mỗi đề bài thì phải tự tạo benchmark đúng không, cho ví dụ” — `C0343 / T0633`, trang 23.
-    5. “tức là trang này đang nói đến việc nên kiểm định giả thuyết nào, nên kiểm chứng nào chứ ko phải là nên xây dựng sản phẩm nào đúng không” — `C0350 / T0521`, trang 13.
-    6. “Có phải là một câu hỏi có 4 câu thì transformer sẽ xử lý đồng loạt 4 câu đó thay vì xử lý từng câu đúng k?” — `C0468 / T1015`, trang 22.
+    | Luận điểm | Quote/Ví dụ nguyên văn | Nguồn |
+    |---|---|---|
+    | **1. Người học thường chọn đọc lại (rereading)** | “**repeated reading versus testing**” (nghiên cứu khảo sát trực tiếp lựa chọn chiến lược học của sinh viên) | Aljabri (2024), *Frontiers in Education* ([Frontiers](https://www.frontiersin.org/journals/education/articles/10.3389/feduc.2024.1457504/full)) |
+    | | “**Though rereading is a study method commonly used by students**” | Callender & McDaniel (2009), *Contemporary Educational Psychology* ([ScienceDirect](https://www.sciencedirect.com/science/article/abs/pii/S0361476X08000477)) |
+    | **2. Đọc lại không cải thiện ghi nhớ lâu** | “**With only several exceptions, rereading did not significantly increase performance**” | Callender & McDaniel (2009) ([ScienceDirect](https://www.sciencedirect.com/science/article/abs/pii/S0361476X08000477)) |
+    | | “**both of these tasks were more beneficial than rereading**” (answering questions và self-generated questions) | Weinstein, McDermott & Roediger (2010) ([PubMed](https://pubmed.ncbi.nlm.nih.gov/20853989/)) |
+    | | “**repeated testing with feedback significantly enhanced learning compared to rereading**” | Wiklund-Hörnqvist & Jonsson (2014) ([DOI](https://doi.org/10.1111/sjop.12093)) |
+    | **3. Retrieval practice vượt trội rereading** | “**the testing effect—the power of retrieval practice to enhance long-term knowledge retention more than restudying**” | Hui et al. (2021), *Educational Psychology Review* ([ERIC](https://eric.ed.gov/?id=EJ1319494)) |
+    | **4. ChatGPT/LLM có hiện tượng hallucination** | “**ChatGPT suffers from hallucination problems**” | Bang et al. (2023) ([arXiv](https://arxiv.org/abs/2302.04023)) |
+    | | “**generation is prone to hallucinate unintended text**” | Ji et al. (2022), *Survey of Hallucination in Natural Language Generation* ([arXiv](https://arxiv.org/abs/2202.03629)) |
+    | **5. Feedback của ChatGPT thường khá tổng quát (generic)** | Sinh viên nhận xét ChatGPT feedback là “**comprehensive yet often linguistically complex and generic**” | *Computers & Education: AI* (2026) ([DOI](https://doi.org/10.1016/j.caeai.2026.100590)) |
+    | **6. Chất lượng feedback AI chưa đồng nghĩa với học tốt hơn** | “**feedback quality alone is insufficient to enhance writing outcomes**” | Farrokhnia et al. (2026) ([Springer](https://link.springer.com/article/10.1186/s41239-026-00579-9)) |
 
 ## §2. Impact & quyết định chọn
 - **Bảng impact ≥3 ứng viên** (bao nhiêu người · tần suất · tốn gì mỗi lần · khả thi):
