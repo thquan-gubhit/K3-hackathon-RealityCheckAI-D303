@@ -193,6 +193,21 @@ svg{flex:0 0 auto}
 .pdfbar .kutitle{font-size:12.5px;color:var(--navy-ink);font-weight:700}
 .pdfstage{padding:16px;background:#eef1f6;display:flex;align-items:center;justify-content:center;min-height:min(70vh,620px)}
 .pdfstage canvas{max-width:100%;height:auto;box-shadow:0 3px 14px rgba(15,36,68,.18);border-radius:4px;background:#fff}
+/* bài ôn hiển thị ngay trong khu vực slide */
+.pdfstage.quiz{align-items:flex-start;padding:0;background:var(--surface)}
+.quizbox{width:100%;max-width:760px;margin:0 auto;padding:26px 30px 24px}
+.qhead{background:var(--chip-blue-bg);border-radius:12px;padding:15px 18px;margin-bottom:18px}
+.qhead .t{font-size:10.5px;font-weight:800;letter-spacing:1.1px;color:var(--chip-blue-ink)}
+.qhead b{display:block;font-size:17px;color:var(--navy-ink);margin:4px 0 5px}
+.qhead .m{font-size:12px;color:var(--muted);font-family:var(--mono)}
+.qtext{background:var(--surface-2);border-left:3px solid var(--navy);border-radius:0 11px 11px 0;
+  padding:16px 18px;font-size:16px;line-height:1.6;color:var(--navy-ink);margin-bottom:14px}
+.quizbox textarea{width:100%;min-height:150px;border:1.5px solid var(--border-strong);border-radius:12px;
+  padding:14px 16px;font:inherit;font-size:14.5px;line-height:1.6;resize:vertical;
+  background:var(--surface);color:var(--text)}
+.quizbox textarea:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px var(--chip-blue-bg)}
+.qfoot{display:flex;gap:11px;flex-wrap:wrap;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
+.quizbox .vline{font-size:14px}
 .lockbox{text-align:center;color:var(--muted);padding:44px 22px;max-width:430px}
 .lockbox .lk{font-size:38px;margin-bottom:12px;opacity:.55}
 .lockbox b{display:block;color:var(--navy-ink);font-size:15.5px;margin-bottom:7px}
@@ -618,7 +633,6 @@ svg{flex:0 0 auto}
         </div>
         <div id="rc_out" class="hide"></div>
       </div>
-      <div class="pbody recall hide" id="review"><div id="rvBody"></div></div>
       <div class="composer" id="composer">
         <input id="cin" placeholder="Nhập câu hỏi hoặc bôi đen tài liệu…">
         <button class="send"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12l16-8-7 8 7 8-16-8z"/></svg></button>
@@ -1187,7 +1201,9 @@ function pageLocked(id,p){ return !!S.gate; }
 
 async function renderPdfDoc(id){
   const d=DOCS[id], p=S.pdfPage||1, ku=kuOfPage(id,p);
-  const lastOfKU = ku && p===ku.to, locked=pageLocked(id,p);
+  const lastOfKU = ku && p===ku.to;
+  const locked = !!S.gate;        /* khoá điều hướng trang */
+  const showQuiz = !!S.quiz;      /* đang hiện bài ôn trong khu vực slide */
   pagewrap.innerHTML=`
     <div class="pdfwrap">
       <div class="pdfbar">
@@ -1198,15 +1214,10 @@ async function renderPdfDoc(id){
         ${S.gate?`<span class="lockchip">🔒 đang làm bài KU${S.gate.pos}</span>`:''}
         <span class="pgn">${d.name}</span>
       </div>
-      <div class="pdfstage" id="pdfStage">
-        ${locked?`<div class="lockbox">
-            <div class="lk">🔒</div>
-            <b>Slide đang tạm khoá — bạn đang làm bài KU${S.gate.pos}</b>
-            <p>Nói lại bằng lời của mình trước đã. Nhìn lại được thì không còn là tự kiểm nữa.<br><br>
-            Làm xong, hoặc bấm <b>Để sau</b> ở panel bên phải, slide sẽ mở lại ngay.</p>
-          </div>`:`<canvas id="pdfCanvas"></canvas>`}
+      <div class="pdfstage ${showQuiz?'quiz':''}" id="pdfStage">
+        ${showQuiz?'':`<canvas id="pdfCanvas"></canvas>`}
       </div>
-      ${(lastOfKU&&!locked)?`
+      ${(lastOfKU&&!showQuiz)?`
       <div class="kuend">
         <div><b>Hết phần KU${ku.pos} — ${ku.title}</b>
           <p>Bạn vừa đọc xong trang ${ku.from}–${ku.to}. Kiểm tra xem mình có thật sự nắm không?</p></div>
@@ -1216,7 +1227,7 @@ async function renderPdfDoc(id){
       </div>`:''}
     </div>`;
   pvNum.textContent=p; syncReviewBtn();
-  if(locked) return;
+  if(showQuiz){ paintQuizStage(); return; }    /* bài ôn nằm ngay trong khu vực slide */
 
   const pdf=await loadPdf(id);
   const cv=document.getElementById('pdfCanvas'); if(!cv) return;
@@ -1250,67 +1261,102 @@ function syncReviewBtn(){
 }
 
 function openReview(){
-  const ku=kuOfPage(S.doc,curPage());
-  if(!ku) return;
+  const ku=kuOfPage(S.doc,curPage()); if(!ku) return;
   const done=S.kuDone[ku.id];
-  showPanel('review');
-  if(done){ renderDone(ku,done); return; }
-  startQuiz(ku);
+  S.gate={kuId:ku.id,pos:ku.pos};
+  S.quiz={ku,i:0,score:0,again:false,view:done?'done':'ask',done};
+  renderPdfDoc(S.doc);
 }
-
-function renderDone(ku,done){
-  const next=(S.kus[S.doc]||[]).find(k=>!S.kuDone[k.id]);
-  rvBody.innerHTML=`
-   <div class="kuhead"><div class="t">Knowledge Unit ${ku.pos}</div><b>${ku.title}</b>
-     <div class="m">trang ${ku.from}–${ku.to}</div></div>
-   <div class="doneCard"><b>✓ Bạn đã ôn phần này rồi</b>
-     <p>Lần trước bạn nói lại được <b>${done.score}/${done.total}</b> câu.</p></div>
-   <div class="acts" style="display:flex;gap:10px;flex-wrap:wrap">
-     <button class="btn-primary" onclick="startQuiz(S.kus[S.doc][${ku.pos-1}],true)">Ôn lại</button>
-     ${next?`<button class="ghost" onclick="unlock();jumpToKU('${next.id}')">Bỏ qua → KU${next.pos}</button>`
-           :`<button class="ghost" onclick="unlock();showPanel('chat')">Bỏ qua</button>`}
-   </div>
-   <p class="hint">Bỏ qua sẽ đưa bạn tới phần bạn chưa ôn, không bắt làm lại.</p>`;
-}
-
 function jumpToKU(id){
   const ku=(S.kus[S.doc]||[]).find(k=>k.id===id); if(!ku)return;
-  if(DOCS[S.doc] && DOCS[S.doc].blobUrl){ gotoPdfPage(ku.from); startQuiz(ku); return; }
-  const el=document.getElementById('pg'+ku.from);
-  if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
-  setTimeout(()=>{ syncReviewBtn(); startQuiz(ku); },350);
+  S.pdfPage=ku.to;                       /* nhảy tới trang cuối của KU đó */
+  S.gate={kuId:ku.id,pos:ku.pos};
+  S.quiz={ku,i:0,score:0,again:false,view:S.kuDone[ku.id]?'done':'ask',done:S.kuDone[ku.id]};
+  renderPdfDoc(S.doc);
 }
-
 function startQuiz(ku,again){
-  S.quiz={ku,i:0,score:0,again:!!again};
-  S.gate={kuId:ku.id,pos:ku.pos};              /* khoá: chỉ xem được trong KU này */
-  showPanel('review'); renderQuestion();
-  if(DOCS[S.doc]&&DOCS[S.doc].blobUrl) renderPdfDoc(S.doc);
+  S.gate={kuId:ku.id,pos:ku.pos};
+  S.quiz={ku,i:0,score:0,again:!!again,view:'ask'};
+  renderPdfDoc(S.doc);
 }
 /* mở khoá: xem lại được KU vừa làm + đọc tiếp KU sau */
-function unlock(){ S.gate=null; if(DOCS[S.doc]&&DOCS[S.doc].blobUrl) renderPdfDoc(S.doc); }
+function unlock(){ S.gate=null; S.quiz=null; if(DOCS[S.doc]&&DOCS[S.doc].blobUrl) renderPdfDoc(S.doc); }
 
-function renderQuestion(){
-  const {ku,i}=S.quiz, q=ku.questions[i];
-  rvBody.innerHTML=`
-   <div class="kuhead"><div class="t">Knowledge Unit ${ku.pos}${S.quiz.again?' · ôn lại':''}</div>
-     <b>${ku.title}</b><div class="m">trang ${ku.from}–${ku.to}</div></div>
-   <div class="qmeta"><span class="qtype ${q.type}">${q.label}</span>
-     <span class="qdiff">${q.difficulty||''}</span>
-     <span class="sp"></span><span class="qcount">Câu ${i+1}/${ku.questions.length}</span></div>
-   ${q.learning_objective?`<p class="qobj">Mục tiêu: ${q.learning_objective}</p>`:''}
-   <div class="q">${q.text}</div>
-   <textarea id="qin" placeholder="Trả lời bằng lời của bạn…"></textarea>
-   <div class="acts">
-     <button class="btn-primary" id="qsend">Gửi</button>
-     <button class="ghost" onclick="S.quiz=null;unlock();showPanel('chat')">Để sau</button>
-   </div>
-   <p class="hint">Không có điểm số. Mình chỉ đối chiếu câu của bạn với đoạn tài liệu của KU này.</p>`;
-  qsend.onclick=submitQuizAnswer; setTimeout(()=>qin.focus(),60);
+/* ============================================================
+   BÀI ÔN NẰM NGAY TRONG KHU VỰC SLIDE (không dùng panel bên phải)
+   ============================================================ */
+function quizShell(ku,inner,foot){
+  return `<div class="quizbox">
+    <div class="qhead"><div class="t">KNOWLEDGE UNIT ${ku.pos}${S.quiz.again?' · ôn lại':''}</div>
+      <b>${ku.title}</b><div class="m">trang ${ku.from}–${ku.to}</div></div>
+    ${inner}
+    ${foot?`<div class="qfoot">${foot}</div>`:''}</div>`;
 }
 
-/* Chấm theo đúng shape của backend: correct_points / missing_points.
-   Offline dùng heuristic; có API.base thì gọi POST /learning-sessions/{id}/answers. */
+function paintQuizStage(){
+  const stage=document.getElementById('pdfStage'); if(!stage||!S.quiz) return;
+  const {ku,view}=S.quiz;
+
+  if(view==='done'){
+    const d=S.quiz.done, next=(S.kus[S.doc]||[]).find(k=>!S.kuDone[k.id]);
+    stage.innerHTML=quizShell(ku,
+      `<div class="doneCard"><b>✓ Bạn đã ôn phần này rồi</b>
+         <p>Lần trước bạn nói lại được <b>${d.score}/${d.total}</b> câu.</p></div>`,
+      `<button class="btn-primary" onclick="startQuiz(S.quiz.ku,true)">Ôn lại</button>
+       ${next?`<button class="ghost" onclick="jumpToKU('${next.id}')">Bỏ qua → KU${next.pos}</button>`
+             :`<button class="ghost" onclick="unlock()">Bỏ qua</button>`}
+       <button class="ghost" onclick="unlock()">Quay lại đọc slide</button>`);
+    return;
+  }
+
+  if(view==='finished'){
+    const next=(S.kus[S.doc]||[]).find(k=>!S.kuDone[k.id]);
+    stage.innerHTML=quizShell(ku,
+      `<div class="doneCard"><b>✓ Xong Knowledge Unit ${ku.pos}</b>
+         <p>Bạn nói lại được <b>${S.quiz.score}/${ku.questions.length}</b> câu của phần này.
+         Slide đã mở lại — xem lại phần vừa học hoặc đọc tiếp.</p></div>`,
+      `${next?`<button class="btn-primary" onclick="jumpToKU('${next.id}')">Sang KU${next.pos} →</button>`
+             :`<button class="btn-primary" onclick="unlock()">Đã ôn hết tài liệu</button>`}
+       <button class="ghost" onclick="unlock()">Quay lại đọc slide</button>`);
+    return;
+  }
+
+  const q=ku.questions[S.quiz.i];
+  if(view==='ask'){
+    stage.innerHTML=quizShell(ku,`
+      <div class="qmeta"><span class="qtype ${q.type}">${q.label}</span>
+        <span class="qdiff">${q.difficulty||''}</span>
+        <span class="sp"></span><span class="qcount">Câu ${S.quiz.i+1}/${ku.questions.length}</span></div>
+      ${q.learning_objective?`<p class="qobj">Mục tiêu: ${q.learning_objective}</p>`:''}
+      <div class="qtext">${q.text}</div>
+      <textarea id="qin" placeholder="Trả lời bằng lời của bạn…"></textarea>
+      <p class="hint">🔒 Slide đang tạm khoá. Nói lại bằng lời của mình trước đã —
+         nhìn lại được thì không còn là tự kiểm nữa.</p>`,
+      `<button class="btn-primary" id="qsend">Gửi</button>
+       <button class="ghost" onclick="unlock()">Để sau, mở lại slide</button>`);
+    const b=document.getElementById('qsend'); if(b) b.onclick=submitQuizAnswer;
+    const t=document.getElementById('qin'); if(t) setTimeout(()=>t.focus(),60);
+    return;
+  }
+
+  /* view === 'feedback' */
+  const ev=S.quiz.ev, last=S.quiz.i+1>=ku.questions.length;
+  stage.innerHTML=quizShell(ku,`
+    <div class="qmeta"><span class="qtype ${q.type}">${q.label}</span>
+      <span class="sp"></span><span class="qcount">Câu ${S.quiz.i+1}/${ku.questions.length}</span></div>
+    ${ev.correct.map(x=>`<div class="vline ok"><span class="g">✅</span>
+       <div><b>Bạn đã nêu:</b> ${x}</div></div>`).join('')}
+    ${ev.missing.map(x=>`<div class="vline miss"><span class="g">⭕</span>
+       <div><b>Bạn chưa nêu:</b> ${x}</div></div>`).join('')}
+    ${ev.feedback?`<div class="vline src"><div>${ev.feedback}</div></div>`:''}
+    <p class="hint">${ev.live?'Chấm bởi backend theo rubric của câu hỏi.'
+      :'Bản offline chỉ ước lượng theo độ đầy đủ. Bật backend để chấm đúng theo rubric.'}</p>`,
+    `${last?`<button class="btn-primary" onclick="finishQuiz()">Xong KU${ku.pos}</button>`
+           :`<button class="btn-primary" onclick="S.quiz.i++;S.quiz.view='ask';paintQuizStage()">Câu tiếp →</button>`}
+     <button class="ghost" onclick="S.quiz.view='ask';paintQuizStage()">Viết lại</button>`);
+}
+
+/* Chấm theo đúng shape của backend: correct_points / missing_points. */
 async function evalAnswer(txt,q){
   if(API.base && API.sessionId){
     try{
@@ -1326,49 +1372,29 @@ async function evalAnswer(txt,q){
   const w=txt.trim().split(/\s+/).filter(Boolean).length;
   const req=q.required_points||[];
   const correct=[], missing=[];
-  req.forEach((p,k)=>{ (w>=12 && (k===0||w>=25)) ? correct.push(p) : missing.push(p); });
+  req.forEach((pt,k)=>{ (w>=12 && (k===0||w>=25)) ? correct.push(pt) : missing.push(pt); });
   return {correct,missing,score:req.length?correct.length/req.length:0,live:false};
 }
 
 async function submitQuizAnswer(){
-  const txt=qin.value.trim(); if(!txt)return;
-  const {ku,i}=S.quiz, q=ku.questions[i];
-  qsend.disabled=true; qsend.textContent='Đang đối chiếu…';
+  const t=document.getElementById('qin'); if(!t) return;
+  const txt=t.value.trim(); if(!txt) return;
+  const b=document.getElementById('qsend');
+  if(b){ b.disabled=true; b.textContent='Đang đối chiếu…'; }
+  const q=S.quiz.ku.questions[S.quiz.i];
   const ev=await evalAnswer(txt,q);
-  const full = ev.missing.length===0;
-  if(full) S.quiz.score++;
-  const last=i+1>=ku.questions.length;
-  rvBody.innerHTML=`
-   <div class="kuhead"><div class="t">Knowledge Unit ${ku.pos}</div><b>${ku.title}</b>
-     <div class="m">trang ${ku.from}–${ku.to}</div></div>
-   ${ev.correct.map(p=>`<div class="vline ok"><span class="g">✅</span>
-      <div><b>Bạn đã nêu:</b> ${p}</div></div>`).join('')}
-   ${ev.missing.map(p=>`<div class="vline miss"><span class="g">⭕</span>
-      <div><b>Bạn chưa nêu:</b> ${p}</div></div>`).join('')}
-   ${ev.feedback?`<div class="vline src"><div>${ev.feedback}</div></div>`:''}
-   <div class="vline src"><div style="display:flex;gap:11px"><span class="g">🎙️</span>
-     <div><b>Nguồn của phần này</b> — trang ${ku.from}–${ku.to}</div></div>
-     <div class="acts">
-       ${last?`<button class="btn-primary" onclick="finishQuiz()">Xong KU${ku.pos}</button>`
-             :`<button class="btn-primary" onclick="S.quiz.i++;renderQuestion()">Câu tiếp →</button>`}
-       <button class="ghost" onclick="renderQuestion()">Viết lại</button></div></div>
-   <p class="hint">${ev.live?'Chấm bởi backend theo rubric của câu hỏi.'
-     :'Bản offline chỉ ước lượng theo độ đầy đủ. Bật backend để chấm đúng theo rubric.'}</p>`;
+  if(ev.missing.length===0) S.quiz.score++;
+  S.quiz.ev=ev; S.quiz.view='feedback'; paintQuizStage();
 }
 
 function finishQuiz(){
   const {ku,score}=S.quiz;
   S.kuDone[ku.id]={score,total:ku.questions.length,at:Date.now()};
-  const next=(S.kus[S.doc]||[]).find(k=>!S.kuDone[k.id]);
-  rvBody.innerHTML=`
-   <div class="doneCard"><b>✓ Xong Knowledge Unit ${ku.pos}</b>
-     <p>Bạn nói lại được <b>${score}/${ku.questions.length}</b> câu của phần này.</p></div>
-   <div class="acts" style="display:flex;gap:10px;flex-wrap:wrap">
-     ${next?`<button class="btn-primary" onclick="jumpToKU('${next.id}')">Sang KU${next.pos} →</button>`
-           :`<button class="btn-primary" onclick="showPanel('chat')">Đã ôn hết tài liệu</button>`}
-     <button class="ghost" onclick="unlock();showPanel('chat')">Quay lại đọc</button></div>`;
-  S.quiz=null; unlock(); syncReviewBtn(); saveState();
+  S.gate=null;                                  /* mở khoá slide ngay */
+  S.quiz.view='finished';
+  saveState(); renderPdfDoc(S.doc);
 }
+
 
 function syncPage(){
   const p=curPage(); pvNum.textContent=p; syncReviewBtn();
@@ -1433,7 +1459,7 @@ sp_recall.onclick=()=>{
   showRecall();
 };
 function showRecall(){
-  chat.classList.add('hide'); review.classList.add('hide');
+  chat.classList.add('hide');
   recall.classList.remove('hide'); composer.classList.add('hide');
   ph_title.textContent='Nói Lại Đi'; ph_sub.textContent='Đối chiếu với đoạn bạn vừa che';
   ph_tag.textContent='Trang '+(S.sel?S.sel.page:'—')+' · đoạn đã chọn';
@@ -1451,24 +1477,8 @@ function showRecall(){
   rc_ask.classList.remove('hide'); rc_out.classList.add('hide'); rc_out.innerHTML='';
   rc_in.value=''; rc_q.innerHTML=S.card.question; setTimeout(()=>rc_in.focus(),80);
 }
-/* chuyển giữa 3 chế độ của panel phải: chat / recall / review */
-function showPanel(mode){
-  unredact();
-  chat.classList.toggle('hide', mode!=='chat');
-  recall.classList.toggle('hide', mode!=='recall');
-  review.classList.toggle('hide', mode!=='review');
-  composer.classList.toggle('hide', mode!=='chat');
-  if(mode==='review'){
-    ph_title.textContent='Ôn tập theo Knowledge Unit';
-    ph_sub.textContent='Bộ câu hỏi của phần bạn đang đọc';
-    ph_ico.innerHTML='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18v2M15 18v2"/><path d="M12 3a6 6 0 00-3 11v3h6v-3a6 6 0 00-3-11z"/></svg>';
-    quota.innerHTML='<div class="r"><span>Quota Tutor trong ngày</span><span class="free">không dùng quota</span></div><div class="bar"><i style="width:33%"></i></div>';
-  }
-  if(mode==='chat') showChat();
-}
-
 function showChat(){
-  unredact(); recall.classList.add('hide'); review.classList.add('hide');
+  unredact(); recall.classList.add('hide');
   chat.classList.remove('hide'); composer.classList.remove('hide');
   ph_title.textContent='VLearn Tutor'; ph_sub.textContent='Trợ lý học theo ngữ cảnh';
   ph_ico.innerHTML='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="7" width="16" height="12" rx="3"/><circle cx="9" cy="13" r="1.2" fill="currentColor"/><circle cx="15" cy="13" r="1.2" fill="currentColor"/><path d="M12 4v3"/></svg>';
