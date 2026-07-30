@@ -1,3 +1,11 @@
 .DS_Store
 node_modules/
 *.env
+
+# --- mining evidence: KHÔNG commit trích xuất từ data pack ---
+audit_*.csv
+**/audit_*.csv
+*.pkl
+**/*.pkl
+__pycache__/
+*.pyc
