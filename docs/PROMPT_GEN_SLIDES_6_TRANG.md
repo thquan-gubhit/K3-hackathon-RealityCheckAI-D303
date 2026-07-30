@@ -6,6 +6,16 @@ Sao chép toàn bộ prompt bên dưới vào công cụ tạo slide.
 
 Bạn là một **Senior Product Designer + AI Product Storyteller**. Hãy tạo một bộ slide thuyết trình hackathon bằng **tiếng Việt**, đúng **6 trang**, tỷ lệ **16:9**, trình bày trong **5 phút**, dựa hoàn toàn trên dữ liệu được cung cấp dưới đây.
 
+## Thứ tự ưu tiên nguồn sự thật
+
+Khi tổng hợp nội dung, dùng thứ tự sau:
+
+1. `spec.md` §1 là nguồn chính thức cho User, Workflow, Core JTBD, Problem statement và evidence khảo sát.
+2. `spec.md` §2–§9 là nguồn chính thức cho impact, thiết kế, failure taxonomy, golden set, quality bar và kết quả các lượt eval.
+3. `adaptive-learning-system/` cùng tài liệu kiến trúc/test là nguồn chứng minh những phần đã build và hành vi kỹ thuật.
+4. `adaptive-learning-system/README.md` và `TEAMMATE.md` là nguồn cho tên, mã học viên và phân công hiện tại.
+5. Không lấy persona, track hoặc evidence từ các tài liệu §1 cũ để thay thế §1 hiện tại trong `spec.md`.
+
 ## Nguyên tắc bắt buộc
 
 1. Không tạo slide bìa riêng; slide 1 vừa giới thiệu sản phẩm vừa trình bày User & Job.
@@ -50,7 +60,7 @@ Bạn là một **Senior Product Designer + AI Product Storyteller**. Hãy tạo
   - 47,1% thường xuyên;
   - 29,4% thỉnh thoảng.
 - Suy ra **70,6%** trả lời “thường xuyên” hoặc “rất thường xuyên”.
-- Phải đặt caveat cạnh số liệu: `n=17`, thấp hơn chuẩn khảo sát ≥20 của rubric; repo chưa có file raw survey riêng để kiểm tra từng phản hồi.
+- Dùng `n=17` và ba tỷ lệ trên làm evidence chính thức của bài. Ghi cỡ mẫu `n=17` ngay cạnh biểu đồ để người xem hiểu phạm vi bằng chứng.
 - Nghiên cứu được liệt kê trong spec:
   - Callender & McDaniel (2009): rereading thường được dùng nhưng phần lớn không làm tăng performance đáng kể.
   - Weinstein, McDermott & Roediger (2010): trả lời câu hỏi và tự sinh câu hỏi có lợi hơn rereading.
@@ -98,7 +108,7 @@ Bạn là một **Senior Product Designer + AI Product Storyteller**. Hãy tạo
 - Nguyễn Quang Hưng — 2A202601523 — Build.
 - Lê Minh Khiêm — 2A202601645 — Spec.
 - Đàm Minh Tuấn — 2A202601169 — Validation.
-- Dùng phân công này theo `adaptive-learning-system/README.md`; không dùng bảng phân công cũ còn ghi khác trong `spec.md` §8.
+- Dùng phân công này theo `adaptive-learning-system/README.md` và `TEAMMATE.md`.
 - Nhóm và Zone chưa được cung cấp: giữ `[XX]` và `[X]`, không tự đoán.
 
 ## Cấu trúc chính xác từng slide
@@ -111,7 +121,7 @@ Headline: **“Đọc xong chưa có nghĩa là hiểu thật.”**
 - Hiển thị Core JTBD trong một câu.
 - Dùng số lớn `70,6%` thường xuyên/rất thường xuyên gặp tình trạng đọc hiểu nhưng không biết giải thích khi thi/làm bài.
 - Đặt breakdown nhỏ: `23,5% rất thường xuyên · 47,1% thường xuyên · 29,4% thỉnh thoảng`.
-- Thêm caveat ngay cạnh biểu đồ: `Khảo sát n=17 · chưa đạt ngưỡng ≥20 của rubric`.
+- Ghi rõ ngay cạnh biểu đồ: `Khảo sát n=17`.
 - Đặt một trích dẫn nghiên cứu ngắn về testing effect/rereading, không quá 12 từ, kèm tác giả/năm.
 - Visual: một đường chuyển từ “Đọc” sang “Học tiếp?” bị đứt ở giữa bởi dấu hỏi.
 - Footer: `Nguồn: spec.md §1 · khảo sát n=17 · Callender & McDaniel (2009)`.
