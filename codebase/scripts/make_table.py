@@ -2,7 +2,8 @@ import json
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-GOLDEN_SET_PATH = PROJECT_ROOT / "eval" / "golden_set.json"
+REPOSITORY_ROOT = PROJECT_ROOT.parent
+GOLDEN_SET_PATH = REPOSITORY_ROOT / "eval" / "golden_set.json"
 OUTPUT_PATH = PROJECT_ROOT / "docs" / "07_GOLDEN_SET.md"
 
 def generate():

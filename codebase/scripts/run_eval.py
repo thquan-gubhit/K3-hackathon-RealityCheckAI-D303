@@ -12,7 +12,8 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-GOLDEN_SET_PATH = PROJECT_ROOT / "eval" / "golden_set.json"
+REPOSITORY_ROOT = PROJECT_ROOT.parent
+GOLDEN_SET_PATH = REPOSITORY_ROOT / "eval" / "golden_set.json"
 
 def run_evaluation() -> None:
     if not GOLDEN_SET_PATH.exists():

@@ -49,7 +49,7 @@ cho phép.
 
 ## Quick start
 
-Chạy các lệnh từ thư mục `adaptive-learning-system`.
+Chạy các lệnh từ thư mục `codebase`.
 
 ### 1. Tạo virtual environment
 

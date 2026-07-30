@@ -82,9 +82,9 @@ PDF → Knowledge Units có nguồn → Recall/Explain/Apply
 
 Các artifact kiểm chứng:
 
-- `adaptive-learning-system/docs/00_OVERVIEW.md`
-- `adaptive-learning-system/docs/01_BUSINESS_REQUIREMENTS.md`
-- `adaptive-learning-system/docs/PROGRESS.md`
-- `adaptive-learning-system/tests/`
+- `codebase/docs/00_OVERVIEW.md`
+- `codebase/docs/01_BUSINESS_REQUIREMENTS.md`
+- `codebase/docs/PROGRESS.md`
+- `codebase/tests/`
 
 Đây là bằng chứng build/traceability, không thay thế bằng chứng user. Trước CP5 cần khảo sát hoặc validation với ít nhất 3 người dùng; nếu muốn khẳng định độ phổ biến theo chuẩn khảo sát, cần mẫu ≥20 người ngoài nhóm và ≥50% xác nhận.

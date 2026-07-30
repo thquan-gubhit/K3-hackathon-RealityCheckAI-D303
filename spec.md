@@ -103,7 +103,7 @@ Loại: [ ] Tối ưu tính năng có sẵn  [x] Tính năng mới
 - **Chiều chất lượng + định nghĩa kiểm chứng được:** 
   - Đánh giá theo 4 chiều: Correctness (Đúng đắn), Coverage (Đầy đủ), Reasoning (Lập luận), Application (Áp dụng).
   - Điểm dao động từ [0, 1]. Người dùng đạt `Mastered` khi trả lời qua một mốc điểm và không có Misconception.
-- **Golden Set (Tập dữ liệu Vàng):**
+- **Golden Set (Tập dữ liệu Vàng — `eval/golden_set.json`):**
   - Gồm 20 kịch bản giả định học viên trả lời (từ "câu trả lời hoàn hảo" đến "hiểu sai bản chất" hay "ảo giác").
 
   **Chi tiết 20 Test Cases (Golden Set)**:

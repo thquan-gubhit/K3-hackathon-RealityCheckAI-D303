@@ -2,6 +2,34 @@
 
 **SPEC → Prototype → Demo.** Đây không phải cuộc thi code — đây là cuộc thi **tư duy sản phẩm AI**.
 
+## Bài nộp nhóm — Reality Check AI
+
+- **Hướng:** C — Làn mở
+- **Loại:** Tính năng mới
+- **Prototype:** Working
+- **Core JTBD:** Tự kiểm chứng mức độ hiểu và khả năng giải thích một văn bản dài ngay sau khi đọc xong để tránh ảo giác hiểu biết.
+
+### Thành viên và phân công
+
+| Thành viên | Mã học viên | Phụ trách |
+|---|---|---|
+| Trần Hoàng Quân | 2A202601805 | Bằng chứng |
+| Đinh Huy Mạnh | 2A202601677 | Prompt |
+| Nguyễn Quang Hưng | 2A202601523 | Build |
+| Lê Minh Khiêm | 2A202601645 | Spec |
+| Đàm Minh Tuấn | 2A202601169 | Validation |
+
+### Artifact chính
+
+| Artifact | Vị trí | Trạng thái |
+|---|---|---|
+| AI Spec | `spec.md` | Đã có |
+| Prototype | `codebase/` | Working |
+| Golden set và runner | `eval/`, `codebase/scripts/run_eval.py` | Đã có 20 case |
+| Validation log | `validation/feedback-log.md` | Chờ user test |
+| Reflection cá nhân | `reflection/` | Chờ từng thành viên hoàn thiện |
+| Slide demo 6 trang | `demo-slides.pdf` | Chưa xuất |
+
 - Thời lượng: **1,5 ngày** (một ngày build + một buổi demo)
 - Nhóm: **4-5 người** · zone tối đa 5 nhóm · thi theo lớp
 

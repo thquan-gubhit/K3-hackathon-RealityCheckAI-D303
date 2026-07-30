@@ -25,7 +25,7 @@ The result must report Python 3.11.
 Open PowerShell:
 
 ```powershell
-cd adaptive-learning-system
+cd codebase
 py -3.11 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
@@ -51,7 +51,7 @@ Do not commit `.env`.
 ## Linux/macOS setup
 
 ```bash
-cd adaptive-learning-system
+cd codebase
 python3.11 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
