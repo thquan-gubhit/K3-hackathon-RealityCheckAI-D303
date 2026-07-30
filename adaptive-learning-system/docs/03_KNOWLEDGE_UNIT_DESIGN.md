@@ -1,6 +1,7 @@
 # Knowledge Unit Design
 
-> **Delivery status:** The Knowledge Unit contract is designed in Phase 1. Extraction, split/merge execution, and persistence are Phase 2 work and are currently pending.
+> **Delivery status:** Implemented and verified in Phase 2. Question generation
+> remains Phase 3 work.
 
 ## Definition
 
@@ -104,3 +105,15 @@ Merge with the most coherent adjacent unit, then rerun all size and coverage che
 - Source page order is normalized and duplicates are removed.
 - Refinement never exceeds its configured round limit.
 
+## Phase 2 implementation
+
+- `KnowledgeUnitBatch` and every candidate are validated by Pydantic before
+  deterministic rules inspect them.
+- Candidate IDs are temporary LLM-local references. Persistence assigns UUIDs
+  and translates prerequisite references to the final UUIDs.
+- Headings are the primary deterministic segment boundary; pages without a
+  heading stay with the preceding topic until the 1,200-word ceiling.
+- Blank pages are retained as explicit exclusions with a reason.
+- Final persistence accepts only 3–10 units with complete source coverage, no
+  serious duplicates, contiguous positions, and `valid` status.
+- Split/merge calls must preserve the exact union of their input source pages.

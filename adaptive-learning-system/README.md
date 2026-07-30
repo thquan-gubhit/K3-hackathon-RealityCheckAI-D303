@@ -4,9 +4,10 @@ Nền tảng MVP học tập theo Active Recall thích ứng. Hệ thống đư�
 workflow làm lõi, rule engine kiểm soát quyết định xác định, LLM xử lý tác vụ ngữ
 nghĩa và Tutor Agent chỉ xử lý ngoại lệ.
 
-Repository hiện hoàn thành **Phase 1 — Project foundation**: cấu hình từ `.env`,
-SQLite/SQLAlchemy, FastAPI health check, Streamlit Home và test nền tảng. Xử lý
-PDF, Knowledge Unit, câu hỏi, đánh giá, mastery và Tutor Agent thuộc các phase sau.
+Repository hiện hoàn thành và kiểm thử **Phase 1–5**: xử lý PDF/Knowledge Map,
+sinh câu hỏi Recall–Explain–Apply có rubric bất biến, đánh giá câu trả lời, điều
+phối phiên học và mastery bằng rule xác định, cùng Tutor Agent giới hạn bước,
+allow-list tool và có audit trace.
 
 ## Kiến trúc
 
@@ -16,9 +17,10 @@ Luồng phụ thuộc mục tiêu:
 Streamlit → FastAPI API → Workflow → Service → Rule/Agent → Repository → SQLite
 ```
 
-Phase 1 hiện thực phần giao diện nền, API, cấu hình và kết nối database. Các lớp
-nghiệp vụ đã được dành chỗ trong cấu trúc project nhưng chưa được triển khai sớm
-hơn kế hoạch.
+Luồng `API → Workflow → Service → Rule/Agent → Repository` được hiện thực cho
+toàn bộ MVP. Endpoint không gọi LLM trực tiếp; output LLM luôn qua Pydantic.
+Workflow/rule điều khiển đường đi chính, agent chỉ chạy khi cấu hình và trigger
+cho phép.
 
 ## Requirements
 
@@ -98,9 +100,9 @@ Các nhóm cấu hình chính:
 | Backend | `BACKEND_HOST`, `BACKEND_PORT` | FastAPI/Uvicorn |
 | Frontend | `FRONTEND_HOST`, `FRONTEND_PORT`, `BACKEND_API_URL` | Streamlit và địa chỉ API |
 | Database | `DATABASE_URL` | SQLAlchemy connection URL |
-| File storage | `UPLOAD_DIR`, `MAX_UPLOAD_SIZE_MB` | Chuẩn bị cho Phase 2 |
+| File storage | `UPLOAD_DIR`, `MAX_UPLOAD_SIZE_MB` | Lưu PDF Phase 2 an toàn |
 | LLM | `LLM_API_KEY`, `LLM_BASE_URL`, `LLM_MODEL` | Provider tương thích OpenAI |
-| Rules/Mastery/Agent | `KU_*`, `QUESTION_*`, `MASTERY_*`, `AGENT_*` | Ngưỡng deterministic cho các phase sau |
+| Rules/Mastery/Agent | `KU_*`, `QUESTION_*`, `MASTERY_*`, `AGENT_*` | Ngưỡng deterministic và giới hạn agent |
 
 Danh sách đầy đủ và giá trị mặc định nằm trong [`.env.example`](.env.example).
 
@@ -147,8 +149,8 @@ Hoặc:
 python scripts/run_frontend.py
 ```
 
-Mở <http://127.0.0.1:8501>. Home page sẽ gọi `GET /health`, hiển thị trạng thái
-kết nối và hướng dẫn khắc phục khi backend chưa sẵn sàng.
+Mở <http://127.0.0.1:8501>. Home kiểm tra backend; các trang hỗ trợ upload/xử lý
+PDF, xem Knowledge Map, học theo câu hỏi thích nghi và theo dõi tiến độ.
 
 ## Chạy test
 
@@ -162,17 +164,21 @@ Kèm coverage:
 pytest --cov=app --cov=frontend --cov-report=term-missing
 ```
 
-Suite Phase 1 hiện có 15 test, đã pass trên Python 3.11.9 với coverage tổng
-89% cho `app` và `frontend`. Test không gọi API LLM thật và sử dụng database
-tạm khi cần.
+Suite qua Phase 5 hiện có 99 test. Test dùng fake structured LLM, không gọi API
+thật, và dùng database SQLite tạm khi cần.
 
-## Demo flow Phase 1
+## Demo flow Phase 1–5
 
 1. Sao chép `.env.example` thành `.env` và điền cấu hình bắt buộc.
 2. Chạy `python scripts/init_db.py`.
 3. Khởi động backend; gọi `GET /health` và xác nhận trạng thái `ok`.
-4. Khởi động Streamlit; xác nhận Home page kết nối được backend.
-5. Chạy `pytest -v`.
+4. Khởi động Streamlit, upload một PDF có text và chọn **Process document**.
+5. Xác nhận trạng thái `ready`, coverage 100% và mở **Knowledge Map**.
+6. Mở **Study Session**, chọn tài liệu/KU, đọc unit, trả lời lần lượt các câu hỏi
+   và quan sát feedback/mastery.
+7. Lặp lại một misconception để kiểm tra Tutor Agent khi `AGENT_ENABLED=true`;
+   đặt `false` để xác nhận workflow học thông thường vẫn hoạt động.
+8. Mở **Progress Dashboard** và chạy `pytest -v`.
 
 ## Cấu trúc chính
 
@@ -207,7 +213,7 @@ scripts/      Lệnh tiện ích khởi tạo/chạy ứng dụng
 
 ## Giới hạn hiện tại
 
-Phase 1 chưa upload/parse PDF, chưa tạo Knowledge Map, chưa sinh hoặc chấm câu
-hỏi, chưa cập nhật mastery và chưa chạy Tutor Agent. Trạng thái chính xác của
-từng hạng mục được theo dõi trong [PROGRESS.md](docs/PROGRESS.md) và
+Xử lý hiện đồng bộ; PDF scan không có text cần OCR nên nằm ngoài MVP. Lịch sử
+local chưa có migration/export và chưa có xác thực đa người dùng. Trạng thái
+chính xác được theo dõi trong [PROGRESS.md](docs/PROGRESS.md) và
 [TODO.md](docs/TODO.md).

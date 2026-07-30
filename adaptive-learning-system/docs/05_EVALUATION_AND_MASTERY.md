@@ -1,6 +1,8 @@
 # Evaluation and Mastery
 
-> **Delivery status:** Formulas and schemas are baselined in Phase 1. Answer evaluation is Phase 3 and mastery/adaptive updates are Phase 4; neither is implemented as part of Phase 1.
+> **Delivery status:** Answer evaluation was implemented in Phase 3; mastery,
+> evidence weighting, misconception tracking, and conservative mastery gates
+> were implemented and verified in Phase 4.
 
 ## Evaluation dimensions
 

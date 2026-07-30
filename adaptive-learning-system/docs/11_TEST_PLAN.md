@@ -1,9 +1,8 @@
 # Test Plan
 
-> **Delivery status:** Phase 1 has 15 passing tests on Python 3.11.9,
-> including configuration, database bootstrap, health API, structured logging,
-> frontend transport, and Streamlit Home execution. Tests for Phases 2–6 remain
-> pending.
+> **Delivery status:** Phases 1 and 2 have 69 passing tests on Python 3.11.9.
+> Phase 2 includes a real PDF fixture, fake-LLM API pipeline, rules, adapter,
+> persistence, frontend transport, and Streamlit-page tests.
 
 ## Strategy
 
@@ -53,7 +52,7 @@ coverage run reports **89% total statement/branch coverage** across `app` and
 `frontend`. The only emitted warning is a non-failing upstream
 `Starlette TestClient`/`httpx` deprecation warning.
 
-## Unit tests for later phases
+## Unit tests for Phases 3–5
 
 | Target | Required cases | Phase |
 | --- | --- | --- |
@@ -105,14 +104,14 @@ Integration assertions include:
 | --- | --- | --- | --- |
 | AT-001 | Start configured backend and request `/health` | HTTP 200 with stable health payload | Passed — local smoke test |
 | AT-002 | Execute Streamlit home with backend running | Connectivity and Phase 1 status shown | Passed — server health + AppTest |
-| AT-003 | Upload readable demo PDF | Upload succeeds | Pending Phase 2 |
-| AT-004 | Process demo PDF | At least three valid KUs with objectives/concepts/pages | Pending Phase 2 |
-| AT-005 | Generate questions | Recall, Explain, and Apply are available | Pending Phase 3 |
-| AT-006 | Submit strong, incomplete, and misconception answers | Feedback distinguishes all three | Pending Phase 3 |
-| AT-007 | Answer several questions | Mastery changes and respects evidence gates | Pending Phase 4 |
-| AT-008 | Repeat one misconception | Agent triggers when enabled | Pending Phase 5 |
-| AT-009 | Reach agent step limit | Agent stops at or before configured maximum | Pending Phase 5 |
-| AT-010 | Disable agent | Normal learning workflow remains usable | Pending Phase 5 |
+| AT-003 | Upload readable demo PDF | Upload succeeds | Passed — integration |
+| AT-004 | Process demo PDF | At least three valid KUs with objectives/concepts/pages | Passed — 3 KUs, 100% coverage |
+| AT-005 | Generate questions | Recall, Explain, and Apply are available | Passed |
+| AT-006 | Submit strong, incomplete, and misconception answers | Feedback distinguishes all three | Passed |
+| AT-007 | Answer several questions | Mastery changes and respects evidence gates | Passed |
+| AT-008 | Repeat one misconception | Agent triggers when enabled | Passed |
+| AT-009 | Reach agent step limit | Agent stops at or before configured maximum | Passed |
+| AT-010 | Disable agent | Normal learning workflow remains usable | Passed |
 
 ## Mock strategy
 
@@ -133,6 +132,17 @@ Later phases should add:
 - an answer missing a required point;
 - an answer containing the target misconception; and
 - a scripted repeated-misconception history.
+
+Phase 2 provides `tests/fixtures/demo_machine_learning.pdf`, generated
+deterministically by `scripts/create_demo_pdf.py`. Its three readable pages cover
+generalization/data splits, overfitting evidence, and regularization/early
+stopping. The default integration test injects a fake structured LLM and proves:
+
+```text
+multipart upload -> 3 parsed pages -> 3 valid KUs -> persisted Knowledge Map
+```
+
+No default test contacts a real provider.
 
 ## Commands
 

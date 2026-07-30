@@ -2,69 +2,99 @@
 
 ## Current phase
 
-**Phase 1 — Project foundation: completed and runtime-verified.**
+**Phases 1–5 — MVP learning loop: completed and verified.**
 
-Python 3.11.9 was located at its per-user installation path, used to create the
-project-local `.venv`, and used for the final verification. Product Phases 2–6
-remain outside the completed Phase 1 scope.
+The local MVP now covers PDF-to-Knowledge-Map, source-grounded assessment,
+adaptive sessions/mastery, progress UI, and a bounded opt-in Tutor Agent.
 
 ## Phase status
 
 | Phase | Status | Notes |
 | --- | --- | --- |
-| 1 — Project foundation | **Completed and verified** | Structure, config, SQLite bootstrap, health API, Streamlit home, tests, docs |
-| 2 — Document processing | Pending | No PDF upload/parser or Knowledge Map implementation claimed |
-| 3 — Question and evaluation | Pending | No question generation or answer evaluation implementation claimed |
-| 4 — Adaptive learning | Pending | No session routing, mastery update, or dashboard implementation claimed |
-| 5 — Tutor Agent | Pending | No agent runner, tools, trigger execution, or trace persistence implemented |
-| 6 — Hardening | Pending | Full suite, demo seed, error/logging polish and final docs |
+| 1 — Project foundation | **Completed and verified** | Config, SQLite, health API, Streamlit Home, tests, docs |
+| 2 — Document processing | **Completed and verified** | PDF/pages, structured KU pipeline, rules, map API/UI |
+| 3 — Question and evaluation | **Completed and verified** | Validated question/rubric generation and evidence-rich evaluation |
+| 4 — Adaptive learning | **Completed and verified** | Sessions, deterministic routing, mastery, misconceptions, progress UI |
+| 5 — Tutor Agent | **Completed and verified** | Absolute gate, triggers, bounded runner, allow-list tools, redacted traces |
+| 6 — Hardening | Pending | Final cross-phase acceptance, packaging, and production polish |
 
 ## Completed
 
-- Created the modular project structure and package boundaries.
-- Added Python 3.11 dependency and pytest configuration.
-- Added typed `.env` configuration, secret-safe startup validation, and `.env.example`.
-- Added SQLAlchemy engine/session and SQLite initialization script.
-- Added FastAPI application with `GET /health`.
-- Added Streamlit home and a transport-only backend health client.
-- Added 15 Phase 1 tests covering configuration/security, database bootstrap,
-  health API, structured logging, frontend transport, and Streamlit Home.
-- Ran all 15 tests successfully on Python 3.11.9.
-- Measured 89% total coverage across `app` and `frontend`.
-- Initialized the default SQLite file and verified its schema marker/query.
-- Smoke-tested Uvicorn `/health` and Streamlit HTTP health/startup.
-- Executed Streamlit Home against the live backend; it rendered
-  `Backend is online.` without an exception.
-- Created all mandatory design, runbook, progress, decision, TODO, and development-log documents.
+- Added safe multipart PDF validation for extension, media type, signature,
+  empty content, and configured size.
+- Added UUID-backed `Document`, `DocumentPage`, and `KnowledgeUnit` persistence,
+  SQLite foreign keys, constraints/indexes, and schema marker version 2.
+- Added PyMuPDF page extraction, text cleanup, heading detection, and stable
+  encrypted/empty/unreadable/textless PDF errors.
+- Added deterministic heading/size segmentation with explicit blank-page
+  exclusions.
+- Added an OpenAI-compatible structured LLM adapter with timeout, exponential
+  retry budget, Pydantic parsing, safe logging, and no hard-coded provider data.
+- Added source-grounded KU prompts, schemas, split/merge/refinement rules,
+  source-coverage validation, duplicate validation, and prerequisite ID
+  translation.
+- Added the synchronous document workflow and all required Phase 2 read/write
+  endpoints with stable error envelopes.
+- Added Streamlit Upload Document and Knowledge Map pages plus transport helpers.
+- Added a deterministic three-page machine-learning PDF fixture and generator.
+- Verified the complete demo pipeline using a fake LLM; no default test calls a
+  real provider.
+- Added Recall, Explain, and Apply generation with source/objective/leakage,
+  ambiguity, external-knowledge, and duplicate validation.
+- Persisted reference answers and versioned rubrics before exposure; public
+  schemas never return either field.
+- Added structured answer evidence, confidence-safe clarification, attempts,
+  sessions, mastery dimensions, independent evidence, and misconceptions.
+- Added deterministic selection/remediation, conservative `MASTERED` gates,
+  progress APIs, Study Session, and Progress Dashboard.
+- Added an optional Tutor Agent with trigger policy, validated actions,
+  service-backed allow-list tools, maximum-step enforcement, and redacted traces.
+- Advanced the SQLite schema marker to version 5.
 
 ## In progress
 
-None. Phase 2 has not started.
+None. Phase 6 hardening remains.
 
 ## Blocked
 
-None for Phase 1.
+None.
 
 ## Verification evidence
 
 ```text
-python scripts/init_db.py
-→ Database initialized successfully; data/app.db = 4096 bytes
+pytest -q
+→ 100 passed, 1 upstream TestClient deprecation warning
 
-pytest -v --cov=app --cov=frontend --cov-report=term-missing
-→ 15 passed, 1 upstream deprecation warning, 89% total coverage
+tests/integration/test_document_processing_api.py
+→ multipart PDF upload
+→ 3 parsed and persisted pages
+→ 3 valid persisted Knowledge Units
+→ readable_pages=3, covered_pages=3, coverage_ratio=1.0
 
-GET http://127.0.0.1:8000/health
-→ HTTP 200 with status/app_name/environment/database
+python -m compileall -q app frontend scripts tests
+→ passed
 
-Streamlit server + AppTest
-→ HTTP 200, /_stcore/health = ok, Home title rendered,
-  Backend is online., no Streamlit exception
+python -m pip check
+→ No broken requirements found.
 ```
+
+The fixture PDF was rendered to PNG and all three pages were visually inspected
+for clipping, overlap, and broken glyphs.
+
+## Known limitations
+
+- Processing is synchronous; large documents/provider latency block the request.
+- Image-only/scanned PDFs require OCR, which is outside the MVP.
+- Live provider behavior depends on operator-supplied `.env` values and was not
+  exercised during the offline verification.
+- The upstream Starlette TestClient/httpx deprecation warning is non-failing.
+- Progress reads create missing default mastery rows for local MVP convenience.
+- Agent quality still depends on the configured provider/model; policy and step
+  bounds are deterministic.
 
 ## Next actions
 
-1. Start Phase 2 with PDF validation and page-level extraction.
-2. Add `Document` and `DocumentPage` persistence.
-3. Implement Pydantic Knowledge Unit extraction and deterministic split/merge rules.
-4. Update this file, `TODO.md`, `DECISIONS.md` if architecture changes, and `VIBE_CODING_LOG.md` after Phase 2.
+1. Run Phase 6 security/logging/error-code review.
+2. Add a migration tool before changing the stabilized schema further.
+3. Verify cross-platform runbooks and the live-provider demo.
+4. Complete accessibility and final packaging checks.

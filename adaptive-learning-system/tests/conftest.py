@@ -51,14 +51,15 @@ def api_client(
 
     from fastapi.testclient import TestClient
 
-    from app.config import get_settings
+    from app.config import Settings, get_settings
+    from app.main import create_app
 
     if hasattr(get_settings, "cache_clear"):
         get_settings.cache_clear()
 
-    from app.main import app
+    application = create_app(Settings(), llm_client=object())
 
-    with TestClient(app) as client:
+    with TestClient(application) as client:
         yield client
 
     if hasattr(get_settings, "cache_clear"):

@@ -1,6 +1,7 @@
 # Adaptive Learning System — Overview
 
-> **Delivery status:** Phase 1 (project foundation) is complete. This document defines the target MVP; PDF processing, question/evaluation, adaptive learning, and Tutor Agent capabilities remain pending in Phases 2–5.
+> **Delivery status:** Phases 1–5 are implemented and verified. This document
+> describes the delivered local MVP; Phase 6 hardening remains.
 
 ## Problem
 
@@ -46,10 +47,10 @@ Workflow as the backbone
 | Phase | Outcome | Status |
 | --- | --- | --- |
 | 1 — Project foundation | Python project, configuration, SQLite bootstrap, health API, Streamlit home, baseline tests and docs | **Completed** |
-| 2 — Document processing | PDF upload/parsing, Knowledge Units, split/merge validation, Knowledge Map | Pending |
-| 3 — Question and evaluation | Questions, reference answers, rubrics, answer evaluation, feedback | Pending |
-| 4 — Adaptive learning | Sessions, next-question rules, mastery, remediation, dashboard | Pending |
-| 5 — Tutor Agent | Bounded tools, triggers, trace, disabled mode | Pending |
+| 2 — Document processing | PDF upload/parsing, Knowledge Units, split/merge validation, Knowledge Map | Completed |
+| 3 — Question and evaluation | Questions, reference answers, rubrics, answer evaluation, feedback | Complete |
+| 4 — Adaptive learning | Sessions, next-question rules, mastery, remediation, dashboard | Complete |
+| 5 — Tutor Agent | Bounded tools, triggers, trace, disabled mode | Complete |
 | 6 — Hardening | Full tests, error handling, logging, demo data, documentation polish | Pending |
 
 ## MVP scope
@@ -64,9 +65,11 @@ Workflow as the backbone
 - Optional Tutor Agent controlled through `.env` and limited to `AGENT_MAX_STEPS`.
 - OpenAI, OpenRouter, other OpenAI-compatible APIs, or a compatible local server through one adapter.
 
-## Phase 1 boundary
+## Delivery boundary
 
-Phase 1 supplies only the runnable foundation and design contracts. It does **not** claim that PDF parsing, Knowledge Unit generation, question generation, answer scoring, adaptive routing, or Tutor Agent execution is implemented.
+Phases 1–5 supply the complete local MVP learning loop. Production deployment,
+authentication, OCR, migrations, and the Phase 6 hardening work remain outside
+the current delivery.
 
 ## Non-goals
 
@@ -85,4 +88,3 @@ Phase 1 supplies only the runnable foundation and design contracts. It does **no
 - Mastery changes after each accepted answer but never becomes `MASTERED` from one answer alone.
 - A repeated misconception can trigger the Tutor Agent when enabled.
 - The same core learning flow remains usable when the Tutor Agent is disabled.
-

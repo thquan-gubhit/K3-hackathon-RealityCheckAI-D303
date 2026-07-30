@@ -122,7 +122,7 @@ Downstream code receives typed data and failures are explicit. Prompt schemas an
 
 ### Status
 
-Accepted design; implementation is Phase 3.
+Accepted and implemented in Phase 3.
 
 ### Context
 
@@ -145,7 +145,7 @@ Evaluation is auditable and stable. Question generation costs more upfront and r
 
 ### Status
 
-Accepted design; implementation is Phase 5.
+Accepted and implemented in Phase 5.
 
 ### Context
 
@@ -164,3 +164,32 @@ Gate activation with deterministic rules and `AGENT_ENABLED`; limit steps with `
 
 Exceptional cases receive flexible support within auditable bounds. Policy, tool schemas, stop conditions, and disabled behavior require dedicated tests.
 
+## ADR-008 — Commit extraction evidence before semantic map generation
+
+### Status
+
+Accepted and implemented in Phase 2.
+
+### Context
+
+PDF parsing is deterministic and local, while Knowledge Unit generation depends
+on a fallible OpenAI-compatible LLM. Losing parsed pages after a provider failure
+would make diagnosis and retry less useful.
+
+### Decision
+
+Persist the `processing` transition and page extraction before the LLM call.
+Replace the Knowledge Map and transition to `ready` in one later transaction.
+On a bounded parse, LLM, rule, or database failure, retain pages and record
+`failed` when persistence remains available.
+
+### Alternatives
+
+- Keep the entire workflow in one long transaction.
+- Save partial or unvalidated Knowledge Units.
+
+### Consequences
+
+Retries retain durable extraction evidence and invalid maps are never published.
+A failed document may contain parsed pages internally, while the API blocks its
+Knowledge Map until a successful reprocess.

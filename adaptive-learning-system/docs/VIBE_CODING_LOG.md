@@ -135,3 +135,162 @@ configuration. Live smoke checks made no LLM provider call.
 
 Begin Phase 2 document processing from the contracts in `docs/03`,
 `docs/06`, `docs/07`, and `docs/09`.
+
+## 2026-07-30 15:25 +07:00 — Phase 2 document processing
+
+### Goal
+
+Implement the complete Phase 2 path from safe PDF upload through persisted
+Knowledge Map, without starting Phase 3 question/evaluation work.
+
+### Files created
+
+- Document, page, and Knowledge Unit models/schemas/repositories.
+- PDF parser, deterministic segmenter, document upload service, KU service, and
+  document-processing workflow.
+- OpenAI-compatible LLM client/adapter, prompts, and structured-output parser.
+- Document and Knowledge Unit API routers plus stable application errors.
+- Streamlit Upload Document and Knowledge Map pages.
+- `scripts/create_demo_pdf.py` and the generated three-page ML fixture.
+- Phase 2 unit/integration/frontend tests.
+
+### Files modified
+
+- Application bootstrap, database helpers/schema marker, model exports, frontend
+  API client, dependencies, requirements, README, and Phase 2 design/run docs.
+
+### Technical decisions
+
+- Keep API handlers transport-only and run semantic work through the explicit
+  workflow.
+- Store PDFs under server-generated UUID names and never expose storage paths.
+- Persist parsed pages before the external-compatible LLM call; publish the map
+  only after all deterministic gates pass.
+- Treat LLM candidate IDs as temporary references and translate prerequisites
+  to persisted UUIDs.
+- Keep default tests completely offline with injected fake/scripted LLMs.
+
+### Commands executed
+
+```text
+pip install reportlab
+python scripts/create_demo_pdf.py
+pytest -q
+pytest -q --cov=app --cov-report=term-missing
+python -m compileall -q app frontend scripts tests
+python -m pip check
+```
+
+The generated fixture was rendered to three PNG pages with PyMuPDF because
+Poppler was not available; all pages were visually inspected.
+
+### Tests executed
+
+- PDF parsing, upload validation, segmentation, structured-output retries, KU
+  split/merge/coverage/duplicate rules, frontend client/pages, database, API,
+  and the full PDF-to-persisted-map workflow.
+
+### Test results
+
+- `69 passed` on Python 3.11.9.
+- 75% statement/branch coverage across `app`.
+- Demo integration: 3 parsed pages, 3 valid KUs, 100% readable-page coverage.
+- Compile check passed.
+- `pip check`: no broken requirements.
+- One non-failing upstream Starlette TestClient/httpx deprecation warning.
+
+### Known issues
+
+- Processing is synchronous.
+- Image-only PDFs require out-of-scope OCR.
+- No real provider call was made during verification; live behavior depends on
+  operator `.env` configuration.
+- Question/evaluation, adaptive learning, and Tutor Agent remain pending.
+
+### Next step
+
+Begin Phase 3 question generation, immutable rubrics, and answer evaluation.
+
+## 2026-07-30 — Phases 3–5 learning loop and bounded Tutor Agent
+
+### Prompt/request
+
+Continue with Phases 3, 4, and 5 from the existing Phase 2 baseline.
+
+### Implemented
+
+- Added persisted source-grounded questions with mandatory Recall, Explain, and
+  Apply coverage, deterministic validation, private reference answers, and
+  immutable versioned rubrics.
+- Added structured answer evaluation with correct/missing/incorrect evidence,
+  misconceptions, dimension scores, confidence-safe clarification, and stored
+  attempts.
+- Added learning sessions, deterministic next-question/remediation selection,
+  difficulty-adjusted mastery, diminishing duplicate evidence, conservative
+  mastery gates, misconception aggregation, progress APIs, and Streamlit study
+  and dashboard pages.
+- Added an optional Tutor Agent with absolute configuration gate, explicit
+  trigger rules, validated action schema, service-backed allow-listed tools,
+  maximum-step enforcement, and redacted persisted traces.
+- Registered the Phase 3–5 API routers and advanced SQLite `user_version` to 5.
+
+### Decisions
+
+- Public question responses never expose reference answers or rubrics.
+- Low-confidence evaluation requests clarification and cannot automatically add
+  a severe misconception.
+- The normal workflow remains deterministic and usable when the agent is
+  disabled; agent execution is an exception path only.
+- Test doubles are selected by typed response schema and never call a provider.
+
+### Verification
+
+```text
+pytest -q --cov=app --cov=frontend --cov-report=term-missing
+→ 99 passed, 1 upstream TestClient deprecation warning, total coverage 76%
+
+pytest tests/unit/test_frontend_api_client.py \
+  tests/integration/test_frontend_learning_pages.py -q
+→ 14 passed
+```
+
+The end-to-end acceptance fixture covers PDF processing, three generated
+question types, strong/incomplete/misconception evaluation, mastery persistence,
+repeated-misconception activation, the agent step cap, trace redaction, and
+agent-disabled normal operation.
+
+### Limitations / next task
+
+Processing and LLM calls remain synchronous. Live-provider quality was not
+tested in the offline suite. Continue with Phase 6 hardening, migration strategy,
+cross-platform smoke tests, security/log review, and final packaging.
+
+## 2026-07-30 — Source coverage refinement bug fix
+
+### Problem
+
+An 11-page readable PDF failed with `INVALID_SOURCE_COVERAGE` when the initial
+LLM Knowledge Map omitted one or more page references. The workflow stopped
+immediately even though bounded refinement rounds were configured.
+
+### Fix
+
+- Added a map-level coverage refinement prompt containing the current map,
+  expected readable pages, missing/unexpected pages, and source segments.
+- The prompt requires semantic revision of affected units instead of attaching
+  unrelated citations.
+- Updated document processing to retry coverage within
+  `KU_MAX_REFINEMENT_ROUNDS`, validate the complete revised map again, and keep
+  the original terminal error if bounded repair still fails.
+- Added an offline integration fixture that omits page 3 on the first response
+  and restores it on the refinement response.
+
+### Verification
+
+```text
+pytest tests/integration/test_document_processing_api.py -q
+→ 3 passed
+
+pytest -q
+→ 100 passed, 1 upstream TestClient deprecation warning
+```
