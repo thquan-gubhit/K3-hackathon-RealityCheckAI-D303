@@ -1,6 +1,8 @@
 # System Architecture
 
-> **Delivery status:** Phase 1 implements the application shell, configuration, database bootstrap, health API, and Streamlit entry point. Components labeled Phase 2–5 are target architecture only.
+> **Delivery status:** Phases 1 and 2 implement the foundation, document/KU
+> workflow, LLM adapter, persistence, APIs, and Streamlit map UI. Components
+> labeled Phases 3–5 remain target architecture only.
 
 ## Architectural style
 
@@ -44,12 +46,12 @@ API → Workflow → Service → Rule or Agent → Repository → Database
 | Database bootstrap | Create engine/session and initialize SQLite | Phase 1 — completed |
 | Health API | Report backend liveness without requiring an LLM call | Phase 1 — completed |
 | Streamlit home | Display project status and backend connectivity | Phase 1 — completed |
-| Document workflow | Validate PDF, parse pages, produce Knowledge Map | Phase 2 — pending |
-| Question workflow | Create candidates, answer, rubric, validation | Phase 3 — pending |
-| Evaluation workflow | Score against stored rubric and persist feedback | Phase 3 — pending |
-| Adaptive workflow | Select next action and update mastery | Phase 4 — pending |
-| Tutor Agent | Bounded remediation under trigger policy | Phase 5 — pending |
-| LLM adapter | OpenAI-compatible structured generation with retry/timeout | Phase 2+ — pending |
+| Document workflow | Validate PDF, parse pages, produce Knowledge Map | Phase 2 — completed |
+| Question workflow | Create candidates, answer, rubric, validation | Phase 3 — completed |
+| Evaluation workflow | Score against stored rubric and persist feedback | Phase 3 — completed |
+| Adaptive workflow | Select next action and update mastery | Phase 4 — completed |
+| Tutor Agent | Bounded remediation under trigger policy | Phase 5 — completed |
+| LLM adapter | OpenAI-compatible structured generation with retry/timeout | Phase 2 — completed |
 
 ## Primary data flow
 
@@ -102,4 +104,3 @@ This separation makes decisions reproducible, keeps LLM failures recoverable, an
 - A workflow does not persist a successful terminal state until its validation gates pass.
 - The health endpoint remains independent of later-phase LLM availability.
 - `AGENT_ENABLED=false` prevents all agent activation while leaving deterministic remediation available.
-

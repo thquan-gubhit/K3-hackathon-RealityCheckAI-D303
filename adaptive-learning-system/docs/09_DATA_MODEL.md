@@ -1,6 +1,8 @@
 # Data Model
 
-> **Delivery status:** Phase 1 provides the SQLite/SQLAlchemy foundation. The domain entities below are the target model for Phases 2–5 and are not claimed to exist in Phase 1.
+> **Delivery status:** `Document`, `DocumentPage`, and `KnowledgeUnit` are
+> implemented in Phase 2. Entities assigned to Phases 3–5 are now implemented;
+> the physical schema marker is version 5.
 
 ## Entity outline
 
@@ -164,3 +166,15 @@ SQLite stores these as JSON-serialized text unless SQLAlchemy's JSON abstraction
 
 Foreign keys should be enabled for SQLite connections. Destructive cascade behavior must be chosen explicitly in a later migration decision; it is not assumed by this skeleton.
 
+## Phase 2 physical schema
+
+- IDs are portable UUID strings.
+- `documents.status` is one of `uploaded`, `processing`, `ready`, or `failed`.
+- `document_pages` has a unique `(document_id, page_number)` constraint.
+- `knowledge_units` has unique `(document_id, position)` and an index on
+  `(document_id, status)`.
+- KU lists, relations, and pages use SQLAlchemy `JSON`; public schemas never
+  expose `documents.file_path` or full source text.
+- SQLite connections enable foreign-key enforcement and schema marker
+  `PRAGMA user_version = 5`. Phase 3–5 add `questions`, `learning_sessions`,
+  `answer_attempts`, `mastery_states`, `misconceptions`, and `agent_traces`.

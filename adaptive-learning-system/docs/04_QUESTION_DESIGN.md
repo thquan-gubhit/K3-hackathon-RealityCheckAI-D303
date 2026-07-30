@@ -1,6 +1,8 @@
 # Question Design
 
-> **Delivery status:** This Phase 1 document defines the assessment contract. Question generation, validation, and storage are Phase 3 work and are currently pending.
+> **Delivery status:** Implemented and verified in Phase 3. Recall, Explain, and
+> Apply questions pass deterministic validation and are stored with their
+> pre-answer reference/rubric before public exposure.
 
 ## Question types
 
@@ -88,4 +90,3 @@ An accepted question:
 ## Validation failure reasons
 
 Use stable reasons such as `NOT_SOURCE_GROUNDED`, `OBJECTIVE_MISMATCH`, `ANSWER_LEAK`, `AMBIGUOUS`, `EXTERNAL_KNOWLEDGE_REQUIRED`, `DUPLICATE`, and `INVALID_RUBRIC`. Rejected candidates are not shown to the learner.
-

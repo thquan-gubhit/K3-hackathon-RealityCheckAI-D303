@@ -1,7 +1,7 @@
 # TODO
 
-> Checked items are implemented and verified where applicable. Phase 1 is
-> complete; all product behavior after the foundation remains pending.
+> Checked items are implemented and verified where applicable. Phases 1–5 are
+> complete; Phase 6 hardening is next.
 
 ## P0 — Required for MVP
 
@@ -19,46 +19,46 @@
 
 ### Phase 2 — Document processing
 
-- [ ] Validate PDF MIME/signature and configured size.
-- [ ] Store document metadata safely.
-- [ ] Extract page-level text with PyMuPDF.
-- [ ] Handle empty/image-only/unreadable PDFs.
-- [ ] Persist `Document` and `DocumentPage`.
-- [ ] Add OpenAI-compatible structured LLM adapter.
-- [ ] Extract 3–10 candidate Knowledge Units.
-- [ ] Implement and test split/merge/refinement rules.
-- [ ] Validate source coverage and duplicates.
-- [ ] Expose document and Knowledge Map endpoints/UI.
+- [x] Validate PDF MIME/signature and configured size.
+- [x] Store document metadata safely.
+- [x] Extract page-level text with PyMuPDF.
+- [x] Handle empty/image-only/unreadable PDFs.
+- [x] Persist `Document` and `DocumentPage`.
+- [x] Add OpenAI-compatible structured LLM adapter.
+- [x] Extract 3–10 candidate Knowledge Units.
+- [x] Implement and test split/merge/refinement rules.
+- [x] Validate source coverage and duplicates.
+- [x] Expose document and Knowledge Map endpoints/UI.
 
 ### Phase 3 — Questions and evaluation
 
-- [ ] Implement question/reference-answer/rubric schemas.
-- [ ] Generate Recall, Explain, and Apply candidates.
-- [ ] Validate grounding, objective alignment, clarity, leakage, and duplication.
-- [ ] Persist immutable rubric before learner answer.
-- [ ] Evaluate free-text answers into all required evidence fields.
-- [ ] Handle low confidence with clarification, not severe automatic diagnosis.
-- [ ] Persist answer attempts and feedback.
+- [x] Implement question/reference-answer/rubric schemas.
+- [x] Generate Recall, Explain, and Apply candidates.
+- [x] Validate grounding, objective alignment, clarity, leakage, and duplication.
+- [x] Persist immutable rubric before learner answer.
+- [x] Evaluate free-text answers into all required evidence fields.
+- [x] Handle low confidence with clarification, not severe automatic diagnosis.
+- [x] Persist answer attempts and feedback.
 
 ### Phase 4 — Adaptive learning
 
-- [ ] Create and persist learning sessions.
-- [ ] Implement deterministic next-question rules and caps.
-- [ ] Implement mastery formula, difficulty, evidence weighting, and clamp.
-- [ ] Enforce all `MASTERED` predicates.
-- [ ] Track active/resolved misconceptions.
-- [ ] Implement deterministic remediation.
-- [ ] Add progress endpoints and Streamlit dashboard.
+- [x] Create and persist learning sessions.
+- [x] Implement deterministic next-question rules and caps.
+- [x] Implement mastery formula, difficulty, evidence weighting, and clamp.
+- [x] Enforce all `MASTERED` predicates.
+- [x] Track active/resolved misconceptions.
+- [x] Implement deterministic remediation.
+- [x] Add progress endpoints and Streamlit dashboard.
 
 ### Phase 5 — Tutor Agent
 
-- [ ] Implement absolute `AGENT_ENABLED` gate.
-- [ ] Implement and test agent trigger rules.
-- [ ] Add allow-listed, service-backed tools.
-- [ ] Add validated function-call/JSON action schema.
-- [ ] Enforce `AGENT_MAX_STEPS` and all stop conditions.
-- [ ] Persist redacted activation and step traces.
-- [ ] Return `AGENT_DISABLED` while preserving normal workflow.
+- [x] Implement absolute `AGENT_ENABLED` gate.
+- [x] Implement and test agent trigger rules.
+- [x] Add allow-listed, service-backed tools.
+- [x] Add validated function-call/JSON action schema.
+- [x] Enforce `AGENT_MAX_STEPS` and all stop conditions.
+- [x] Persist redacted activation and step traces.
+- [x] Return `AGENT_DISABLED` while preserving normal workflow.
 
 ### Phase 6 — Hardening
 
@@ -77,6 +77,8 @@
 - [ ] Add export/import of local learning history.
 - [ ] Add automated Markdown link and Mermaid syntax checks.
 - [ ] Add accessibility review for Streamlit pages.
+- [ ] Move synchronous document processing to a background job if measured
+  document/provider latency harms the local UX.
 
 ## P2 — After MVP
 

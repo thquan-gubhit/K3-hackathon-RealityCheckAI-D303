@@ -1,6 +1,8 @@
 # Workflows
 
-> **Delivery status:** Phase 1 establishes the workflow contracts only. The document and Knowledge Unit workflows are Phase 2, question/evaluation workflows are Phase 3, and adaptive workflow is Phase 4; all remain pending.
+> **Delivery status:** Document processing and Knowledge Unit generation are
+> implemented in Phase 2. Question/evaluation and adaptive workflows were
+> implemented and verified in Phases 3–4; Tutor Agent exceptions in Phase 5.
 
 Workflows are explicit, bounded sequences. An API handler validates transport input and invokes a workflow; it does not call an LLM directly. Each LLM result must pass Pydantic and domain validation before persistence.
 
@@ -123,3 +125,11 @@ Routing priority is: safety/disabled checks, session limits, agent eligibility, 
 - Repeating a process request should not silently duplicate accepted domain records.
 - Logs include operation, latency, model identifier, and status but exclude API keys and full document content at normal log levels.
 
+## Implemented transaction boundaries
+
+The synchronous Phase 2 workflow persists `processing` first, then commits
+parsed pages so extraction evidence survives an LLM failure. A validated map
+replacement and the `ready` transition commit together. Any known parse, LLM,
+rule, or database failure rolls back current work and records `failed` when the
+database remains available. Reprocessing replaces the existing map instead of
+appending duplicate units.

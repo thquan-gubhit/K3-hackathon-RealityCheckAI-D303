@@ -34,8 +34,8 @@ else:
     )
 
 st.divider()
-st.subheader("Phase 1 foundation")
+st.subheader("MVP learning loop")
 st.write(
-    "The application shell is ready. Document upload, knowledge maps, study "
-    "sessions, and progress views will be added in later phases."
+    "Upload and process a PDF, inspect its Knowledge Map, start an adaptive "
+    "study session, and review mastery in the Progress Dashboard."
 )

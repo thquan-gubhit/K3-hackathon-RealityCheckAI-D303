@@ -1,9 +1,8 @@
 # Local Runbook
 
-> **Delivery status:** The Phase 1 run instructions were verified on Windows
-> with Python 3.11.9: database initialization, backend health, Streamlit startup,
-> Home-page execution, and the 15-test suite all succeeded. PDF and learning-flow
-> commands become meaningful only after their later phases are implemented.
+> **Delivery status:** Phases 1 and 2 were verified on Windows with Python
+> 3.11.9: database initialization, backend health, PDF upload/processing,
+> Knowledge Map persistence, Streamlit pages, and the 69-test suite succeeded.
 
 ## System requirements
 
@@ -76,7 +75,9 @@ Expected message:
 Database initialized successfully.
 ```
 
-The default database is `data/app.db`. Phase 1 creates the configured SQLite file and any currently registered tables; later phases register domain tables.
+The default database is `data/app.db`. Phases 1–5 create the document,
+assessment, learning-state, misconception, and agent-trace tables and write
+schema marker `PRAGMA user_version = 5`.
 
 ## Run the backend
 
@@ -131,7 +132,9 @@ Equivalent default command:
 streamlit run frontend/Home.py --server.address 127.0.0.1 --server.port 8501
 ```
 
-Open `http://127.0.0.1:8501`. The Phase 1 home page checks `BACKEND_API_URL` and does not implement PDF processing or study sessions.
+Open `http://127.0.0.1:8501`. Use **Upload Document** to upload/process a
+text-based PDF, **Knowledge Map** to inspect its units, **Study Session** to
+answer adaptive questions, and **Progress Dashboard** to inspect mastery.
 
 ## Run tests
 
@@ -145,7 +148,34 @@ Optional coverage:
 pytest --cov=app --cov=frontend --cov-report=term-missing
 ```
 
-Default tests use fake settings and do not require a real LLM request.
+Default tests use fake settings and a fake structured LLM; they never contact a
+real provider. The verified Phase 5 result is `99 passed` with one non-failing
+upstream TestClient deprecation warning.
+
+## Phase 1–5 demo
+
+1. Initialize the database and start backend/frontend as above.
+2. Open **Upload Document** and upload a text-based PDF.
+3. Select the uploaded document and click **Process selected document**.
+4. Confirm `ready`, page coverage, and at least three Knowledge Units.
+5. Open **Knowledge Map** and inspect objectives, concepts, prerequisites,
+   misconceptions, source pages, and reading time.
+6. Open **Study Session**, choose a unit, mark reading complete, and answer the
+   generated Recall, Explain, and Apply questions.
+7. Inspect separated correct/missing/incorrect feedback and mastery changes.
+8. With `AGENT_ENABLED=true`, repeat a misconception and run the bounded tutor;
+   with it `false`, confirm the normal next-question flow remains available.
+9. Open **Progress Dashboard** to inspect dimensions and active misconceptions.
+
+For the deterministic test fixture:
+
+```bash
+python scripts/create_demo_pdf.py
+pytest -v tests/integration/test_document_processing_api.py
+```
+
+The integration test uses a fake LLM. Running the UI workflow uses the provider
+configured in `.env`.
 
 ## Stop services
 
@@ -168,8 +198,10 @@ deactivate
 | Database parent/path error | Invalid `DATABASE_URL` or permissions | Restore the default relative SQLite URL and rerun initialization |
 | `database is locked` | Multiple writes/processes hold SQLite | Stop duplicate app processes and retry; do not delete the DB blindly |
 | Provider timeout | Endpoint/model/network issue | Check provider settings; later LLM calls use bounded retries |
-| PDF controls are absent | Expected in Phase 1 | Continue with Phase 2 implementation; Phase 1 includes only the home page |
-| Agent endpoint is absent | Expected in Phase 1 | Tutor Agent is scheduled for Phase 5 |
+| PDF rejected as textless | Scanned/image-only PDF | Use a text-based PDF; OCR is outside this MVP |
+| Processing returns `LLM_*` | Provider timeout/config/output problem | Check `.env`, provider availability, then retry within configured limits |
+| Knowledge Map is not ready | Document was not processed or processing failed | Return to Upload Document and process/retry it |
+| Agent returns `AGENT_DISABLED` | `AGENT_ENABLED=false` | Use deterministic remediation or explicitly enable it in `.env` |
 
 ## Operational safety
 

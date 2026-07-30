@@ -1,6 +1,8 @@
 # Tutor Agent
 
-> **Delivery status:** This is the Phase 1 design contract. The Tutor Agent is not implemented in Phase 1; bounded execution, tools, triggers, traces, and disabled-mode behavior are Phase 5 work.
+> **Delivery status:** Implemented and verified in Phase 5 with an absolute
+> feature gate, deterministic trigger policy, validated allow-listed actions,
+> bounded steps, and redacted persistent traces.
 
 ## Purpose
 
@@ -121,4 +123,3 @@ Store input identifiers, selected tool, brief reason, tool arguments/observation
 ## Disabled-mode API behavior
 
 When disabled, agent-run requests return HTTP `409` with error code `AGENT_DISABLED` and guidance to use deterministic remediation or enable the feature in `.env`. Trace reads may still return previously stored traces. Normal study-session endpoints must remain operational.
-

@@ -1,6 +1,9 @@
 # Rule Engine
 
-> **Delivery status:** Rule definitions are baselined in Phase 1. Their implementations and unit tests are scheduled across Phases 2–5 and remain pending.
+> **Delivery status:** Knowledge Unit rules, coverage validation, duplicate
+> detection, and refinement limits are implemented and unit-tested in Phase 2.
+> Question validation/routing, mastery/evidence, and Tutor Agent trigger rules
+> are implemented and unit-tested through Phase 5.
 
 Rules are deterministic code. Each result includes the rule ID, input summary, action, and human-readable reason. LLM output can provide semantic measurements or proposals but cannot bypass these rules.
 
@@ -76,3 +79,11 @@ An earlier terminal action wins. Every triggered rule is recorded for diagnostic
 - Unit-test both sides of every threshold, including exact boundary values.
 - Update this table and `DECISIONS.md` before changing policy semantics.
 
+## Phase 2 validation gates
+
+The final map additionally enforces `UNIT_COUNT_OUT_OF_RANGE`,
+`SOURCE_COVERAGE_INVALID`, `DUPLICATE_KNOWLEDGE_UNITS`, known prerequisite
+references, and contiguous persisted positions. Map-level correction may split
+the broadest candidate when fewer than three units exist or merge candidates
+when more than ten exist, but every semantic correction consumes one configured
+refinement round.
