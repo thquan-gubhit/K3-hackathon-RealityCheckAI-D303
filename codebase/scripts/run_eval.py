@@ -1,6 +1,11 @@
 import json
 import logging
+import sys
 from pathlib import Path
+
+# Thêm thư mục gốc vào sys.path để Python tìm được module 'app'
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.append(str(PROJECT_ROOT))
 
 from app.config import get_settings
 from app.llm.adapter import LLMClient
