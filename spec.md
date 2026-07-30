@@ -1,4 +1,4 @@
-# AI SPEC — Lát cắt: Hệ thống Học tập Thích ứng (Adaptive Learning) · Nhóm [XX] · Zone [X]
+# AI SPEC — Reality Check AI · Nhóm [XX] · Zone [X]
 Hướng: [ ] A — VLearn  [ ] B — Trợ lý Học viên  [x] C — Làn mở
 Loại: [ ] Tối ưu tính năng có sẵn  [x] Tính năng mới
 
@@ -13,6 +13,7 @@ Loại: [ ] Tối ưu tính năng có sẵn  [x] Tính năng mới
     - 23,5% rất thường xuyên.
     - 47,1% thường xuyên.
     - 29,4% thỉnh thoảng.
+  - **Trạng thái bằng chứng:** 12/17 người (70,6%) trả lời “thường xuyên” hoặc “rất thường xuyên”. Repo hiện chưa có raw survey log theo từng người; cần bổ sung log và tối thiểu 3 phản hồi để đạt chuẩn khảo sát `n ≥ 20` của rubric.
   - ≥5 quote/ví dụ nguyên văn + nguồn:
 
     | Luận điểm | Quote/Ví dụ nguyên văn | Nguồn |
@@ -30,16 +31,16 @@ Loại: [ ] Tối ưu tính năng có sẵn  [x] Tính năng mới
 
 ## §2. Impact & quyết định chọn
 - **Bảng impact ≥3 ứng viên** (bao nhiêu người · tần suất · tốn gì mỗi lần · khả thi):
-  | Ứng viên | Tần suất | Mỗi lần tốn gì | Build nổi không? | Chọn? |
-  |---|---|---|---|---|
-  | 1. AI tự sinh Flashcard từ PDF | Hàng ngày | Thời gian tạo thẻ | Rất dễ | Không |
-  | 2. AI Tutor chat tự do (Unrestricted agent) | Hàng ngày | Mất phương hướng | Khó kiểm soát | Không |
-  | 3. Hệ thống câu hỏi & chấm điểm đa chiều bám sát Rubric (Adaptive) | Hàng ngày | Đọc thụ động | Khả thi (dùng luật) | **Có** |
+  | Ứng viên | Số người gặp | Tần suất | Mỗi lần tốn gì | Build nổi không? | Chọn? |
+  |---|---:|---|---|---|---|
+  | 1. AI tự sinh Flashcard từ PDF | Chưa đo riêng | Giả thuyết: hàng ngày | Thời gian tự tạo thẻ; chỉ đo Recall | Rất dễ | Không |
+  | 2. AI Tutor chat tự do (Unrestricted agent) | Chưa đo riêng | Giả thuyết: hàng ngày | Dễ mất phương hướng; khó đo mastery | Khó kiểm soát | Không |
+  | 3. Hệ thống câu hỏi & chấm điểm đa chiều bám sát Rubric (Adaptive) | Pain chung: 12/17 | Giả thuyết: sau mỗi đơn vị học | Thời gian trả lời tự luận; đổi lại có feedback đa chiều | Khả thi (dùng rule) | **Có** |
 
 - **Ứng viên ĐÃ LOẠI + vì sao:** 
   - Ứng viên 1 bị loại vì flashcard chỉ kiểm tra trí nhớ (Recall), không kiểm tra được khả năng giải thích (Explain) hay áp dụng (Apply).
   - Ứng viên 2 bị loại vì AI chat tự do rất dễ bị ảo giác (hallucination), bị lạc đề và khó đo lường điểm số thành thạo (Mastery) một cách hệ thống.
-- **Ứng viên CHỌN + vì sao (bằng số):** Chọn ứng viên 3. Hướng tới giúp người học khắc phục việc đọc thụ động. Đảm bảo an toàn thông qua hệ thống luật (Rule Engine) và Barem (Rubric) được sinh ra từ trước.
+- **Ứng viên CHỌN + vì sao (bằng số):** Chọn ứng viên 3 vì 12/17 người khảo sát (70,6%) báo pain chung xảy ra thường xuyên/rất thường xuyên, và prototype có thể kiểm tra cả Recall–Explain–Apply bằng rubric sinh trước cùng Rule Engine. Khảo sát chưa đo preference giữa ba ứng viên, nên quyết định này còn phải kiểm ở validation.
 
 ## §3. Giải pháp tương tự đã nghiên cứu
 - **[NotebookLM]**:
@@ -60,14 +61,14 @@ Loại: [ ] Tối ưu tính năng có sẵn  [x] Tính năng mới
 > - **Automation:** Augment (gợi ý), Conditional (tuỳ đk), hay Automate (làm luôn)? Dựa vào chi phí lỗi (cost-of-error).
 > - **Nguyên tắc:** Chọn ≥4 nguyên tắc HAX/PAIR, trỏ đúng vào vị trí áp dụng (VD: HAX G10 - Thu hẹp phạm vi).
 
-- **Lát cắt MỘT CÂU** (1 user · 1 việc · 1 quyết định AI · 1 kết quả): Một viên học tự do (self-directed learner) trả lời câu hỏi ôn tập, AI (Evaluator) quyết định chấm điểm câu trả lời dựa trên tài liệu gốc/rubric, từ đó đưa ra nhận xét chi tiết (đúng, thiếu, hiểu sai) và cập nhật điểm thành thạo (mastery).
+- **Lát cắt MỘT CÂU** (1 user · 1 việc · 1 quyết định AI · 1 kết quả): Một học viên tự học trả lời câu hỏi tự luận sau khi đọc PDF; Evaluator phân tích câu trả lời theo tài liệu gốc và rubric sinh trước; Rule Engine quyết định feedback, cập nhật mastery và hoạt động tiếp theo.
 - **Non-goals** (≥3 thứ KHÔNG build): 
   1. Không có hệ thống Identity/Login, thanh toán phức tạp hoặc triển khai Production.
   2. Không xử lý Video, âm thanh, không áp dụng OCR nâng cao (chỉ đọc text từ PDF).
   3. Không sử dụng cơ sở dữ liệu Vector (Vector DB), fine-tuning mô hình hay hệ thống Multi-agent tự do.
 - **Mức prototype nhắm tới:** [ ] Sketch [ ] Mock [x] Working
   - Phần nào mock: Lịch sử học tập dài hạn (chỉ test trong phạm vi 1 session).
-  - Phần nào thật (phải có ≥1 gọi AI thật): AI đọc PDF tách Knowledge Unit (KU), AI tự động sinh câu hỏi (Q&A) & Barem (Rubric), AI đánh giá câu trả lời của user.
+  - Phần nào thật: Code path dùng provider tương thích OpenAI để tách Knowledge Unit, sinh câu hỏi/reference answer/rubric và đánh giá câu trả lời; cần cấu hình `.env` để demo với provider thật. Bộ test mặc định dùng fake structured model và không gọi mạng.
 - **Automation:** [ ] augment [x] conditional [ ] automate
   - Lý do theo cost-of-error: Workflow được điều khiển bằng hệ thống luật tĩnh (Deterministic Rules) để giới hạn rủi ro. LLM chỉ thực hiện các tác vụ ngữ nghĩa, và Agent chỉ can thiệp ở các tình huống đặc biệt (khi user lặp lại lỗi sai). Khi AI có độ tự tin thấp, hệ thống không tự động đưa ra kết luận (tránh lưu sai lịch sử học tập) mà sẽ chuyển hướng sang "yêu cầu giải thích rõ hơn", giảm thiểu cost-of-error.
 - **§4b. Nguyên tắc đã áp dụng** (≥4 — HAX/PAIR, xem guide):
@@ -140,7 +141,7 @@ Loại: [ ] Tối ưu tính năng có sẵn  [x] Tính năng mới
   | **Hallucination** | 4 | Bịa đặt kiến thức không liên quan (VD: Dropout là học sinh bỏ học). | Kiểm tra AI có bắt được các lỗi ảo giác, không có trong ngữ cảnh bài giảng hay không. | `Correctness < 0.2`<br>`Coverage < 0.2`<br>`has_misconception = True` |
   | **Low Confidence** | 3 | Trả lời cộc lốc, không rõ nghĩa hoặc bảo "Không biết". | Kiểm tra AI có hạ độ tự tin (`confidence`) xuống mức thấp và trả về cờ hợp lý. | `Correctness < 0.4`<br>`Coverage < 0.2`<br>Không có misconception. |
 - **Quality bar** (chốt từ 23:59): "Đạt khi ≥ 90% các câu trả lời trong Golden Set được AI phân loại đúng lỗi thiếu sót/misconception."
-- **Kết quả các lượt chạy** (bảng %):
+- **Kết quả các lượt chạy được báo cáo trong spec** (repo chưa lưu output log độc lập):
   | Lần chạy | % Pass | Nhận xét / Lỗi đáng kể nhất |
   |---|---|---|
   | Lần 1 | 75% | AI trừ Correctness quá ngặt nghèo với câu trả lời Incomplete; không xuất mảng misconceptions cho lỗi ảo giác. |
@@ -148,18 +149,18 @@ Loại: [ ] Tối ưu tính năng có sẵn  [x] Tính năng mới
 
 ## §8. Phân công & kế hoạch
 - **Phân công có tên:** 
-  - Spec & Evaluator: Tuấn
-  - Structure, Workflow & Prompts: Tuấn + Quân
-  - Slide: Mạnh
-  - Evidence: Quân
-  - Canvas: Khiêm
-  - UI: Hưng
+  - Evidence: Trần Hoàng Quân — 2A202601805
+  - Prompt: Đinh Huy Mạnh — 2A202601677
+  - Build: Nguyễn Quang Hưng — 2A202601523
+  - Spec: Lê Minh Khiêm — 2A202601645
+  - Validation: Đàm Minh Tuấn — 2A202601169
 - **Willing users (≥3 tên) + kế hoạch vòng validation CP5**:
-  - Danh sách user: ...
-  - Người log: Trưởng nhóm.
+  - Danh sách user: `[CẦN BỔ SUNG: ít nhất 3 người thật ngoài nhóm]`
+  - Người log: Đàm Minh Tuấn.
 - **Multi-prototype (nếu làm):** So sánh giữa việc tắt Agent (chạy rule tĩnh) và bật Agent để xem cách nào user hài lòng hơn về tốc độ và độ hiệu quả.
 
 ## §9. Changelog
 | Thời điểm | Đổi gì | Vì sao (trỏ về feedback/case nào) |
 |---|---|---|
 | Phiên bản 1 | Khởi tạo Spec | Dựa theo Business Requirements và Architecture |
+| Phiên bản 2 | Chốt tên Reality Check AI, lát cắt Conditional và phân công | Đồng bộ với prototype, README và TEAMMATE |

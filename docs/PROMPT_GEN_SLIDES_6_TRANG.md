@@ -6,7 +6,7 @@ Sao chép toàn bộ prompt bên dưới vào công cụ tạo slide.
 
 Bạn là một **Senior Product Designer + AI Product Storyteller**. Hãy tạo một bộ slide thuyết trình hackathon bằng **tiếng Việt**, đúng **6 trang**, tỷ lệ **16:9**, trình bày trong **5 phút**, dựa hoàn toàn trên dữ liệu được cung cấp dưới đây.
 
-## Thứ tự ưu tiên nguồn sự thật
+## Thứ tự ưu tiên thông tin
 
 Khi tổng hợp nội dung, dùng thứ tự sau:
 
@@ -132,15 +132,15 @@ Headline: **“Khoảng trống không phải thiếu câu trả lời — mà t
 
 Tạo bảng impact rút gọn ba ứng viên:
 
-| Ứng viên | Tần suất trong spec | Chi phí/giới hạn | Khả thi | Quyết định |
-|---|---|---|---|---|
-| Flashcard tự sinh từ PDF | Hàng ngày | Chỉ kiểm tra Recall | Rất dễ | Loại |
-| Tutor chat tự do | Hàng ngày | Dễ mất phương hướng, khó kiểm soát | Khó | Loại |
-| Reality Check thích ứng | Hàng ngày | Cần rubric + rule + mastery | Khả thi | **Chọn** |
+| Ứng viên | Số người | Tần suất | Chi phí/giới hạn | Quyết định |
+|---|---:|---|---|---|
+| Flashcard tự sinh từ PDF | Chưa đo riêng | Giả thuyết: hàng ngày | Chỉ kiểm tra Recall | Loại |
+| Tutor chat tự do | Chưa đo riêng | Giả thuyết: hàng ngày | Dễ lạc đề, khó đo mastery | Loại |
+| Reality Check thích ứng | Pain chung: 12/17 | Sau mỗi đơn vị học | Cần rubric + rule + mastery | **Chọn** |
 
 - Nêu lý do chọn: kiểm tra được Recall–Explain–Apply, feedback có căn cứ, quyết định mastery được rule kiểm soát.
 - Thêm dải so sánh nhỏ: `NotebookLM = grounding tốt nhưng thụ động` · `Khanmigo = Socratic tốt nhưng có thể hỏi ngược quá nhiều`.
-- Đặt thẻ cảnh báo: `[CẦN BỔ SUNG: số người gặp và chi phí định lượng cho từng ứng viên; spec hiện chỉ ghi “hàng ngày”]`.
+- Đặt thẻ cảnh báo: `[CẦN VALIDATE: khảo sát hiện đo pain chung, chưa đo preference giữa ba ứng viên]`.
 - Footer: `Nguồn: spec.md §2–§3`.
 
 ### Slide 3 — Giải pháp & demo live, 2 phút
