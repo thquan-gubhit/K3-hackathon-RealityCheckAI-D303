@@ -136,6 +136,69 @@ svg{flex:0 0 auto}
 .dfile:hover{border-color:var(--navy);background:var(--chip-blue-bg);color:var(--chip-blue-ink)}
 .dfile em{font-style:normal;font-weight:600;font-size:12px;color:var(--faint)}
 .recall-tag{background:var(--red-soft);color:var(--red-ink);border-radius:var(--r-pill);padding:4px 11px;font-size:11px;font-weight:800}
+
+/* ============================================================ UPLOAD + KU */
+.upbtn{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:1.5px dashed var(--border-strong);
+  border-radius:var(--r-sm);padding:13px 16px;font-size:13.5px;font-weight:700;color:var(--muted);background:transparent}
+.upbtn:hover{border-color:var(--navy);color:var(--navy-deep);background:var(--chip-blue-bg)}
+.ku-badge{background:var(--green-bg);color:var(--green);border-radius:var(--r-pill);padding:3px 10px;font-size:10.5px;font-weight:800}
+.steps{border:1px solid var(--border);border-radius:var(--r-sm);padding:14px 16px;margin-bottom:9px;background:var(--surface-2)}
+.step{display:flex;align-items:center;gap:11px;font-size:13.5px;color:var(--muted);padding:5px 0}
+.step .ic{width:19px;height:19px;border-radius:50%;border:2px solid var(--border-strong);display:grid;place-items:center;font-size:10px;flex:0 0 auto}
+.step.run{color:var(--navy-deep);font-weight:700}
+.step.run .ic{border-color:var(--navy);border-top-color:transparent;animation:spin .7s linear infinite}
+.step.ok{color:var(--text)} .step.ok .ic{border-color:var(--green);background:var(--green);color:#fff}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* danh sách KU nằm dưới mỗi bài giảng trong trang khoá */
+.kubox{margin:-4px 0 11px 26px;border-left:2px solid var(--border);padding-left:14px}
+.kuitem{display:flex;align-items:center;gap:11px;width:100%;text-align:left;padding:9px 12px;margin-bottom:5px;
+  border:1px solid transparent;border-radius:9px;font-size:12.5px;color:var(--muted)}
+.kuitem:hover{background:var(--chip-blue-bg);border-color:var(--navy)}
+.kuitem .kn{font-family:var(--mono);font-weight:800;font-size:11px;color:var(--chip-blue-ink);
+  background:var(--chip-blue-bg);border-radius:5px;padding:3px 7px;flex:0 0 auto}
+.kuitem.done .kn{background:var(--green-bg);color:var(--green)}
+.kuitem .kt b{display:block;color:var(--navy-ink);font-size:13px;font-weight:700}
+.kuitem .kt .pg{font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+.kuitem .kst{font-size:11px;font-weight:800;color:var(--faint);flex:0 0 auto}
+.kuitem.done .kst{color:var(--green)}
+.kulist{margin-top:11px;border-top:1px solid var(--border);padding-top:11px}
+.kurow{display:flex;align-items:center;gap:10px;font-size:12.5px;padding:4px 0;color:var(--muted)}
+.kurow b{color:var(--navy-ink)}
+.kurow .pg{font-family:var(--mono);font-size:11px;color:var(--faint)}
+
+/* nút Ôn tập trên thanh công cụ */
+.reviewbtn{display:flex;align-items:center;gap:7px;background:var(--navy);color:#fff;border-radius:var(--r-pill);
+  padding:8px 15px;font-size:13px;font-weight:800;box-shadow:0 2px 8px rgba(28,63,121,.3)}
+.reviewbtn:hover{filter:brightness(1.1)}
+.reviewbtn.done{background:var(--green-bg);color:var(--green);box-shadow:none}
+
+/* panel ôn tập */
+.kuhead{background:var(--chip-blue-bg);border-radius:11px;padding:13px 15px;margin-bottom:14px}
+.kuhead .t{font-size:10.5px;font-weight:800;letter-spacing:1px;color:var(--chip-blue-ink);text-transform:uppercase}
+.kuhead b{display:block;font-size:15px;color:var(--navy-ink);margin:3px 0 5px}
+.kuhead .m{font-size:12px;color:var(--muted);font-family:var(--mono)}
+.qmeta{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.qtype{border-radius:var(--r-pill);padding:3px 10px;font-size:10.5px;font-weight:800;letter-spacing:.5px}
+.qtype.recall{background:var(--chip-blue-bg);color:var(--chip-blue-ink)}
+.qtype.explain{background:var(--amber-bg);color:var(--amber)}
+.qtype.apply{background:var(--red-soft);color:var(--red-ink)}
+.qcount{font-size:12px;color:var(--faint);font-weight:700;font-family:var(--mono)}
+/* trình xem PDF thật */
+.pdfwrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+.pdfbar{display:flex;align-items:center;gap:11px;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--surface-2)}
+.pdfbar .pgn{font-family:var(--mono);font-size:11px;color:var(--faint)}
+.pdfbar .kutitle{font-size:12.5px;color:var(--navy-ink);font-weight:700}
+.pdfframe{width:100%;height:min(70vh,660px);border:0;display:block;background:#f3f5f9}
+.kuend{display:flex;align-items:center;gap:16px;padding:16px 20px;border-top:1px solid var(--border);
+  background:var(--chip-blue-bg);flex-wrap:wrap}
+.kuend b{color:var(--navy-ink);font-size:14.5px}
+.kuend p{margin:4px 0 0;font-size:13px;color:var(--muted)}
+.qobj{font-size:12px;color:var(--muted);margin:0 0 9px;font-style:italic}
+.qdiff{font-family:var(--mono);font-size:10px;font-weight:800;color:var(--faint);
+  border:1px solid var(--border);border-radius:var(--r-pill);padding:2px 8px}
+.doneCard{background:var(--green-bg);border:1px solid transparent;border-radius:12px;padding:16px;margin-bottom:14px}
+.doneCard b{color:var(--green)}
+.doneCard p{margin:7px 0 0;font-size:13.5px;color:var(--text);line-height:1.55}
 .banner{background:var(--amber-bg);border:1px solid var(--amber-border);color:var(--amber);border-radius:var(--r);padding:15px 19px;font-size:14px;font-weight:600;margin-bottom:22px;display:flex;gap:11px;align-items:flex-start}
 
 /* gap map */
@@ -480,7 +543,11 @@ svg{flex:0 0 auto}
             <button class="tool"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20l4-1 10-10-3-3L5 16l-1 4z"/></svg>Bút</button>
             <button class="tool"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20l3-1 11-11-2-2L5 17l-1 3z"/><path d="M14 20h6"/></svg>Highlight</button>
             <button class="tool" id="more">···</button>
-            <span class="divide"></span><span class="notecount" id="notecount">Trang 1 · 0 note</span><span class="divide"></span>
+            <span class="divide"></span><span class="notecount" id="notecount">Trang 1 · 0 note</span>
+            <button class="reviewbtn hide" id="reviewBtn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18v2M15 18v2"/><path d="M12 3a6 6 0 00-3 11v3h6v-3a6 6 0 00-3-11z"/></svg>
+              <span id="reviewLbl">Ôn tập</span></button>
+            <span class="divide"></span>
             <span class="zoom">− 100% +</span><span class="divide"></span>
             <span class="iconset">
               <button><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
@@ -540,6 +607,7 @@ svg{flex:0 0 auto}
         </div>
         <div id="rc_out" class="hide"></div>
       </div>
+      <div class="pbody recall hide" id="review"><div id="rvBody"></div></div>
       <div class="composer" id="composer">
         <input id="cin" placeholder="Nhập câu hỏi hoặc bôi đen tài liệu…">
         <button class="send"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12l16-8-7 8 7 8-16-8z"/></svg></button>
@@ -750,7 +818,94 @@ function grade(text, card){
 }
 
 /* ============================================================ STATE + ROUTER */
-const S={said:0,blank:0,notes:0,rows:[],sel:null,doc:'d03b',card:null,openDays:{'03':true}};
+const S={said:0,blank:0,notes:0,rows:[],sel:null,doc:'d03b',card:null,openDays:{'03':true},
+         kus:{},        /* docId -> [KU]  KU = {id,pos,title,from,to,questions[]} */
+         kuDone:{},     /* kuId -> {score, total, at} */
+         quiz:null};    /* phiên ôn đang mở */
+
+/* ============================================================
+   KNOWLEDGE UNIT
+   Offline: chia trang thành KU + sinh câu hỏi cục bộ (demo).
+   Có backend (API.base): gọi thật theo đúng hợp đồng
+     POST /documents/upload -> POST /documents/{id}/process
+     -> GET /documents/{id}/knowledge-map   (KU có source_pages)
+     -> POST /knowledge-units/{id}/generate-questions
+   ============================================================ */
+/* ============================================================
+   DẠNG CÂU HỎI — bám đúng schema của backend (app/schemas/question.py)
+     QuestionPublic : question_text · question_type(RECALL|EXPLAIN|APPLY)
+                      · difficulty · learning_objective · source_pages
+     (giấu học viên) rubric.required_points [{point, weight}]
+                     + acceptable_alternatives
+   Học viên trả lời bằng CHỮ TỰ DO (AnswerSubmission.user_answer),
+   không phải trắc nghiệm. Offline chỉ là khung mẫu; câu hỏi và rubric
+   thật do backend sinh từ chính nội dung PDF.
+   ============================================================ */
+const QTPL=[
+  {type:'recall', label:'RECALL', diff:'EASY',
+   obj:t=>`Nhớ lại được các ý chính của ${t}`,
+   q:t=>`Không nhìn tài liệu: ${t} nói về những ý chính nào?`,
+   req:['nêu được ít nhất hai ý chính của phần này','diễn đạt bằng lời của mình, không chép lại slide']},
+  {type:'explain', label:'EXPLAIN', diff:'MEDIUM',
+   obj:t=>`Giải thích được vì sao ${t} quan trọng`,
+   q:t=>`Giải thích cho một bạn chưa học buổi này: vì sao ${t} lại quan trọng?`,
+   req:['nêu được lý do, không chỉ mô tả lại nội dung','liên hệ được với phần trước hoặc sau của bài']},
+  {type:'apply', label:'APPLY', diff:'HARD',
+   obj:t=>`Áp dụng được ý của ${t} vào một tình huống mới`,
+   q:t=>`Cho một ví dụ của riêng bạn — không lấy trong tài liệu — áp dụng được ý của ${t}.`,
+   req:['ví dụ không có trong tài liệu','chỉ ra được ý của phần này nằm ở đâu trong ví dụ']}
+];
+
+function splitKUs(docId, total, name){
+  const n = total<=6 ? 2 : total<=20 ? 3 : Math.min(6, Math.ceil(total/12));
+  const size = Math.ceil(total/n), kus=[];
+  const base = name.replace(/\.pdf$/i,'').replace(/[-_]/g,' ');
+  for(let i=0;i<n;i++){
+    const from=i*size+1, to=Math.min(total,(i+1)*size); if(from>total) break;
+    const title=`${base} — phần ${i+1}`;
+    kus.push({ id:`${docId}-ku${i+1}`, pos:i+1, title, from, to,
+      questions: QTPL.map((t,k)=>{ const nm=`phần ${i+1} (trang ${from}–${to})`;
+        return { id:`${docId}-ku${i+1}-q${k+1}`, type:t.type, label:t.label,
+                 difficulty:t.diff, learning_objective:t.obj(nm),
+                 text:t.q(nm), source_pages:[from,to],
+                 required_points:t.req }; }) });
+  }
+  return kus;
+}
+
+async function buildKUs(docId, total, name, onStep){
+  if(!API.base){                                  // ---- demo offline ----
+    await onStep(0); await sleep(700);
+    await onStep(1); await sleep(900);
+    const kus = splitKUs(docId, total, name);
+    await onStep(2, kus); await sleep(900);
+    return kus;
+  }
+  try{                                            // ---- backend thật ----
+    await onStep(0);
+    const up = await fetch(`${API.base}/documents/upload`,{method:'POST',body:S.pendingForm});
+    const doc = await up.json();
+    await onStep(1);
+    await fetch(`${API.base}/documents/${doc.id}/process`,{method:'POST'});
+    const map = await (await fetch(`${API.base}/documents/${doc.id}/knowledge-map`)).json();
+    const units = (map.knowledge_units||map.units||[]).map((u,i)=>({
+      id:u.id, pos:u.position??i+1, title:u.title,
+      from:Math.min(...u.source_pages), to:Math.max(...u.source_pages), questions:[] }));
+    await onStep(2, units);
+    for(const u of units){
+      const r = await fetch(`${API.base}/knowledge-units/${u.id}/generate-questions`,{method:'POST'});
+      u.questions = ((await r.json()).questions||[]).map(q=>({
+        id:q.id, type:(q.question_type||'recall').toLowerCase(),
+        label:(q.question_type||'RECALL').toUpperCase(), text:q.question_text }));
+    }
+    return units;
+  }catch(e){
+    console.warn('Backend lỗi, dựng KU cục bộ:', e.message);
+    return splitKUs(docId, total, name);
+  }
+}
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+const kuOfPage = (docId,p) => (S.kus[docId]||[]).find(k=>p>=k.from && p<=k.to) || null;
 const V={home:'v-home',mycourses:'v-mycourses',course:'v-course',book:'v-book',reader:'v-reader'};
 function go(v){
   Object.values(V).forEach(id=>document.getElementById(id).classList.add('hide'));
@@ -782,15 +937,92 @@ function paintDays(){
       <span class="sp"></span>${d.n==='03'&&S.blank?`<span class="recall-tag">${S.blank} trang nói chưa ra</span>`:''}
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--faint)"><path d="M6 9l6 6 6-6"/></svg></button>
     <div class="dfiles">${d.files.map(f=>`
-      <button class="dfile" data-doc="${f}">
+      <button class="dfile" data-doc="${f}" id="file-${f}">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8l-5-5z"/><path d="M14 3v5h5"/></svg>
-        ${DOCS[f].name}<span class="sp"></span><em>${DOCS[f].total} trang</em></button>`).join('')}</div>
+        ${DOCS[f].name}<span class="sp"></span>
+        ${S.kus[f]?`<span class="ku-badge">✦ ${S.kus[f].length} KU · ${S.kus[f].length*3} câu</span>`:''}
+        <em>${DOCS[f].total} trang</em></button>
+      ${S.kus[f]?`<div class="kubox">${S.kus[f].map(k=>{
+        const dn=S.kuDone[k.id];
+        return `<button class="kuitem ${dn?'done':''}" data-doc="${f}" data-ku="${k.id}">
+          <span class="kn">KU${k.pos}</span>
+          <span class="kt"><b>${k.title}</b><span class="pg">trang ${k.from}–${k.to} · ${k.questions.length} câu</span></span>
+          <span class="sp"></span>
+          <span class="kst">${dn?`✓ đã học ${dn.score}/${dn.total}`:'chưa ôn'}</span>
+        </button>`;}).join('')}</div>`:''}`).join('')}
+      <div class="up-slot" data-day="${d.n}"></div>
+      <button class="upbtn" data-up="${d.n}">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
+        Tải slide lên &amp; tạo bộ ôn tập<span class="sp"></span><em style="font-weight:600;font-size:12px">demo</em>
+      </button></div>
    </div>`).join('');
   daylist.querySelectorAll('.dhead').forEach(b=>b.onclick=()=>{
     const row=b.parentNode, d=row.dataset.day;
     S.openDays[d]=!S.openDays[d]; row.classList.toggle('open');
   });
   daylist.querySelectorAll('.dfile').forEach(b=>b.onclick=()=>openDoc(b.dataset.doc));
+  daylist.querySelectorAll('.upbtn').forEach(b=>b.onclick=()=>pickFile(b.dataset.up));
+  /* bấm thẳng vào một KU: mở tài liệu, nhảy tới trang đầu của KU đó rồi mở bộ câu hỏi */
+  daylist.querySelectorAll('.kuitem').forEach(b=>b.onclick=e=>{
+    e.stopPropagation();
+    openDoc(b.dataset.doc);
+    setTimeout(()=>jumpToKU(b.dataset.ku), 120);
+  });
+}
+
+/* ---------------- luồng upload ---------------- */
+function pickFile(dayN){
+  const inp=Object.assign(document.createElement('input'),{type:'file',accept:'.pdf,application/pdf'});
+  inp.onchange=()=>{ if(inp.files[0]) runUpload(dayN, inp.files[0]); };
+  inp.click();
+}
+
+async function runUpload(dayN, file){
+  const day=DAYS.find(x=>x.n===dayN);
+  const slot=daylist.querySelector(`.up-slot[data-day="${dayN}"]`);
+  const upBtn=daylist.querySelector(`.upbtn[data-up="${dayN}"]`);
+  if(upBtn) upBtn.style.display='none';
+
+  const LABELS=['Đọc và tách nội dung tài liệu','Chia thành Knowledge Unit','Sinh bộ câu hỏi cho từng KU'];
+  const draw=(active,kus)=>{
+    slot.innerHTML=`<div class="steps">
+      ${LABELS.map((l,i)=>`<div class="step ${i<active?'ok':i===active?'run':''}">
+        <span class="ic">${i<active?'✓':''}</span>${l}</div>`).join('')}
+      ${kus?`<div class="kulist">${kus.map(k=>
+        `<div class="kurow"><b>KU${k.pos}</b> · ${k.title}<span class="sp"></span>
+         <span class="pg">trang ${k.from}–${k.to}</span></div>`).join('')}</div>`:''}
+      <div style="font-size:11.5px;color:var(--faint);margin-top:10px">
+        ${API.base?'Đang gọi backend thật.':'Chạy cục bộ (demo) — chưa bật backend.'}
+      </div></div>`;
+  };
+
+  /* số trang: chưa đọc PDF thật nên suy ra từ dung lượng, chỉ dùng cho demo */
+  const total = Math.max(6, Math.min(60, Math.round(file.size/45000) || 12));
+  const docId = 'up'+Date.now().toString(36);
+  S.pendingForm = (()=>{ const f=new FormData(); f.append('file',file); return f; })();
+
+  const kus = await buildKUs(docId, total, file.name, async (i,list)=>draw(i,list));
+  DOCS[docId]={ name:file.name, code:'uploaded_'+docId, total, pages:[],
+                blobUrl: URL.createObjectURL(file) };   /* nội dung slide THẬT */
+  day.files.push(docId);
+  S.kus[docId]=kus;
+  S.openDays[dayN]=true;
+
+  draw(3,kus);
+  await sleep(500);
+
+  /* vẽ lại danh sách -> bài giảng mới xuất hiện kèm đủ KU của nó */
+  paintDays();
+  const row=document.getElementById('file-'+docId);
+  if(row){
+    row.scrollIntoView({behavior:'smooth',block:'center'});
+    row.insertAdjacentHTML('afterend',
+      `<div class="banner" id="upok" style="margin:6px 0 12px 26px"><svg width="17" height="17" viewBox="0 0 24 24"
+         fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 12.5l2.5 2.5 4.5-5"/><circle cx="12" cy="12" r="9"/></svg>
+       <span>Đã thêm <b>${DOCS[docId].name}</b> — <b>${kus.length} Knowledge Unit</b>, ${kus.length*3} câu hỏi.
+       Bấm vào một KU bên dưới để ôn ngay, hoặc mở tài liệu rồi bấm <b>Ôn tập</b>.</span></div>`);
+    setTimeout(()=>document.getElementById('upok')?.remove(), 9000);
+  }
 }
 
 /* ============================================================ READER */
@@ -802,6 +1034,7 @@ function openDoc(id){
     ? d.pages.map(p=>`<div class="pg" id="pg${p.n}" data-n="${p.n}">
         <div class="pgmeta"><span>Trang ${p.n} / ${d.total}</span><span>${d.name}</span></div>
         ${p.html}<div class="pgnote" id="note${p.n}">Kéo đến trang này để mở note riêng của trang.</div></div>`).join('')
+    : d.blobUrl ? ''      /* PDF thật: dựng riêng bằng renderPdfDoc() bên dưới */
     : `<div class="pg" data-n="1"><div class="pgmeta"><span>Trang 1 / ${d.total}</span><span>${d.name}</span></div>
        <div class="slide plain" style="align-items:center;justify-content:center;display:flex">
          <div style="text-align:center;color:#5b738f">
@@ -809,6 +1042,7 @@ function openDoc(id){
            <div style="font-size:13px">Bản prototype mới dựng nội dung cho <b>Day03-D302…pdf</b> (trang 7–9).<br>
            Mở tài liệu đó để thử luồng <b>Nói lại</b>.</div></div>${WMK}</div>
        <div class="pgnote">Kéo đến trang này để mở note riêng của trang.</div></div>`;
+  if(d.blobUrl){ S.pdfPage=1; renderPdfDoc(id); }
   const mine = Object.keys(CARDS).filter(k=>k.startsWith(id+':')).map(k=>+k.split(':')[1]).sort((a,b)=>a-b);
   tryHint.innerHTML = mine.length
     ? `<b style="color:var(--navy-deep)">Thử đi:</b> bôi đen một ý ở <b>trang ${mine.join(' hoặc trang ')}</b>, rồi bấm <b>Nói lại</b>.`
@@ -843,18 +1077,184 @@ function paintSide(){
 /* ---- trang hiện tại ---- */
 function pageNums(){ return [...pagewrap.querySelectorAll('.pg')].map(e=>+e.dataset.n); }
 function curPage(){
+  if(DOCS[S.doc] && DOCS[S.doc].blobUrl) return S.pdfPage||1;   /* chế độ PDF: trang là state */
   const mid = doc.scrollTop + doc.clientHeight/2; let best = pageNums()[0]||1;
   pagewrap.querySelectorAll('.pg').forEach(el=>{ if(el.offsetTop<=mid) best=+el.dataset.n; });
   return best;
 }
+/* ============================================================
+   XEM PDF THẬT (dùng trình xem PDF sẵn có của trình duyệt — không thư viện)
+   ============================================================ */
+function renderPdfDoc(id){
+  const d=DOCS[id], p=S.pdfPage||1, ku=kuOfPage(id,p);
+  const lastOfKU = ku && p===ku.to;
+  pagewrap.innerHTML=`
+    <div class="pdfwrap">
+      <div class="pdfbar">
+        <span class="pgn">Trang ${p} / ${d.total}</span>
+        ${ku?`<span class="ku-badge">KU${ku.pos} · trang ${ku.from}–${ku.to}</span>
+              <span class="kutitle">${ku.title}</span>`:''}
+        <span class="sp"></span><span class="pgn">${d.name}</span>
+      </div>
+      <iframe class="pdfframe" id="pdfFrame" src="${d.blobUrl}#page=${p}&toolbar=0&navpanes=0&view=FitH"></iframe>
+      ${lastOfKU?`
+      <div class="kuend">
+        <div><b>Hết phần KU${ku.pos} — ${ku.title}</b>
+          <p>Bạn vừa đọc xong trang ${ku.from}–${ku.to}. Kiểm tra lại xem mình có thật sự nắm không?</p></div>
+        <span class="sp"></span>
+        <button class="btn-primary" onclick="openReview()">
+          ${S.kuDone[ku.id]?'Ôn lại KU'+ku.pos:'Làm câu hỏi KU'+ku.pos} →</button>
+      </div>`:''}
+    </div>`;
+  pvNum.textContent=p; syncReviewBtn();
+}
+function gotoPdfPage(n){
+  const d=DOCS[S.doc]; if(!d||!d.blobUrl) return;
+  S.pdfPage=Math.max(1,Math.min(d.total,n));
+  renderPdfDoc(S.doc);
+}
+
+/* ============================================================ ÔN TẬP THEO TRANG */
+function syncReviewBtn(){
+  const list=S.kus[S.doc];
+  if(!list||!list.length){ reviewBtn.classList.add('hide'); return; }
+  reviewBtn.classList.remove('hide');
+  const ku=kuOfPage(S.doc,curPage());
+  if(!ku){ reviewLbl.textContent='Ôn tập'; reviewBtn.classList.remove('done'); return; }
+  const done=S.kuDone[ku.id];
+  reviewBtn.classList.toggle('done', !!done);
+  reviewLbl.textContent = done ? `KU${ku.pos} · đã học` : `Ôn tập KU${ku.pos}`;
+}
+
+function openReview(){
+  const ku=kuOfPage(S.doc,curPage());
+  if(!ku) return;
+  const done=S.kuDone[ku.id];
+  showPanel('review');
+  if(done){ renderDone(ku,done); return; }
+  startQuiz(ku);
+}
+
+function renderDone(ku,done){
+  const next=(S.kus[S.doc]||[]).find(k=>!S.kuDone[k.id]);
+  rvBody.innerHTML=`
+   <div class="kuhead"><div class="t">Knowledge Unit ${ku.pos}</div><b>${ku.title}</b>
+     <div class="m">trang ${ku.from}–${ku.to}</div></div>
+   <div class="doneCard"><b>✓ Bạn đã ôn phần này rồi</b>
+     <p>Lần trước bạn nói lại được <b>${done.score}/${done.total}</b> câu.</p></div>
+   <div class="acts" style="display:flex;gap:10px;flex-wrap:wrap">
+     <button class="btn-primary" onclick="startQuiz(S.kus[S.doc][${ku.pos-1}],true)">Ôn lại</button>
+     ${next?`<button class="ghost" onclick="jumpToKU('${next.id}')">Bỏ qua → KU${next.pos}</button>`
+           :`<button class="ghost" onclick="showPanel('chat')">Bỏ qua</button>`}
+   </div>
+   <p class="hint">Bỏ qua sẽ đưa bạn tới phần bạn chưa ôn, không bắt làm lại.</p>`;
+}
+
+function jumpToKU(id){
+  const ku=(S.kus[S.doc]||[]).find(k=>k.id===id); if(!ku)return;
+  if(DOCS[S.doc] && DOCS[S.doc].blobUrl){ gotoPdfPage(ku.from); startQuiz(ku); return; }
+  const el=document.getElementById('pg'+ku.from);
+  if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+  setTimeout(()=>{ syncReviewBtn(); startQuiz(ku); },350);
+}
+
+function startQuiz(ku,again){
+  S.quiz={ku,i:0,score:0,again:!!again};
+  showPanel('review'); renderQuestion();
+}
+
+function renderQuestion(){
+  const {ku,i}=S.quiz, q=ku.questions[i];
+  rvBody.innerHTML=`
+   <div class="kuhead"><div class="t">Knowledge Unit ${ku.pos}${S.quiz.again?' · ôn lại':''}</div>
+     <b>${ku.title}</b><div class="m">trang ${ku.from}–${ku.to}</div></div>
+   <div class="qmeta"><span class="qtype ${q.type}">${q.label}</span>
+     <span class="qdiff">${q.difficulty||''}</span>
+     <span class="sp"></span><span class="qcount">Câu ${i+1}/${ku.questions.length}</span></div>
+   ${q.learning_objective?`<p class="qobj">Mục tiêu: ${q.learning_objective}</p>`:''}
+   <div class="q">${q.text}</div>
+   <textarea id="qin" placeholder="Trả lời bằng lời của bạn…"></textarea>
+   <div class="acts">
+     <button class="btn-primary" id="qsend">Gửi</button>
+     <button class="ghost" onclick="showPanel('chat')">Để sau</button>
+   </div>
+   <p class="hint">Không có điểm số. Mình chỉ đối chiếu câu của bạn với đoạn tài liệu của KU này.</p>`;
+  qsend.onclick=submitQuizAnswer; setTimeout(()=>qin.focus(),60);
+}
+
+/* Chấm theo đúng shape của backend: correct_points / missing_points.
+   Offline dùng heuristic; có API.base thì gọi POST /learning-sessions/{id}/answers. */
+async function evalAnswer(txt,q){
+  if(API.base && API.sessionId){
+    try{
+      const r=await fetch(`${API.base}/learning-sessions/${API.sessionId}/answers`,{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({question_id:q.id,user_answer:txt})});
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const ev=(await r.json()).evaluation;
+      return {correct:ev.correct_points||[], missing:ev.missing_points||[],
+              feedback:ev.feedback, score:ev.overall_score, live:true};
+    }catch(e){ console.warn('BE lỗi, chấm cục bộ:',e.message); }
+  }
+  const w=txt.trim().split(/\s+/).filter(Boolean).length;
+  const req=q.required_points||[];
+  const correct=[], missing=[];
+  req.forEach((p,k)=>{ (w>=12 && (k===0||w>=25)) ? correct.push(p) : missing.push(p); });
+  return {correct,missing,score:req.length?correct.length/req.length:0,live:false};
+}
+
+async function submitQuizAnswer(){
+  const txt=qin.value.trim(); if(!txt)return;
+  const {ku,i}=S.quiz, q=ku.questions[i];
+  qsend.disabled=true; qsend.textContent='Đang đối chiếu…';
+  const ev=await evalAnswer(txt,q);
+  const full = ev.missing.length===0;
+  if(full) S.quiz.score++;
+  const last=i+1>=ku.questions.length;
+  rvBody.innerHTML=`
+   <div class="kuhead"><div class="t">Knowledge Unit ${ku.pos}</div><b>${ku.title}</b>
+     <div class="m">trang ${ku.from}–${ku.to}</div></div>
+   ${ev.correct.map(p=>`<div class="vline ok"><span class="g">✅</span>
+      <div><b>Bạn đã nêu:</b> ${p}</div></div>`).join('')}
+   ${ev.missing.map(p=>`<div class="vline miss"><span class="g">⭕</span>
+      <div><b>Bạn chưa nêu:</b> ${p}</div></div>`).join('')}
+   ${ev.feedback?`<div class="vline src"><div>${ev.feedback}</div></div>`:''}
+   <div class="vline src"><div style="display:flex;gap:11px"><span class="g">🎙️</span>
+     <div><b>Nguồn của phần này</b> — trang ${ku.from}–${ku.to}</div></div>
+     <div class="acts">
+       ${last?`<button class="btn-primary" onclick="finishQuiz()">Xong KU${ku.pos}</button>`
+             :`<button class="btn-primary" onclick="S.quiz.i++;renderQuestion()">Câu tiếp →</button>`}
+       <button class="ghost" onclick="renderQuestion()">Viết lại</button></div></div>
+   <p class="hint">${ev.live?'Chấm bởi backend theo rubric của câu hỏi.'
+     :'Bản offline chỉ ước lượng theo độ đầy đủ. Bật backend để chấm đúng theo rubric.'}</p>`;
+}
+
+function finishQuiz(){
+  const {ku,score}=S.quiz;
+  S.kuDone[ku.id]={score,total:ku.questions.length,at:Date.now()};
+  const next=(S.kus[S.doc]||[]).find(k=>!S.kuDone[k.id]);
+  rvBody.innerHTML=`
+   <div class="doneCard"><b>✓ Xong Knowledge Unit ${ku.pos}</b>
+     <p>Bạn nói lại được <b>${score}/${ku.questions.length}</b> câu của phần này.</p></div>
+   <div class="acts" style="display:flex;gap:10px;flex-wrap:wrap">
+     ${next?`<button class="btn-primary" onclick="jumpToKU('${next.id}')">Sang KU${next.pos} →</button>`
+           :`<button class="btn-primary" onclick="showPanel('chat')">Đã ôn hết tài liệu</button>`}
+     <button class="ghost" onclick="showPanel('chat')">Quay lại đọc</button></div>`;
+  S.quiz=null; syncReviewBtn();
+}
+
 function syncPage(){
-  const p=curPage(); pvNum.textContent=p;
+  const p=curPage(); pvNum.textContent=p; syncReviewBtn();
   notecount.textContent=`Trang ${p} · ${(S.doc==='d03b'&&p===8)?S.notes:0} note`;
   if(recall.classList.contains('hide')) ph_tag.textContent='Trang slide: '+p;
 }
 function jumpTo(n){ const el=document.getElementById('pg'+n); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }
-function step(d){ const a=pageNums(), i=a.indexOf(curPage()); jumpTo(a[Math.max(0,Math.min(a.length-1,i+d))]); }
+function step(d){
+  if(DOCS[S.doc] && DOCS[S.doc].blobUrl){ gotoPdfPage((S.pdfPage||1)+d); return; }
+  const a=pageNums(), i=a.indexOf(curPage()); jumpTo(a[Math.max(0,Math.min(a.length-1,i+d))]);
+}
 pvPrev.onclick=()=>step(-1); pvNext.onclick=()=>step(1);
+reviewBtn.onclick=openReview;
 
 /* ---- gập panel / sidebar ---- */
 edgeR.onclick=()=>rd.classList.toggle('panel-open');
@@ -906,7 +1306,8 @@ sp_recall.onclick=()=>{
   showRecall();
 };
 function showRecall(){
-  chat.classList.add('hide'); recall.classList.remove('hide'); composer.classList.add('hide');
+  chat.classList.add('hide'); review.classList.add('hide');
+  recall.classList.remove('hide'); composer.classList.add('hide');
   ph_title.textContent='Nói Lại Đi'; ph_sub.textContent='Đối chiếu với đoạn bạn vừa che';
   ph_tag.textContent='Trang '+(S.sel?S.sel.page:'—')+' · đoạn đã chọn';
   ph_ico.innerHTML='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18v2M15 18v2"/><path d="M12 3a6 6 0 00-3 11v3h6v-3a6 6 0 00-3-11z"/></svg>';
@@ -923,8 +1324,25 @@ function showRecall(){
   rc_ask.classList.remove('hide'); rc_out.classList.add('hide'); rc_out.innerHTML='';
   rc_in.value=''; rc_q.innerHTML=S.card.question; setTimeout(()=>rc_in.focus(),80);
 }
+/* chuyển giữa 3 chế độ của panel phải: chat / recall / review */
+function showPanel(mode){
+  unredact();
+  chat.classList.toggle('hide', mode!=='chat');
+  recall.classList.toggle('hide', mode!=='recall');
+  review.classList.toggle('hide', mode!=='review');
+  composer.classList.toggle('hide', mode!=='chat');
+  if(mode==='review'){
+    ph_title.textContent='Ôn tập theo Knowledge Unit';
+    ph_sub.textContent='Bộ câu hỏi của phần bạn đang đọc';
+    ph_ico.innerHTML='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18v2M15 18v2"/><path d="M12 3a6 6 0 00-3 11v3h6v-3a6 6 0 00-3-11z"/></svg>';
+    quota.innerHTML='<div class="r"><span>Quota Tutor trong ngày</span><span class="free">không dùng quota</span></div><div class="bar"><i style="width:33%"></i></div>';
+  }
+  if(mode==='chat') showChat();
+}
+
 function showChat(){
-  unredact(); recall.classList.add('hide'); chat.classList.remove('hide'); composer.classList.remove('hide');
+  unredact(); recall.classList.add('hide'); review.classList.add('hide');
+  chat.classList.remove('hide'); composer.classList.remove('hide');
   ph_title.textContent='VLearn Tutor'; ph_sub.textContent='Trợ lý học theo ngữ cảnh';
   ph_ico.innerHTML='<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="7" width="16" height="12" rx="3"/><circle cx="9" cy="13" r="1.2" fill="currentColor"/><circle cx="15" cy="13" r="1.2" fill="currentColor"/><path d="M12 4v3"/></svg>';
   quota.innerHTML='<div class="r"><span>Quota Tutor trong ngày</span><span>5 / 15 câu</span></div><div class="bar"><i></i></div>';
