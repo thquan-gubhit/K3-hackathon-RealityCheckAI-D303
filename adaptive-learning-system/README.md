@@ -4,7 +4,7 @@ Nền tảng MVP học tập theo Active Recall thích ứng. Hệ thống đư�
 workflow làm lõi, rule engine kiểm soát quyết định xác định, LLM xử lý tác vụ ngữ
 nghĩa và Tutor Agent chỉ xử lý ngoại lệ.
 
-Repository hiện hoàn thành và kiểm thử **Phase 1–5**: xử lý PDF/Knowledge Map,
+Repository hiện hoàn thành và kiểm thử **Phase 1–6 / MVP v1.0**: xử lý PDF/Knowledge Map,
 sinh câu hỏi Recall–Explain–Apply có rubric bất biến, đánh giá câu trả lời, điều
 phối phiên học và mastery bằng rule xác định, cùng Tutor Agent giới hạn bước,
 allow-list tool và có audit trace.
@@ -150,7 +150,9 @@ python scripts/run_frontend.py
 ```
 
 Mở <http://127.0.0.1:8501>. Home kiểm tra backend; các trang hỗ trợ upload/xử lý
-PDF, xem Knowledge Map, học theo câu hỏi thích nghi và theo dõi tiến độ.
+PDF, xem Knowledge Map, học theo câu hỏi thích nghi và theo dõi tiến độ. Trang
+**Auto Learning** là luồng khuyến nghị: chọn PDF một lần để tự động upload,
+process, tạo Knowledge Map, tạo session và nạp câu hỏi đầu tiên.
 
 ## Chạy test
 
@@ -167,18 +169,23 @@ pytest --cov=app --cov=frontend --cov-report=term-missing
 Suite qua Phase 5 hiện có 99 test. Test dùng fake structured LLM, không gọi API
 thật, và dùng database SQLite tạm khi cần.
 
-## Demo flow Phase 1–5
+## Demo flow MVP v1.0
 
 1. Sao chép `.env.example` thành `.env` và điền cấu hình bắt buộc.
-2. Chạy `python scripts/init_db.py`.
-3. Khởi động backend; gọi `GET /health` và xác nhận trạng thái `ok`.
-4. Khởi động Streamlit, upload một PDF có text và chọn **Process document**.
-5. Xác nhận trạng thái `ready`, coverage 100% và mở **Knowledge Map**.
-6. Mở **Study Session**, chọn tài liệu/KU, đọc unit, trả lời lần lượt các câu hỏi
-   và quan sát feedback/mastery.
-7. Lặp lại một misconception để kiểm tra Tutor Agent khi `AGENT_ENABLED=true`;
+2. Chạy `python scripts/init_db.py`. Có thể chạy thêm
+   `python scripts/seed_demo.py` để tạo Knowledge Map và 9 câu hỏi demo offline,
+   không gọi LLM.
+3. Khởi động backend và Streamlit, rồi mở **Auto Learning**.
+4. Chọn một PDF có text. Chờ pipeline tự upload → tạo Knowledge Map → tạo
+   lesson → nạp câu hỏi đầu tiên.
+5. Học với toàn bộ slide nguồn ở cột trái và KU tương ứng ở cột phải. Đổi KU
+   bằng dropdown; hệ thống tự tạo session/câu hỏi cho KU mới.
+6. Trả lời câu hỏi và quan sát feedback/mastery.
+7. Có thể dùng các trang Upload Document, Knowledge Map và Study Session cũ
+   nếu muốn điều khiển từng bước.
+8. Lặp lại một misconception để kiểm tra Tutor Agent khi `AGENT_ENABLED=true`;
    đặt `false` để xác nhận workflow học thông thường vẫn hoạt động.
-8. Mở **Progress Dashboard** và chạy `pytest -v`.
+9. Mở **Progress Dashboard** và chạy `pytest -v`.
 
 ## Cấu trúc chính
 
@@ -206,6 +213,7 @@ scripts/      Lệnh tiện ích khởi tạo/chạy ứng dụng
 - [10 — API specification](docs/10_API_SPECIFICATION.md)
 - [11 — Test plan](docs/11_TEST_PLAN.md)
 - [12 — Runbook](docs/12_RUNBOOK.md)
+- [13 — Security and hardening](docs/13_SECURITY_AND_HARDENING.md)
 - [Architecture decisions](docs/DECISIONS.md)
 - [Progress](docs/PROGRESS.md)
 - [TODO](docs/TODO.md)

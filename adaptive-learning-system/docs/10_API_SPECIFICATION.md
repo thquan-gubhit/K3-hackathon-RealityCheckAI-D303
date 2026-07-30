@@ -149,7 +149,7 @@ Implemented application errors use:
     "code": "DOCUMENT_NOT_FOUND",
     "message": "The requested document does not exist.",
     "details": {},
-    "request_id": null
+    "request_id": "d4d64df9-7bb1-4e66-9e52-c47e882e43bf"
   }
 }
 ```
@@ -168,3 +168,9 @@ Recommended status mapping:
 | `504` | LLM/provider timeout |
 
 Error messages must be actionable and must never include API keys, provider authorization headers, full document content, or private agent reasoning.
+
+Every response includes an `X-Request-ID` header. Clients may supply a safe
+`X-Request-ID` containing letters, digits, `.`, `_`, `:`, or `-`; otherwise the
+server generates a UUID. Framework validation, unknown routes/methods, and
+unexpected failures use the same envelope with `VALIDATION_ERROR`,
+`ROUTE_NOT_FOUND`, `METHOD_NOT_ALLOWED`, or `INTERNAL_SERVER_ERROR`.

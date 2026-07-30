@@ -4,11 +4,15 @@ from __future__ import annotations
 
 from contextlib import asynccontextmanager
 import logging
+import re
 from typing import AsyncIterator
+from uuid import uuid4
 
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.api.documents import router as documents_router
 from app.api.agent import router as agent_router
@@ -22,6 +26,7 @@ from app.logging_config import JsonLogFormatter
 
 
 logger = logging.getLogger(__name__)
+_REQUEST_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$")
 
 
 class HealthResponse(BaseModel):
@@ -88,21 +93,37 @@ def create_app(
     runtime_settings = settings or get_settings()
     application = FastAPI(
         title=runtime_settings.app_name,
-        version="0.2.0",
+        version="1.0.0",
         debug=runtime_settings.debug,
         lifespan=lifespan,
     )
     application.state.settings = runtime_settings
     application.state.llm_client = llm_client
 
+    @application.middleware("http")
+    async def attach_request_id(request: Request, call_next):
+        """Use a safe caller ID or generate one and echo it on every response."""
+
+        supplied = request.headers.get("X-Request-ID", "").strip()
+        request_id = (
+            supplied
+            if supplied and _REQUEST_ID_PATTERN.fullmatch(supplied)
+            else str(uuid4())
+        )
+        request.state.request_id = request_id
+        response = await call_next(request)
+        response.headers["X-Request-ID"] = request_id
+        return response
+
     @application.exception_handler(AppError)
     async def handle_app_error(
         request: Request,
         exc: AppError,
     ) -> JSONResponse:
-        request_id = request.headers.get("X-Request-ID")
+        request_id = request.state.request_id
         logger.warning(
-            "application_error code=%s status=%d path=%s",
+            "application_error request_id=%s code=%s status=%d path=%s",
+            request_id,
             exc.code,
             exc.status_code,
             request.url.path,
@@ -110,6 +131,87 @@ def create_app(
         return JSONResponse(
             status_code=exc.status_code,
             content=exc.to_dict(request_id=request_id),
+        )
+
+    @application.exception_handler(RequestValidationError)
+    async def handle_validation_error(
+        request: Request,
+        exc: RequestValidationError,
+    ) -> JSONResponse:
+        """Return stable, input-safe field locations for invalid requests."""
+
+        request_id = request.state.request_id
+        fields = [
+            {
+                "location": ".".join(str(part) for part in error["loc"]),
+                "type": error["type"],
+            }
+            for error in exc.errors()
+        ]
+        logger.warning(
+            "application_error request_id=%s code=VALIDATION_ERROR "
+            "status=422 path=%s",
+            request_id,
+            request.url.path,
+        )
+        return JSONResponse(
+            status_code=422,
+            content=AppError(
+                "VALIDATION_ERROR",
+                "The request did not match the required schema.",
+                status_code=422,
+                details={"fields": fields},
+            ).to_dict(request_id=request_id),
+        )
+
+    @application.exception_handler(StarletteHTTPException)
+    async def handle_http_error(
+        request: Request,
+        exc: StarletteHTTPException,
+    ) -> JSONResponse:
+        """Normalize framework-level route and method errors."""
+
+        request_id = request.state.request_id
+        code = (
+            "ROUTE_NOT_FOUND"
+            if exc.status_code == 404
+            else "METHOD_NOT_ALLOWED"
+            if exc.status_code == 405
+            else "HTTP_ERROR"
+        )
+        return JSONResponse(
+            status_code=exc.status_code,
+            content=AppError(
+                code,
+                "The requested route is unavailable."
+                if exc.status_code == 404
+                else "The HTTP request could not be completed.",
+                status_code=exc.status_code,
+            ).to_dict(request_id=request_id),
+        )
+
+    @application.exception_handler(Exception)
+    async def handle_unexpected_error(
+        request: Request,
+        exc: Exception,
+    ) -> JSONResponse:
+        """Hide exception messages while retaining safe diagnostic metadata."""
+
+        request_id = request.state.request_id
+        logger.error(
+            "unhandled_application_error request_id=%s path=%s "
+            "error_type=%s",
+            request_id,
+            request.url.path,
+            type(exc).__name__,
+        )
+        return JSONResponse(
+            status_code=500,
+            content=AppError(
+                "INTERNAL_SERVER_ERROR",
+                "An unexpected server error occurred.",
+                status_code=500,
+            ).to_dict(request_id=request_id),
         )
 
     @application.get(

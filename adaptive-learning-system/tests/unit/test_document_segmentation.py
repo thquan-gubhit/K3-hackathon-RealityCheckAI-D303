@@ -56,3 +56,27 @@ def test_word_ceiling_and_blank_page_exclusion_are_explicit() -> None:
     assert result.excluded_pages == {
         2: "No machine-readable text was found on this page."
     }
+
+
+def test_short_administrative_slide_is_explicitly_excluded() -> None:
+    result = create_candidate_segments(
+        [
+            _page(1, "Probability definitions and worked examples."),
+            _page(2, "Bài tập\nteacher@example.edu.vn\n22"),
+        ]
+    )
+
+    assert result.readable_pages == (1,)
+    assert result.excluded_pages[2].startswith(
+        "Short administrative"
+    )
+    assert result.segments[0].source_pages == (1,)
+
+
+def test_short_academic_slide_is_not_excluded_by_word_count_alone() -> None:
+    result = create_candidate_segments(
+        [_page(1, "Định lý Bayes và xác suất có điều kiện.")]
+    )
+
+    assert result.readable_pages == (1,)
+    assert result.excluded_pages == {}

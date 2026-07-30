@@ -152,6 +152,39 @@ class CoverageRepairFakeKnowledgeUnitLLM(FakeKnowledgeUnitLLM):
         if self.calls != 1:
             return valid
         payload = valid.model_dump(mode="json")
+        unrelated = (
+            ("Astronomy", "Stars and galaxies", ["stars", "galaxies"]),
+            ("Cooking", "Recipes and ingredients", ["recipes", "ingredients"]),
+            ("Music", "Rhythm and melody", ["rhythm", "melody"]),
+        )
+        for candidate, (title, summary, concepts) in zip(
+            payload["candidates"],
+            unrelated,
+            strict=True,
+        ):
+            candidate["title"] = title
+            candidate["summary"] = summary
+            candidate["learning_objectives"] = [f"Explain {title}"]
+            candidate["key_concepts"] = concepts
+        payload["candidates"][2]["source_pages"] = [2]
+        return response_model.model_validate(payload)
+
+
+class PersistentCoverageGapFakeLLM(FakeKnowledgeUnitLLM):
+    """Keep omitting page 3 so deterministic final repair must handle it."""
+
+    def generate_structured(
+        self,
+        messages: Sequence[Mapping[str, str]],
+        response_model: type[ModelT],
+        temperature: float | None = None,
+    ) -> ModelT:
+        valid = super().generate_structured(
+            messages,
+            response_model,
+            temperature,
+        )
+        payload = valid.model_dump(mode="json")
         payload["candidates"][2]["source_pages"] = [2]
         return response_model.model_validate(payload)
 
@@ -287,6 +320,41 @@ def test_missing_page_coverage_is_repaired_within_bound(tmp_path: Path) -> None:
         assert processed.json()["coverage"]["coverage_ratio"] == 1.0
         assert repair_llm.calls == 2
         assert "CURRENT_MISSING_PAGES:\n[3]" in repair_llm.prompts[1]
+    finally:
+        engine.dispose()
+
+
+def test_persistent_example_gap_uses_deterministic_final_repair(
+    tmp_path: Path,
+) -> None:
+    gap_llm = PersistentCoverageGapFakeLLM()
+    client, _fake_llm, engine = _phase2_client(
+        tmp_path,
+        fake_llm=gap_llm,
+    )
+    fixture = PROJECT_ROOT / "tests" / "fixtures" / "demo_machine_learning.pdf"
+
+    try:
+        with client:
+            upload = client.post(
+                "/documents/upload",
+                files={
+                    "file": (
+                        "machine-learning.pdf",
+                        fixture.read_bytes(),
+                        "application/pdf",
+                    )
+                },
+            )
+            processed = client.post(
+                f"/documents/{upload.json()['id']}/process"
+            )
+
+        assert processed.status_code == 200
+        assert processed.json()["coverage"]["coverage_ratio"] == 1.0
+        assert gap_llm.calls == 1
+        third_unit = processed.json()["knowledge_units"][2]
+        assert third_unit["source_pages"] == [2, 3]
     finally:
         engine.dispose()
 

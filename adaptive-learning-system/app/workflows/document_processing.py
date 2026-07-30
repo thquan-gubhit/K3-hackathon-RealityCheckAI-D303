@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import logging
+import re
 from typing import Any, Sequence
 
 from sqlalchemy.exc import SQLAlchemyError
@@ -39,6 +40,27 @@ from app.services.pdf_parser import PdfParseError, PdfParser
 
 
 logger = logging.getLogger(__name__)
+_COVERAGE_TOKEN_PATTERN = re.compile(r"\w+", re.UNICODE)
+_CONTINUATION_MARKERS = (
+    "ví dụ",
+    "thí dụ",
+    "bài tập",
+    "đề thi",
+    "example",
+    "exercise",
+)
+_COVERAGE_STOP_WORDS = {
+    "và",
+    "của",
+    "cho",
+    "một",
+    "các",
+    "là",
+    "the",
+    "and",
+    "for",
+    "with",
+}
 
 
 @dataclass(frozen=True, slots=True)
@@ -226,10 +248,37 @@ class DocumentProcessingWorkflow:
                 return batch, validation
 
             if not validation.coverage.is_valid:
+                repaired_batch = self._repair_missing_page_coverage(
+                    batch,
+                    validation.coverage.missing_pages,
+                    segmentation.segments,
+                )
+                if repaired_batch is not None:
+                    repaired_validation = service.validate_batch(
+                        repaired_batch,
+                        expected_pages,
+                        excluded_pages=segmentation.excluded_pages,
+                        refinement_round=refinement_round,
+                        min_units=3,
+                        max_units=10,
+                    )
+                    if repaired_validation.is_valid:
+                        logger.info(
+                            "coverage_repaired_deterministically "
+                            "assigned_pages=%s",
+                            validation.coverage.missing_pages,
+                        )
+                        return repaired_batch, repaired_validation
                 if (
                     refinement_round
                     >= self._settings.ku_max_refinement_rounds
                 ):
+                    logger.warning(
+                        "coverage_refinement_exhausted "
+                        "missing_pages=%s unexpected_pages=%s",
+                        validation.coverage.missing_pages,
+                        validation.coverage.unexpected_pages,
+                    )
                     raise KnowledgeUnitServiceError(
                         "INVALID_SOURCE_COVERAGE",
                         "Knowledge Units did not cover every readable "
@@ -279,6 +328,89 @@ class DocumentProcessingWorkflow:
             "NO_VALID_KNOWLEDGE_UNITS",
             "No valid Knowledge Map was produced within the refinement limit.",
         )
+
+    @staticmethod
+    def _repair_missing_page_coverage(
+        batch: KnowledgeUnitBatch,
+        missing_pages: Sequence[int],
+        segments: Sequence[SourceSegment],
+    ) -> KnowledgeUnitBatch | None:
+        """Assign omitted continuation/example pages to the best existing KU.
+
+        This fallback runs only after semantic coverage refinement is exhausted.
+        A group must either share meaningful tokens with its selected KU or be
+        explicitly labeled as an example/exercise continuation. It never
+        invents a new unit or changes semantic content.
+        """
+
+        if not missing_pages or not batch.candidates:
+            return None
+        segment_by_page = {
+            page: segment
+            for segment in segments
+            for page in segment.source_pages
+        }
+        original_pages = [
+            set(candidate.source_pages) for candidate in batch.candidates
+        ]
+        updated_pages = [set(pages) for pages in original_pages]
+
+        for group in _consecutive_page_groups(missing_pages):
+            relevant_segments = [
+                segment_by_page[page]
+                for page in group
+                if page in segment_by_page
+            ]
+            if len(relevant_segments) != len(group):
+                return None
+            group_text = "\n".join(
+                f"{segment.heading or ''}\n{segment.text}"
+                for segment in relevant_segments
+            )
+            group_tokens = _coverage_tokens(group_text)
+            is_continuation = any(
+                marker in group_text.casefold()
+                for marker in _CONTINUATION_MARKERS
+            )
+
+            ranked: list[tuple[int, int, int]] = []
+            for index, candidate in enumerate(batch.candidates):
+                candidate_text = " ".join(
+                    [
+                        candidate.title,
+                        candidate.summary,
+                        *candidate.learning_objectives,
+                        *candidate.key_concepts,
+                    ]
+                )
+                overlap = len(
+                    group_tokens.intersection(
+                        _coverage_tokens(candidate_text)
+                    )
+                )
+                distance = min(
+                    abs(page - source_page)
+                    for page in group
+                    for source_page in original_pages[index]
+                )
+                ranked.append((overlap, -distance, -index))
+
+            best_index = max(
+                range(len(ranked)),
+                key=lambda index: ranked[index],
+            )
+            best_overlap = ranked[best_index][0]
+            if best_overlap < 2 and not is_continuation:
+                return None
+            updated_pages[best_index].update(group)
+
+        repaired_candidates = [
+            candidate.model_copy(
+                update={"source_pages": sorted(updated_pages[index])}
+            )
+            for index, candidate in enumerate(batch.candidates)
+        ]
+        return KnowledgeUnitBatch(candidates=repaired_candidates)
 
     @staticmethod
     def _apply_rule_actions(
@@ -460,6 +592,28 @@ class DocumentProcessingWorkflow:
             "The document could not be processed.",
             status_code=500,
         )
+
+
+def _coverage_tokens(text: str) -> set[str]:
+    return {
+        token
+        for token in _COVERAGE_TOKEN_PATTERN.findall(text.casefold())
+        if len(token) > 1
+        and token not in _COVERAGE_STOP_WORDS
+        and not token.isdigit()
+    }
+
+
+def _consecutive_page_groups(
+    pages: Sequence[int],
+) -> list[tuple[int, ...]]:
+    groups: list[list[int]] = []
+    for page in sorted(set(pages)):
+        if not groups or page != groups[-1][-1] + 1:
+            groups.append([page])
+        else:
+            groups[-1].append(page)
+    return [tuple(group) for group in groups]
 
 
 __all__ = [

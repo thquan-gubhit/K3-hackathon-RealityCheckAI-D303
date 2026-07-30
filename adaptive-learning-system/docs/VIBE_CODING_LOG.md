@@ -294,3 +294,169 @@ pytest tests/integration/test_document_processing_api.py -q
 pytest -q
 → 100 passed, 1 upstream TestClient deprecation warning
 ```
+
+## 2026-07-30 — Phase 6 hardening and MVP v1.0
+
+### Goal
+
+Close the local MVP with stable framework-level errors, request correlation,
+log/secret protections, reproducible demo data, cross-platform verification,
+and complete documentation traceability.
+
+### Implemented
+
+- Added safe generated/preserved `X-Request-ID` values to every response and
+  error log.
+- Normalized Pydantic validation, route/method, application, and unexpected
+  failures into the documented error envelope.
+- Added credential-pattern redaction and 4,000-character bounds to structured
+  log message/exception fields.
+- Added static guards against logging page/source/rubric/key fields and against
+  committing local `.env`, SQLite, upload, or Streamlit secret artifacts.
+- Added `scripts/seed_demo.py`: an idempotent offline seed for one parsed
+  document, three Knowledge Units, and nine immutable questions.
+- Added Markdown-link/fenced-block checks and a GitHub Actions Python 3.11
+  matrix for Windows, Ubuntu, and macOS.
+- Published project/API version 1.0.0 and synchronized README, API spec,
+  runbook, test plan, TODO, progress, and hardening documentation.
+
+### Verification
+
+```text
+pytest tests/unit/test_logging.py tests/integration/test_error_contracts.py -q
+→ 5 passed
+
+pytest tests/integration/test_seed_demo.py -q
+→ 1 passed
+
+pytest -q
+→ 109 passed, 1 upstream TestClient deprecation warning
+
+pytest -q --cov=app --cov=frontend --cov-report=term-missing
+→ total coverage 77%
+
+MVP smoke
+→ health/request ID, seeded 3×3 assessment map, stable 404, and network
+  frontend/backend all passed
+```
+
+### Remaining production gaps
+
+Authentication, TLS termination, rate limiting, migrations, encrypted-at-rest
+uploads, background jobs, and backup/restore remain outside the local MVP.
+
+## 2026-07-30 — One-upload Auto Learning experience
+
+### Request
+
+Keep the existing step-by-step pages, but add one page where selecting a PDF
+automatically uploads it, creates the Knowledge Map, starts a learning session,
+and loads the first question. Show the KU beside all source slides assigned to
+it, such as slides 1–4 for KU1 and slides 5–10 for KU2.
+
+### Implemented
+
+- Added `frontend/pages/5_Auto_Learning.py` without changing the existing pages.
+- File SHA-256 state prevents upload/process calls from repeating on Streamlit
+  reruns.
+- The first KU session and question are prepared automatically; changing KU
+  creates its session/question without reprocessing the document.
+- All source pages assigned to the KU are rendered vertically in the left
+  column, with lesson summary/objectives/concepts/misconceptions on the right.
+- Answer submission remains explicit; feedback, mastery, and the next question
+  load in the same page.
+- Pipeline failures retain completed stages and expose a scoped retry action.
+
+### Verification
+
+```text
+pytest tests/integration/test_frontend_auto_learning.py -q
+→ 1 passed
+
+pytest -q
+→ 110 passed, 1 upstream TestClient deprecation warning
+```
+
+## 2026-07-30 — Administrative-slide coverage fix
+
+### Problem
+
+`B1 - ND.pdf` repeatedly failed `INVALID_SOURCE_COVERAGE`. Offline inspection
+showed 22 extracted pages, while slide 22 contained only an exercise heading,
+instructor email, and page number. The old segmenter treated it as standalone
+learning content, but it did not warrant an independent KU.
+
+### Fix
+
+- Added conservative deterministic detection for very short administrative,
+  closing, exercise-title, Q&A, and reference slides.
+- Email addresses and page numbers do not count as learning words.
+- Marker matching alone is insufficient: pages longer than 12 semantic words
+  remain readable, preventing short academic slides from being excluded merely
+  because they are short.
+- Each excluded page retains an explicit reason in coverage evidence.
+- Added safe logging of missing/unexpected page numbers when bounded coverage
+  refinement is exhausted.
+
+### Verification
+
+```text
+B1 - ND.pdf offline segmentation
+→ pages 1–21 readable
+→ page 22 explicitly excluded as administrative
+
+pytest -q
+→ 112 passed, 1 upstream TestClient deprecation warning
+```
+
+### Follow-up from real retry evidence
+
+The next live retry showed the model omitted different substantive example
+slides on each run: first `16, 17, 21`, then `9–12, 21`. This proved that
+administrative exclusion alone was insufficient.
+
+A bounded deterministic repair now groups consecutive missing pages immediately
+after each provider response, ranks existing KUs using semantic token overlap
+and original page proximity, and assigns only groups that overlap the selected
+KU or are explicitly marked as examples/exercises. Unrelated substantive groups
+still use bounded LLM refinement. A persistent-gap integration fake omits page
+3 in the first provider response and verifies that the persisted map reaches
+100% coverage without a second provider call.
+
+```text
+pytest -q
+→ 113 passed, 1 upstream TestClient deprecation warning
+```
+
+## 2026-07-30 — Source-language consistency
+
+### Problem
+
+The source-grounding prompts did not explicitly bind generated content to the
+language used by the slides, so a provider could default Knowledge Units,
+questions, or feedback to English.
+
+### Fix
+
+- Added one shared source-language policy to Knowledge Unit extraction and
+  refinement, question/rubric generation, answer evaluation, and Tutor Agent
+  prompts.
+- The dominant language carrying the slide's instructional meaning is now the
+  authoritative output language. Isolated technical terms, citations, proper
+  nouns, formulas, and code do not cause a language switch.
+- Evaluation evidence and feedback stay in the slide language even when the
+  learner answers in another language.
+- JSON fields, identifiers, action names, and enum values remain unchanged so
+  structured-output parsing stays stable.
+
+### Verification
+
+```text
+pytest tests/unit/test_llm_prompt_language_policy.py \
+  tests/integration/test_document_processing_api.py \
+  tests/integration/test_full_learning_and_agent_flow.py -q
+→ 11 passed, 1 upstream TestClient deprecation warning
+
+pytest -q
+→ 118 passed, 1 upstream TestClient deprecation warning
+```
