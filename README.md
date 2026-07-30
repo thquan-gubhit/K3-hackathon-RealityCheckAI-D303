@@ -14,7 +14,7 @@
 | Thành viên | Mã học viên | Phụ trách |
 |---|---|---|
 | Trần Hoàng Quân | 2A202601805 | Structure, Workflow, Prompts và Evidence |
-| Đinh Huy Mạnh | 2A202601677 | Slide |
+| Đinh Huy Mạnh | 2A202601677 | Prompt |
 | Nguyễn Quang Hưng | 2A202601523 | UI |
 | Lê Minh Khiêm | 2A202601645 | Canvas |
 | Đàm Minh Tuấn | 2A202601169 | Spec, Evaluator, Structure, Workflow và Prompts |

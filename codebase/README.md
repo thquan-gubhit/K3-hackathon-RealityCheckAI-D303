@@ -8,7 +8,7 @@
 | 2 | Nguyễn Quang Hưng | 2A202601523 | UI |
 | 3 | Lê Minh Khiêm | 2A202601645 | Canvas |
 | 4 | Đàm Minh Tuấn | 2A202601169 | Spec, Evaluator, Structure, Workflow & Prompts |
-| 5 | Đinh Huy Mạnh | 2A202601677 | Slide |
+| 5 | Đinh Huy Mạnh | 2A202601677 | Prompt |
 ---
 
 ## Tóm tắt dự án

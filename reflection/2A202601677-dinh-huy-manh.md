@@ -1,42 +1,58 @@
 # Reflection — Đinh Huy Mạnh
 
 - **Mã học viên:** 2A202601677
-- **Vai trò chính:** Slide
+- **Vai trò chính:** Prompt
 
 ## Tôi đã làm gì?
 
-Tôi phụ trách chuyển nội dung kỹ thuật và sản phẩm của nhóm thành câu chuyện trình bày ngắn gọn. Tôi đã rà soát `spec.md`, phần evidence/JTBD và prototype để xác định những thông tin quan trọng cần xuất hiện trong bài trình bày: vấn đề của người học, bằng chứng, lát cắt sản phẩm, cách hệ thống đánh giá câu trả lời và giá trị của vòng Active Recall thích ứng.
+Tôi phụ trách phần prompt cho hệ thống học tập thích ứng. Công việc của tôi không chỉ là viết một câu lệnh cho mô hình mà là chuyển yêu cầu trong `spec.md` thành những chỉ dẫn có đầu vào, đầu ra và giới hạn rõ ràng để tích hợp được với workflow.
 
-Khi xây dựng hướng nội dung cho slide, tôi ưu tiên một mạch kể sáu phần: pain của người học, evidence, quyết định chọn giải pháp, trải nghiệm chính, cách hệ thống kiểm soát lỗi và kết quả kiểm thử. Tôi cũng phối hợp với các phần Spec, Evidence và Build để hạn chế việc slide đưa ra tuyên bố mạnh hơn dữ liệu mà nhóm đang có.
+Tôi tập trung vào các nhóm prompt chính:
+
+- tách tài liệu thành các Knowledge Unit có mục tiêu học độc lập;
+- sinh câu hỏi theo ba mức Recall, Explain và Apply;
+- sinh reference answer và rubric trước khi nhận câu trả lời của người học;
+- đánh giá câu trả lời theo bốn chiều Correctness, Coverage, Reasoning và Application;
+- phát hiện misconception, nội dung không có căn cứ và câu trả lời quá mơ hồ;
+- tạo feedback giúp người học biết phần nào đúng, thiếu hoặc sai và nên làm gì tiếp theo.
+
+Tôi phối hợp với phần Build để output của mô hình tuân theo schema có cấu trúc, có thể kiểm tra bằng Pydantic và được workflow sử dụng ổn định. Prompt không được tự quyết định toàn bộ luồng học: mô hình xử lý phần ngữ nghĩa, còn Rule Engine kiểm soát việc cập nhật mastery, chuyển câu hỏi hoặc kích hoạt remediation.
+
+Tôi cũng rà soát prompt theo các case trong Golden Set. Qua các lượt thử, nhóm nhận thấy Evaluator từng trừ điểm Correctness quá mạnh với câu trả lời chưa đầy đủ và đôi lúc không phát hiện misconception. Hướng điều chỉnh là tách rõ Correctness khỏi Coverage, yêu cầu mô hình chỉ kết luận từ source context và trả về các trường đánh giá riêng thay vì một nhận xét chung.
 
 ## Quyết định quan trọng nhất
 
-Quyết định quan trọng nhất của tôi là không biến slide thành bản sao rút gọn của toàn bộ spec. Với thời lượng demo ngắn, tôi chọn tập trung vào một thông điệp: người học không chỉ cần đọc lại tài liệu mà cần tự đưa kiến thức ra, nhận phản hồi có căn cứ và biết nên học tiếp hay ôn lại.
+Quyết định quan trọng nhất của tôi là yêu cầu sinh rubric và reference answer trước khi người học trả lời. Nếu rubric được tạo sau khi đã nhìn thấy câu trả lời, mô hình có thể thay đổi tiêu chí để hợp thức hóa hoặc phạt câu trả lời một cách thiếu nhất quán.
 
-Tôi cũng quyết định trình bày rõ giới hạn của bằng chứng thay vì che giấu chúng. Những tỷ lệ hoặc kết quả kiểm thử chỉ nên xuất hiện khi có thể truy ngược về dữ liệu và cách đo trong repo. Điều này giúp câu chuyện thuyết phục hơn và giảm rủi ro bị phản biện vì số liệu thiếu căn cứ.
+Tôi cũng chọn structured output thay cho văn bản tự do. Mỗi kết quả cần có điểm theo từng chiều, confidence, detected misconceptions và feedback. Cách này giúp code kiểm tra được output, xử lý lỗi rõ ràng và không phụ thuộc vào việc phân tích một đoạn văn do mô hình sinh ra.
+
+## Cách tôi kiểm soát lỗi của AI
+
+- **Không có căn cứ:** yêu cầu đánh giá chỉ dựa trên source context, reference answer và rubric.
+- **Thiếu thông tin:** hạ confidence và yêu cầu người học giải thích rõ hơn thay vì tự suy diễn.
+- **Ngoài phạm vi:** không chấm kiến thức không xuất hiện trong tài liệu như thể đó là đáp án chuẩn.
+- **Misconception:** tách lỗi sai bản chất khỏi câu trả lời chỉ thiếu ý để workflow chọn remediation phù hợp.
+- **Output sai cấu trúc:** schema validation chặn kết quả không hợp lệ trước khi cập nhật mastery.
+- **Lộ đáp án:** prompt sinh câu hỏi phải giữ reference answer và rubric ở phía hệ thống, không đưa chúng vào câu hỏi cho người học.
 
 ## Tôi học được gì?
 
-Tôi học được rằng slide cho sản phẩm AI không chỉ cần đẹp mà phải thể hiện được logic ra quyết định. Một bản trình bày tốt cần nối liền:
+Tôi học được rằng chất lượng prompt không nên được đánh giá bằng cảm giác “câu trả lời nghe hay”. Prompt tốt phải tạo ra hành vi có thể kiểm chứng trên nhiều trường hợp, đặc biệt là các trường hợp khó như câu trả lời ngắn, đúng một phần, bịa kiến thức hoặc diễn đạt khác reference answer nhưng vẫn hợp lý.
 
-1. người dùng và công việc họ cần hoàn thành;
-2. bằng chứng cho thấy vấn đề thực sự tồn tại;
-3. lý do chọn lát cắt này thay vì các phương án khác;
-4. phần AI quyết định và phần rule kiểm soát;
-5. cách nhóm kiểm thử chất lượng và xử lý khi AI không chắc chắn.
-
-Tôi cũng nhận ra tính nhất quán giữa slide, spec và prototype quan trọng hơn số lượng hiệu ứng. Nếu tên sản phẩm, job executor, evidence hoặc phân công khác nhau giữa các artifact, người nghe sẽ khó tin vào phần demo dù giao diện được trình bày tốt.
+Tôi cũng hiểu rõ hơn ranh giới giữa LLM và rule. LLM phù hợp với việc hiểu ngữ nghĩa và tạo phản hồi, nhưng các quyết định có ảnh hưởng đến trạng thái học tập cần có ngưỡng, schema và rule rõ ràng. Khi cost-of-error cao hoặc confidence thấp, hệ thống nên dừng và hỏi lại thay vì tự động kết luận.
 
 ## Nếu làm lại, tôi sẽ làm gì khác?
 
-Nếu làm lại, tôi sẽ chốt thông điệp và cấu trúc slide ngay sau khi nhóm khóa §1–§4, sau đó cập nhật dần theo changelog thay vì đợi gần buổi demo mới tổng hợp. Tôi cũng sẽ:
+Nếu làm lại, tôi sẽ quản lý prompt như một artifact có phiên bản ngay từ đầu. Mỗi lần thay đổi cần ghi:
 
-- tạo sớm một bản slide ít chữ để thử thời lượng trình bày;
-- yêu cầu mỗi số liệu trên slide có đường dẫn tới evidence tương ứng;
-- lấy ảnh thật từ prototype thay cho mockup khi luồng chính đã ổn định;
-- tập demo với ít nhất ba người ngoài nhóm và ghi lại câu hỏi họ chưa hiểu;
-- chuẩn bị phương án dự phòng nếu API hoặc kết nối mạng lỗi trong lúc trình bày.
+1. case nào đang thất bại;
+2. giả thuyết về nguyên nhân;
+3. phần prompt được sửa;
+4. kết quả trước và sau trên cùng Golden Set;
+5. lỗi hồi quy xuất hiện ở case khác.
+
+Tôi cũng sẽ bổ sung nhiều case lấy trực tiếp từ chatlog hoặc user validation, lưu log chạy độc lập thay vì chỉ ghi tỷ lệ trong spec, và thử prompt trên nhiều cách diễn đạt tiếng Việt để tránh tối ưu quá mức cho một bộ câu trả lời mẫu.
 
 ## Đóng góp tôi có thể giải thích khi được hỏi
 
-Tôi có thể giải thích cách chọn nội dung cho sáu trang, lý do ưu tiên mạch kể theo user pain → evidence → solution → demo → safety/evaluation → call to action, và cách kiểm tra để các tuyên bố trên slide không mâu thuẫn với `spec.md` hoặc prototype.
+Tôi có thể giải thích cấu trúc prompt cho từng bước, lý do tách Correctness và Coverage, cách rubric sinh trước giảm thiên lệch, cách structured output kết nối với Pydantic và Rule Engine, cũng như cách dùng Golden Set để phát hiện và sửa lỗi prompt.
