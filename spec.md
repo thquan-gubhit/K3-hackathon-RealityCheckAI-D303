@@ -1,4 +1,4 @@
-# AI SPEC — Kiểm chứng hiểu bài bằng Active Recall thích ứng · Nhóm [XX] · Zone [X]
+# AI SPEC — Reality Check AI · Nhóm [XX] · Zone [X]
 Hướng: [x] A — VLearn  [ ] B — Trợ lý Học viên  [ ] C — Làn mở
 Loại: [ ] Tối ưu tính năng có sẵn  [x] Tính năng mới
 
