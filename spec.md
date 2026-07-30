@@ -4,23 +4,21 @@ Loại: [ ] Tối ưu tính năng có sẵn  [ ] Tính năng mới
 
 
 ## §1. User & Job
-> **Gợi ý (từ Guide §1.1, §1.3 & Rubric R1):**
-> - **Job executor:** Một vai cụ thể (VD: học viên đang-trong-buổi-học), không phải "học viên nói chung".
-> - **Core JTBD:** Viết thành một câu `verb + object + bối cảnh` (không có chữ AI hay tên sản phẩm).
-> - **Problem statement:** Hiện tại họ giải quyết bằng gì? Nó fail ở đâu? Tại sao họ chưa bỏ nó?
-> - **Evidence:** Phải đếm được. Khảo sát (≥20 người ngoài nhóm, ≥50% xác nhận) và/hoặc Mining data (đếm được, có phương pháp, ≥5 ví dụ).
 
-- **Job executor + workflow** (đính kèm worksheet JTBD / ảnh sơ đồ): 
-- **Core JTBD** (không tên sản phẩm/AI trong câu): 
-- **Problem statement** (KHÔNG chữ AI): 
-- **Evidence** (chuẩn A và/hoặc B — log đầy đủ trong repo): 
-  - Số liệu mining / kết quả khảo sát (n = ?, % xác nhận): 
-  - ≥5 quote/ví dụ nguyên văn + nguồn: 
-    1. "[Quote 1]" - Nguồn: 
-    2. "[Quote 2]" - Nguồn: 
-    3. "[Quote 3]" - Nguồn: 
-    4. "[Quote 4]" - Nguồn: 
-    5. "[Quote 5]" - Nguồn: 
+- **Job executor + workflow:** Học viên đang trong buổi học trên VLearn, vừa gặp một khái niệm, đoạn chữ hoặc biểu đồ trên slide mà mình chưa hiểu. Họ bôi chọn đoạn và hỏi ngay trong trang; nếu câu trả lời chưa đủ, họ phải hỏi người khác, tự tìm kiếm hoặc bỏ qua để theo tiếp bài. Worksheet chi tiết: [`docs/jtbd-section1.md`](docs/jtbd-section1.md).
+- **Core JTBD:** Làm rõ ngay đoạn bài học vừa gặp mà mình chưa hiểu để tiếp tục theo kịp buổi học.
+- **Problem statement:** Hiện tại học viên dùng hộp hỏi đáp ngay trong trang vì nhanh và giữ được đoạn đang xem. Luồng này fail khi không truy được đúng nội dung, trả lời thiếu căn cứ hoặc dừng ở việc đưa lời giải mà không xác nhận người học đã hiểu; chuyển sang hỏi người khác hay tự tìm kiếm lại làm gián đoạn nhịp học, còn bỏ qua dễ để lại lỗ hổng.
+- **Evidence** (mining data; phương pháp và giới hạn ghi đầy đủ tại [`docs/evidence-section1.md`](docs/evidence-section1.md)):
+  - Trong 1.261 lượt hỏi của 369 học viên, proxy từ khóa xác định 578 lượt làm rõ nội dung (45,8%), đến từ 239 học viên (64,8%).
+  - Trong 578 câu trả lời tương ứng, 156 câu (27,0%) không có citation và chỉ 1 câu (0,17%) đặt câu hỏi kiểm tra hiểu.
+  - Rating chỉ có ở 30/578 lượt (5,2%); 14/30 là down-rating. Đây là mẫu tự chọn rất nhỏ nên chỉ dùng như tín hiệu phụ, không suy rộng cho toàn bộ người học.
+  - Ví dụ nguyên văn + nguồn:
+    1. “giải thích 4 chiến lược” — `C0002 / T0959`, trang 45.
+    2. “tại sao có lưu ý như trang 25” — `C0004 / T0154`, trang 25.
+    3. “Giải thích đoạn bôi đen ở Trang 15.” — `C0007 / T0020`, trang 15.
+    4. “"Context" là gì” — `C0013 / T0990`, trang 31.
+    5. “Designt Pattern ReAct là gì có lưu ý gì về nó?” — `C0015 / T0811`, trang 2.
+    6. “Giải thích biều đồ đc bôi đỏ” — `C0023 / T0399`, trang 6.
 
 ## §2. Impact & quyết định chọn
 > **Gợi ý (từ Rubric R1):** Lập bảng ít nhất 3 ứng viên.
