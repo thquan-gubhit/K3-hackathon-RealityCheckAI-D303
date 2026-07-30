@@ -9,6 +9,24 @@ sinh câu hỏi Recall–Explain–Apply có rubric bất biến, đánh giá c�
 phối phiên học và mastery bằng rule xác định, cùng Tutor Agent giới hạn bước,
 allow-list tool và có audit trace.
 
+## Nhóm & phân công
+
+| Thành viên | Mã học viên | Vai trò chính | Trách nhiệm và đầu ra |
+|---|---|---|---|
+| Trần Hoàng Quân | 2A202601805 | Bằng chứng | Mining chatlog, xác định phương pháp đếm, lưu các ví dụ có mã nguồn, tổng hợp số liệu pain/impact và kiểm tra các kết luận trong spec có thể truy ngược về evidence. |
+| Đinh Huy Mạnh | 2A202601677 | Prompt | Thiết kế và thử nghiệm prompt cho Knowledge Unit, câu hỏi Recall–Explain–Apply, rubric, đánh giá câu trả lời và Tutor Agent; ghi nhận phiên bản prompt, lỗi và thay đổi sau mỗi lượt thử. |
+| Nguyễn Quang Hưng | 2A202601523 | Build | Phát triển và tích hợp prototype FastAPI–Streamlit, workflow học thích ứng, rule engine, persistence và luồng demo; bảo đảm phần chạy thật có thể khởi động và trình diễn ổn định. |
+| Lê Minh Khiêm | 2A202601645 | Spec | Duy trì `spec.md`, liên kết quyết định sản phẩm với evidence, chốt lát cắt/non-goals/automation/quality bar và cập nhật changelog khi thiết kế thay đổi. |
+| Đàm Minh Tuấn | 2A202601169 | Validation | Lập kế hoạch user test, chuẩn bị task và câu hỏi, ghi feedback/quote có tên hoặc vai, tổng hợp vấn đề lặp lại và đề xuất thay đổi trước demo. |
+
+### Cách phối hợp
+
+- **Quân → Khiêm:** bàn giao evidence log, số liệu và giới hạn của dữ liệu để đưa vào §1–§2 mà không suy diễn quá mức.
+- **Khiêm → Mạnh & Hưng:** chốt lát cắt, hành vi mong muốn và các case khó để prompt và prototype cùng thực hiện một spec.
+- **Mạnh ↔ Hưng:** tích hợp prompt vào workflow, lưu output/trace cần thiết và kiểm tra fallback khi output không hợp lệ hoặc thiếu căn cứ.
+- **Tuấn → cả nhóm:** đưa feedback validation về changelog; nhóm ưu tiên sửa lỗi ảnh hưởng trực tiếp đến core JTBD và đường demo.
+- Mỗi thành viên chịu trách nhiệm giải thích được phần có tên mình trong buổi xác minh và demo.
+
 ## Kiến trúc
 
 Luồng phụ thuộc mục tiêu:
