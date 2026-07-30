@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import re
 from typing import Final, Sequence
 
 from app.services.knowledge_unit_service import SourceSegment
@@ -10,6 +11,21 @@ from app.services.pdf_parser import ParsedPage
 
 
 DEFAULT_MAX_SEGMENT_WORDS: Final = 1_200
+MAX_ADMINISTRATIVE_PAGE_WORDS: Final = 12
+_EMAIL_PATTERN = re.compile(
+    r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b",
+    re.IGNORECASE,
+)
+_ADMINISTRATIVE_MARKERS = (
+    "bài tập",
+    "cảm ơn",
+    "thank you",
+    "questions",
+    "q&a",
+    "the end",
+    "tài liệu tham khảo",
+    "references",
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -19,6 +35,26 @@ class SegmentationResult:
     segments: tuple[SourceSegment, ...]
     readable_pages: tuple[int, ...]
     excluded_pages: dict[int, str]
+
+
+def _administrative_exclusion_reason(text: str) -> str | None:
+    """Identify short terminal/navigation slides without learning substance."""
+
+    normalized = " ".join(text.casefold().split())
+    without_email = _EMAIL_PATTERN.sub(" ", normalized)
+    words = [
+        word
+        for word in re.findall(r"\w+", without_email, flags=re.UNICODE)
+        if not word.isdigit()
+    ]
+    if len(words) > MAX_ADMINISTRATIVE_PAGE_WORDS:
+        return None
+    if any(marker in normalized for marker in _ADMINISTRATIVE_MARKERS):
+        return (
+            "Short administrative, closing, or exercise-title slide without "
+            "enough standalone learning content."
+        )
+    return None
 
 
 def create_candidate_segments(
@@ -70,6 +106,10 @@ def create_candidate_segments(
                 "No machine-readable text was found on this page."
             )
             continue
+        administrative_reason = _administrative_exclusion_reason(text)
+        if administrative_reason is not None:
+            excluded_pages[page.page_number] = administrative_reason
+            continue
 
         readable_pages.append(page.page_number)
         page_word_count = len(text.split())
@@ -100,6 +140,7 @@ def create_candidate_segments(
 
 __all__ = [
     "DEFAULT_MAX_SEGMENT_WORDS",
+    "MAX_ADMINISTRATIVE_PAGE_WORDS",
     "SegmentationResult",
     "create_candidate_segments",
 ]

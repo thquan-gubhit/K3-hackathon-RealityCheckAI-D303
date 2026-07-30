@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "adaptive-learning-system"
-version = "0.1.0"
-description = "Local-first active-recall learning system foundation"
+version = "1.0.0"
+description = "Local-first adaptive active-recall learning system"
 readme = "README.md"
 requires-python = ">=3.11,<3.12"
 

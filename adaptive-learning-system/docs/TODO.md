@@ -1,7 +1,7 @@
 # TODO
 
-> Checked items are implemented and verified where applicable. Phases 1–5 are
-> complete; Phase 6 hardening is next.
+> Checked items are implemented and verified where applicable. Phases 1–6 are
+> complete for local MVP v1.0.
 
 ## P0 — Required for MVP
 
@@ -62,21 +62,21 @@
 
 ### Phase 6 — Hardening
 
-- [ ] Run complete unit, integration, and acceptance suites.
-- [ ] Complete stable error-code coverage and structured logging.
-- [ ] Verify no secrets or full source documents appear in logs/repository.
-- [ ] Add demo fixtures and seed data.
-- [ ] Verify Windows and Linux/macOS runbooks.
-- [ ] Complete README/docs traceability and final demo smoke test.
+- [x] Run complete unit, integration, and acceptance suites.
+- [x] Complete stable error-code coverage and structured logging.
+- [x] Verify no secrets or full source documents appear in logs/repository.
+- [x] Add demo fixtures and seed data.
+- [x] Add Windows, Ubuntu, and macOS CI verification for runbook commands.
+- [x] Complete README/docs traceability and final demo smoke test.
 
 ## P1 — Should have
 
 - [ ] Add database migrations once the domain schema stabilizes.
-- [ ] Add operation/request IDs to logs and errors.
-- [ ] Add a visible processing-state timeline and safe retry controls.
+- [x] Add operation/request IDs to logs and errors.
+- [x] Add an automatic three-stage processing timeline and safe retry controls.
 - [ ] Add export/import of local learning history.
-- [ ] Add automated Markdown link and Mermaid syntax checks.
-- [ ] Add accessibility review for Streamlit pages.
+- [x] Add automated Markdown link and fenced-block syntax checks.
+- [x] Add accessibility review for Streamlit control labels and text feedback.
 - [ ] Move synchronous document processing to a background job if measured
   document/provider latency harms the local UX.
 
