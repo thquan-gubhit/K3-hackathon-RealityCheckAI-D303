@@ -28,7 +28,7 @@
 | Golden set và runner | `eval/`, `codebase/scripts/run_eval.py` | Đã có 20 case |
 | Validation log | `validation/feedback-log.md` | Chờ user test |
 | Reflection cá nhân | `reflection/` | Mạnh đã hoàn thiện; các thành viên còn lại đang bổ sung |
-| Slide demo 6 trang | `demo-slides.pdf` | Chưa xuất |
+| Slide demo 6 trang | `demo-slides.pdf` | Đã xuất |
 
 - Thời lượng: **1,5 ngày** (một ngày build + một buổi demo)
 - Nhóm: **4-5 người** · zone tối đa 5 nhóm · thi theo lớp
