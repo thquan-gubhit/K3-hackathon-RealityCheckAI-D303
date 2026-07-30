@@ -73,7 +73,10 @@ Bạn là một **Senior Product Designer + AI Product Storyteller**. Hãy tạo
 - `python -m pip check`: không có dependency hỏng.
 - 10 acceptance scenarios AT-001 đến AT-010 được ghi trạng thái Passed: health, frontend, upload/process PDF, generate questions, phân biệt chất lượng câu trả lời, mastery, agent trigger/step limit/disabled mode.
 - Lưu ý: default test dùng fake structured model; hành vi live provider chưa được xác minh.
-- Repo **chưa có** golden set hackathon, quality bar hoặc kết quả % pass theo golden set.
+- Repo có golden set **20 case** tại `adaptive-learning-system/eval/golden_set.json`: 4 Happy Path, 4 Incomplete, 5 Misconception, 4 Hallucination và 3 Low Confidence.
+- Quality bar trong `spec.md` §7: **đạt khi ≥90% case được phân loại đúng lỗi thiếu sót/misconception**.
+- `spec.md` §7 báo cáo hai lượt: **75% → 100%** sau khi sửa system prompt để tách Correctness/Coverage và điều chỉnh golden set.
+- Khi trình bày phải gọi đây là “kết quả được báo cáo trong spec”; không nói có log chạy độc lập nếu repo chưa lưu output log.
 - Repo **chưa có** validation log và quote từ user test.
 
 ## Nhóm
@@ -106,9 +109,9 @@ Tạo bảng impact rút gọn ba ứng viên:
 
 | Ứng viên | Tín hiệu | Khoảng trống | Quyết định |
 |---|---:|---|---|
-| Giải thích đoạn đang đọc | Tutor hiện đã trả lời 1.261 lượt | Kết thúc sau câu trả lời | Loại: đã có |
-| Quiz một lượt | Có yêu cầu quiz trực tiếp trong tập 11 lượt | Không có rubric/mastery ổn định | Loại: chưa khép vòng |
-| Reality Check thích ứng | 3/1.261 check hiểu; 0 misconception | Đánh giá → sửa sai → chọn bước tiếp | **Chọn** |
+| Flashcard tự sinh từ PDF | Dễ build, dùng hằng ngày | Chỉ kiểm tra Recall | Loại |
+| Tutor chat tự do | Dùng hằng ngày | Dễ lạc đề, khó đo mastery | Loại |
+| Reality Check thích ứng | 3/1.261 check hiểu; 0 misconception | Recall–Explain–Apply + rubric + mastery | **Chọn** |
 
 - Không tuyên bố Reality Check có nhiều user nhất.
 - Nêu rõ lý do chọn là khoảng trống chiến lược + chi phí học sai + prototype khả thi.
@@ -129,15 +132,14 @@ Headline: **“Một vòng kiểm chứng: Recall → Explain → Apply.”**
 
 ### Slide 4 — Kết quả đo, 45 giây
 
-Headline: **“MVP chạy ổn định; chất lượng học tập vẫn cần golden set.”**
+Headline: **“20 case: từ 75% lên 100%, vượt quality bar 90%.”**
 
-- Dùng ba số lớn: `100 tests passed`, `3/3 Knowledge Units`, `100% source coverage`.
-- Thêm checklist nhỏ: compile passed, dependencies passed, AT-001→AT-010 passed.
-- Hiển thị failure/giới hạn đáng kể nhất: default test dùng fake model; live-provider quality chưa được xác minh.
-- Thẻ cảnh báo bắt buộc:
-  - `[CẦN BỔ SUNG: quality bar đã chốt]`
-  - `[CẦN BỔ SUNG: % pass golden set ≥20 case]`
-  - `[CẦN BỔ SUNG: failure lớn nhất từ lần chạy eval]`
+- Biểu đồ chính: hai cột `Lần 1: 75%` và `Lần 2: 100%`, thêm đường quality bar `90%`.
+- Ghi cơ cấu golden set bằng năm chip: `4 Happy`, `4 Incomplete`, `5 Misconception`, `4 Hallucination`, `3 Low Confidence`.
+- Failure đáng kể nhất của lần 1: evaluator trừ Correctness quá ngặt với câu trả lời Incomplete và không xuất misconception cho một số lỗi ảo giác.
+- Thay đổi: sửa system prompt để tách Correctness khỏi Coverage; spec cũng ghi đã nới golden set, vì vậy phải nêu đây là rủi ro “test-set tuning” cần khóa lại ở vòng sau.
+- Thêm hàng bằng chứng kỹ thuật nhỏ: `100 tests passed · 3/3 KU · 100% source coverage`.
+- Hiển thị giới hạn: kết quả 75%/100% được báo cáo trong spec; default test dùng fake model và repo chưa có output log độc lập của lượt eval.
 - Không biến “100 tests passed” thành “100% chất lượng AI”.
 
 ### Slide 5 — User thật nói gì, 45 giây
@@ -159,7 +161,7 @@ Headline: **“Từ prototype chạy được → bằng chứng học tốt hơ
 
 Chỉ trình bày ba ưu tiên theo thứ tự:
 
-1. **Đo chất lượng thật:** tạo golden set ≥20 case, chạy live provider, khóa quality bar và phân tích failure.
+1. **Khóa eval v2:** không chỉnh expected range sau khi chạy; lưu output log, thêm ≥10 case từ chatlog và chạy live provider.
 2. **Validate với người học:** ≥5 feedback có tên; đo thời gian, độ rõ feedback và mức tin cậy vào next action.
 3. **Hardening demo:** xử lý bất đồng bộ, error/logging review, kiểm tra cross-platform; OCR vẫn là non-goal nếu không đủ thời gian.
 
@@ -183,4 +185,3 @@ Chỉ trình bày ba ưu tiên theo thứ tự:
    - không nhầm test kỹ thuật với golden-set quality;
    - không vượt quá 6 slide;
    - tổng thời lượng notes bằng khoảng 5 phút.
-

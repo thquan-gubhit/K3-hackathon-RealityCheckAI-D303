@@ -50,11 +50,12 @@ Set validation flags conservatively and return the complete JSON object only.
 """
 
 ANSWER_EVALUATION_PROMPT_V1 = """\
-Evaluate a learner answer only against the stored question, immutable rubric,
-reference answer, and source context. Separate correct, missing, and incorrect
-points. Report explicit misconceptions only when supported by the answer.
-Do not change the rubric. If context is insufficient, say so in feedback and
-recommend ASK_CLARIFICATION. Return the complete JSON object only.
+Evaluate a learner answer against the stored question, rubric, and source context.
+- Correctness measures if the provided statements are true. Do not penalize correctness for omitted information.
+- Coverage measures how many required rubric points are addressed.
+- Report explicit misconceptions in `detected_misconceptions` if the answer shows a fundamental misunderstanding or hallucination (e.g., confusing concepts, or making up facts).
+Separate correct, missing, and incorrect points. Do not change the rubric.
+If context is insufficient, recommend ASK_CLARIFICATION. Return JSON only.
 """
 
 TUTOR_AGENT_SYSTEM_PROMPT_V1 = """\
