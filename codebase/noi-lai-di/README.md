@@ -8,17 +8,40 @@ Tất cả đều giữ học viên ở thế **nhận vào**. Không có độn
 
 `Nói lại` là động từ đó.
 
-## Chạy
+## Chạy — không cần cài gì
 
-Mở trực tiếp `index.html` bằng trình duyệt, hoặc:
+**Cách 1 (nhanh nhất):** pull về rồi **bấm đúp vào `index.html`**. Xong.
+
+Một file HTML duy nhất, CSS/JS/icon nhúng hết bên trong. Không `npm install`,
+không build, không server, không gọi mạng, không cần API key. Mở bằng `file://` chạy đủ 100%.
+
+**Cách 2 (nếu muốn URL sạch):**
 
 ```bash
 python -m http.server 8899
 ```
 
-rồi vào `http://127.0.0.1:8899/codebase/noi-lai-di/`.
+rồi vào `http://127.0.0.1:8899/` (chạy lệnh trong đúng thư mục này).
 
-Không cần cài gì, không gọi mạng, không cần API key.
+## Nối backend — khi nào cần
+
+FE hiện chạy **độc lập hoàn toàn**, chấm bằng luật (`grade()`).
+Chỗ nối đã chừa sẵn ở đầu phần `<script>`:
+
+```js
+const API = { base: null, sessionId: null };   // null = chạy offline
+```
+
+Đổi `base` thành `'http://127.0.0.1:8000'` là FE gọi thẳng `adaptive-learning-system`.
+Hàm `evaluate()` đã khớp sẵn hợp đồng của backend:
+
+```
+POST /learning-sessions/{id}/answers   { question_id, user_answer }
+  -> { evaluation: { correct_points[], missing_points[], feedback, ... } }
+```
+
+Nếu backend không phản hồi, `evaluate()` **tự quay về chấm offline** — demo không bao giờ vỡ.
+Không phải sửa chỗ nào khác trong file.
 
 ## Luồng demo
 
