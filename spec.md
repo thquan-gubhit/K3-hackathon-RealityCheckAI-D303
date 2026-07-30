@@ -29,12 +29,30 @@ Loại: [ ] Tối ưu tính năng có sẵn  [ ] Tính năng mới
 - **Bảng impact ≥3 ứng viên** (bao nhiêu người · tần suất · tốn gì mỗi lần · khả thi):
   | Ứng viên | Số người gặp (từ evidence) | Tần suất | Mỗi lần tốn gì | Build nổi không? | Chọn? |
   |---|---|---|---|---|---|
-  | 1. | | | | | |
-  | 2. | | | | | |
-  | 3. | | | | | |
+  | 1.Chỉ đọc lại slide (không kiểm tra hiểu bài) |66,7% người khảo sát |Sau hầu hết mỗi buổi học, trước kỳ thi |Mất 30–60 phút ôn nhưng vẫn quên, phải học lại khi làm bài |có |bỏ |
+  | 2. AI tạo câu hỏi kiểm tra mức độ hiểu từ slide |66,7% có nhu cầu kiểm tra hiểu bài |Sau mỗi buổi học |5–10 phút trả lời, phát hiện lỗ hổng kiến thức sớm |có | chọn|
+  | 3. AI giải thích toàn bộ kiến thức ngoài slide |chưa có số liệu cu thể |Khi cần học sâu |Phụ thuộc LLM, có nguy cơ hallucination, khó đảm bảo đúng giáo trình |có |bỏ |
 
 - **Ứng viên ĐÃ LOẠI + vì sao:** 
-- **Ứng viên CHỌN + vì sao (bằng số):** 
+1. Chỉ đọc lại slide
+66,7% người học đang áp dụng cách này.
+Theo Dunlosky et al. (2013), re-reading là phương pháp phổ biến nhưng hiệu quả thấp.
+Không giải quyết được việc người học tưởng mình đã hiểu.
+2. AI giải thích mọi kiến thức ngoài slide
+Không có bằng chứng người dùng cần tính năng này hơn.
+Khó kiểm chứng tính chính xác.
+Vượt phạm vi dữ liệu được cung cấp.
+
+- **Ứng viên CHỌN + vì sao (bằng số):**
+
+1. Được chọn: AI sinh bộ câu hỏi từ slide và đánh giá mức độ hiểu bài.
+
+2. Lý do:
+66,7% người khảo sát cho biết thường chỉ đọc lại slide trước kỳ thi và chỉ phát hiện mình chưa hiểu khi làm bài.
+Theo Roediger & Karpicke (2006), Retrieval Practice giúp ghi nhớ dài hạn tốt hơn đọc lại.
+Theo Dunlosky et al. (2013), Practice Testing là một trong những phương pháp học hiệu quả nhất.
+Có thể build trong phạm vi hackathon vì chỉ sử dụng nội dung của slide để sinh câu hỏi và đánh giá câu trả lời. 
+
 
 ## §3. Giải pháp tương tự đã nghiên cứu
 > **Gợi ý (từ Guide §2.2):** Từng thành viên dùng 1 app (vd: ChatGPT study, NotebookLM...). Rút ra 1 điều học, 1 điều né.
