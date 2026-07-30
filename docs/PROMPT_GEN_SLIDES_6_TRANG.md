@@ -15,7 +15,7 @@ Bạn là một **Senior Product Designer + AI Product Storyteller**. Hãy tạo
 5. Chỗ chưa có dữ liệu phải giữ nguyên nhãn `[CẦN BỔ SUNG: ...]` trong một thẻ màu hổ phách; không tự điền.
 6. Nội dung trên slide ngắn, ưu tiên headline kết luận, số lớn, sơ đồ và hình minh họa. Không biến slide thành tài liệu đặc chữ.
 7. Mỗi trang phải có speaker notes 3–5 câu, nhưng notes không được tính là nội dung hiển thị.
-8. Ghi nguồn nhỏ ở chân trang, ví dụ: `Nguồn: evidence-section1.md — C0063/T0849`.
+8. Ghi nguồn nhỏ ở chân trang, ví dụ: `Nguồn: spec.md §1 · khảo sát n=17`.
 
 ## Phong cách hình ảnh
 
@@ -31,28 +31,40 @@ Bạn là một **Senior Product Designer + AI Product Storyteller**. Hãy tạo
 ## Thông tin sản phẩm
 
 - Tên: **Reality Check AI**.
-- Track: **Hướng A — VLearn**.
+- Track: **Hướng C — Làn mở**.
 - Loại: **Tính năng mới**.
-- Job executor: học viên tự học trên VLearn, vừa đọc xong một đơn vị kiến thức dạng chữ và cần quyết định học tiếp hay ôn lại.
-- Core JTBD: **“Kiểm chứng mình có thể nhớ, giải thích và áp dụng một đơn vị kiến thức sau khi đọc để quyết định học tiếp hay ôn lại.”**
-- Problem: đọc lại và tự tóm tắt tạo cảm giác quen thuộc nhưng chưa chứng minh hiểu thật; quiz/rubric có thể không ổn định; phản hồi thường không tách rõ đúng, thiếu, sai và misconception.
+- Job executor: học viên tự học vừa đọc xong một tài liệu PDF dài/phức tạp.
+- Workflow hiện tại: đọc tài liệu → tóm tắt ý chính → cố gắng nhớ lại/giải thích → tự kiểm tra mình hiểu đúng hay sai.
+- Core JTBD: **“Tự kiểm chứng mức độ hiểu và khả năng giải thích một văn bản dài ngay sau khi đọc xong để tránh ảo giác hiểu biết.”**
+- Problem: người học thường đọc lại hoặc đưa nội dung vào chatbot để tạo câu hỏi. Đọc lại tạo cảm giác quen thuộc nhưng ít kiểm chứng retrieval; chatbot có thể hallucinate, cho feedback tổng quát và không chấm ổn định theo rubric riêng của tài liệu.
 - Product loop:
   `PDF → Knowledge Units có nguồn → Recall → Explain → Apply → rubric cố định → correct/missing/incorrect/misconception → quyết định tiếp theo → cập nhật mastery`.
 - Automation: **conditional**. Workflow và rule xác định điều khiển đường chính; mô hình chỉ xử lý tác vụ ngữ nghĩa; Tutor Agent chỉ chạy cho ngoại lệ đủ điều kiện, có allow-list tool và giới hạn bước.
 - Cost of error: đánh giá sai có thể khiến học viên học tiếp quá sớm hoặc ghi nhớ kiến thức sai, nên không giao toàn quyền quyết định mastery cho mô hình.
 
-## Bằng chứng người dùng
+## Bằng chứng người dùng và nghiên cứu
 
-- Data pack: 2.522 message, 1.261 lượt hỏi–đáp, 369 học viên, 585 hội thoại; thời gian 22/07–29/07/2026.
-- Sau lọc từ khóa và gán nhãn tay: 11/1.261 lượt (0,9%), từ 10/369 học viên (2,7%), chủ động xin quiz hoặc đưa cách hiểu ra để xác nhận.
-- Chỉ 3/1.261 câu trả lời tutor (0,24%) chủ động hỏi kiểm tra hiểu.
-- 0/1.261 câu trả lời ghi nhận misconception.
-- Phải nói rõ: 11 lượt chỉ chứng minh hành vi tồn tại, **không đủ kết luận pain phổ biến**.
-- Quote ưu tiên:
-  - “TẠO QUIZ ĐỂ TÔI HIỂU RÕ VÀ ÔN LẠI TOÀN BỘ SLIDE NÀY” — `C0063/T0849`, trang 9.
-  - “dựa vào tài liệu này bạn hãy cho tôi bộ quizz liên quan” — `C0287/T1113`, trang 47.
-  - “tức là trang này đang nói đến việc nên kiểm định giả thuyết nào, nên kiểm chứng nào chứ ko phải là nên xây dựng sản phẩm nào đúng không” — `C0350/T0521`, trang 13.
-  - “Có phải là một câu hỏi có 4 câu thì transformer sẽ xử lý đồng loạt 4 câu đó thay vì xử lý từng câu đúng k?” — `C0468/T1015`, trang 22.
+- Khảo sát được ghi trong `spec.md` §1: `n=17`.
+- Tình trạng “đọc hiểu ngay nhưng lúc thi hoặc làm bài tập thì không biết giải thích từ đâu”:
+  - 23,5% rất thường xuyên;
+  - 47,1% thường xuyên;
+  - 29,4% thỉnh thoảng.
+- Suy ra **70,6%** trả lời “thường xuyên” hoặc “rất thường xuyên”.
+- Phải đặt caveat cạnh số liệu: `n=17`, thấp hơn chuẩn khảo sát ≥20 của rubric; repo chưa có file raw survey riêng để kiểm tra từng phản hồi.
+- Nghiên cứu được liệt kê trong spec:
+  - Callender & McDaniel (2009): rereading thường được dùng nhưng phần lớn không làm tăng performance đáng kể.
+  - Weinstein, McDermott & Roediger (2010): trả lời câu hỏi và tự sinh câu hỏi có lợi hơn rereading.
+  - Wiklund-Hörnqvist & Jonsson (2014): repeated testing có feedback tăng learning so với rereading.
+  - Hui et al. (2021): testing effect giúp retention tốt hơn restudying.
+  - Bang et al. (2023) và Ji et al. (2022): LLM/NLG có rủi ro hallucination.
+  - Nghiên cứu *Computers & Education: AI* (2026): feedback có thể đầy đủ nhưng phức tạp và generic.
+- Chỉ dùng trích dẫn rất ngắn trên slide; phần còn lại diễn giải và đặt nguồn ở footer.
+
+## Giải pháp tương tự
+
+- **NotebookLM:** học cách grounding và citation theo trang; tránh luồng thụ động chỉ chờ người dùng hỏi.
+- **Khanmigo:** học cách gợi mở Socratic; tránh hỏi ngược quá nhiều khi người học đang hổng kiến thức.
+- Reality Check AI khác biệt bằng Knowledge Unit, câu hỏi Recall–Explain–Apply, rubric sinh trước, feedback đa chiều, mastery và remediation có kiểm soát.
 
 ## Prototype đã build
 
@@ -86,6 +98,7 @@ Bạn là một **Senior Product Designer + AI Product Storyteller**. Hãy tạo
 - Nguyễn Quang Hưng — 2A202601523 — Build.
 - Lê Minh Khiêm — 2A202601645 — Spec.
 - Đàm Minh Tuấn — 2A202601169 — Validation.
+- Dùng phân công này theo `adaptive-learning-system/README.md`; không dùng bảng phân công cũ còn ghi khác trong `spec.md` §8.
 - Nhóm và Zone chưa được cung cấp: giữ `[XX]` và `[X]`, không tự đoán.
 
 ## Cấu trúc chính xác từng slide
@@ -94,12 +107,14 @@ Bạn là một **Senior Product Designer + AI Product Storyteller**. Hãy tạo
 
 Headline: **“Đọc xong chưa có nghĩa là hiểu thật.”**
 
-- Đặt logo chữ `Reality Check AI` và nhãn `VLearn · Tính năng mới`.
+- Đặt logo chữ `Reality Check AI` và nhãn `Làn mở · Tính năng mới`.
 - Hiển thị Core JTBD trong một câu.
-- Dùng hai số lớn đối lập: `3/1.261` câu trả lời kiểm tra hiểu và `0/1.261` ghi nhận misconception.
-- Đặt quote `C0063/T0849` trong speech bubble.
-- Thêm chú thích nhỏ: nhu cầu trực tiếp chỉ 11 lượt, chưa đủ kết luận pain phổ biến.
+- Dùng số lớn `70,6%` thường xuyên/rất thường xuyên gặp tình trạng đọc hiểu nhưng không biết giải thích khi thi/làm bài.
+- Đặt breakdown nhỏ: `23,5% rất thường xuyên · 47,1% thường xuyên · 29,4% thỉnh thoảng`.
+- Thêm caveat ngay cạnh biểu đồ: `Khảo sát n=17 · chưa đạt ngưỡng ≥20 của rubric`.
+- Đặt một trích dẫn nghiên cứu ngắn về testing effect/rereading, không quá 12 từ, kèm tác giả/năm.
 - Visual: một đường chuyển từ “Đọc” sang “Học tiếp?” bị đứt ở giữa bởi dấu hỏi.
+- Footer: `Nguồn: spec.md §1 · khảo sát n=17 · Callender & McDaniel (2009)`.
 
 ### Slide 2 — Vì sao chọn Reality Check AI, 45 giây
 
@@ -107,15 +122,16 @@ Headline: **“Khoảng trống không phải thiếu câu trả lời — mà t
 
 Tạo bảng impact rút gọn ba ứng viên:
 
-| Ứng viên | Tín hiệu | Khoảng trống | Quyết định |
-|---|---:|---|---|
-| Flashcard tự sinh từ PDF | Dễ build, dùng hằng ngày | Chỉ kiểm tra Recall | Loại |
-| Tutor chat tự do | Dùng hằng ngày | Dễ lạc đề, khó đo mastery | Loại |
-| Reality Check thích ứng | 3/1.261 check hiểu; 0 misconception | Recall–Explain–Apply + rubric + mastery | **Chọn** |
+| Ứng viên | Tần suất trong spec | Chi phí/giới hạn | Khả thi | Quyết định |
+|---|---|---|---|---|
+| Flashcard tự sinh từ PDF | Hàng ngày | Chỉ kiểm tra Recall | Rất dễ | Loại |
+| Tutor chat tự do | Hàng ngày | Dễ mất phương hướng, khó kiểm soát | Khó | Loại |
+| Reality Check thích ứng | Hàng ngày | Cần rubric + rule + mastery | Khả thi | **Chọn** |
 
-- Không tuyên bố Reality Check có nhiều user nhất.
-- Nêu rõ lý do chọn là khoảng trống chiến lược + chi phí học sai + prototype khả thi.
-- Đặt thẻ cảnh báo: `[CẦN BỔ SUNG: bảng impact chính thức §2 và số người/tần suất cho từng ứng viên]`.
+- Nêu lý do chọn: kiểm tra được Recall–Explain–Apply, feedback có căn cứ, quyết định mastery được rule kiểm soát.
+- Thêm dải so sánh nhỏ: `NotebookLM = grounding tốt nhưng thụ động` · `Khanmigo = Socratic tốt nhưng có thể hỏi ngược quá nhiều`.
+- Đặt thẻ cảnh báo: `[CẦN BỔ SUNG: số người gặp và chi phí định lượng cho từng ứng viên; spec hiện chỉ ghi “hàng ngày”]`.
+- Footer: `Nguồn: spec.md §2–§3`.
 
 ### Slide 3 — Giải pháp & demo live, 2 phút
 
@@ -129,6 +145,7 @@ Headline: **“Một vòng kiểm chứng: Recall → Explain → Apply.”**
   2. **Case khó:** câu trả lời chứa misconception lặp lại → rule trigger Tutor Agent giới hạn; tắt agent thì dùng remediation xác định.
 - Hiển thị badge: `Rubric được khóa trước khi user trả lời`.
 - Speaker notes phải ghi chính xác thao tác bấm demo trong 2 phút và nhắc không dùng video nếu live chạy được.
+- Footer: `Nguồn: spec.md §4–§6 · adaptive-learning-system/docs/06_WORKFLOWS.md`.
 
 ### Slide 4 — Kết quả đo, 45 giây
 
@@ -141,6 +158,7 @@ Headline: **“20 case: từ 75% lên 100%, vượt quality bar 90%.”**
 - Thêm hàng bằng chứng kỹ thuật nhỏ: `100 tests passed · 3/3 KU · 100% source coverage`.
 - Hiển thị giới hạn: kết quả 75%/100% được báo cáo trong spec; default test dùng fake model và repo chưa có output log độc lập của lượt eval.
 - Không biến “100 tests passed” thành “100% chất lượng AI”.
+- Footer: `Nguồn: spec.md §7 · eval/golden_set.json · docs/PROGRESS.md`.
 
 ### Slide 5 — User thật nói gì, 45 giây
 
@@ -154,6 +172,7 @@ Headline tạm: **“Validation phải quyết định điều gì?”**
 - Khung “Đã thay đổi sau feedback”: `[CẦN BỔ SUNG: thay đổi + feedback ID]`.
 - Ghi nhỏ: `Owner validation: Đàm Minh Tuấn · yêu cầu ≥5 feedback log có tên`.
 - Slide phải trông hoàn chỉnh về layout nhưng thể hiện trung thực trạng thái “pending”, không giả lập lời khen.
+- Footer: `Nguồn: trạng thái repo Manh — chưa có validation/`.
 
 ### Slide 6 — Nếu có thêm 1 tuần, 30 giây
 
@@ -168,6 +187,7 @@ Chỉ trình bày ba ưu tiên theo thứ tự:
 - Bài học lớn nhất: **“Đừng đo hiểu bài bằng việc đã đọc xong; hãy đo bằng bằng chứng người học tạo ra.”**
 - Footer nhỏ hiển thị phân công 5 thành viên theo vai trò.
 - Kết bằng câu nói, không thêm slide cảm ơn: **“Reality Check AI biến ‘mình nghĩ là hiểu’ thành ‘mình chứng minh được là hiểu’.”**
+- Nguồn: `adaptive-learning-system/docs/PROGRESS.md · TODO.md · README.md`.
 
 ## Yêu cầu đầu ra
 
