@@ -696,10 +696,50 @@ const CARDS = {
 }};
 
 /* ============================================================ CHẤM */
+/* ============================================================
+   CHỖ NỐI BACKEND — hiện đang tắt, FE chạy độc lập 100%
+   ------------------------------------------------------------
+   Đổi API.base thành 'http://127.0.0.1:8000' là FE gọi thẳng
+   adaptive-learning-system. Không phải sửa chỗ nào khác.
+   Hợp đồng đã khớp sẵn với app/schemas/evaluation.py:
+     POST /learning-sessions/{id}/answers  {question_id, user_answer}
+     -> { evaluation: { correct_points[], missing_points[], feedback, ... } }
+   ============================================================ */
+const API = { base: null, sessionId: null };
+
+async function evaluate(text, card){
+  if(!API.base) return grade(text, card);          // offline: chấm bằng luật
+  try{
+    const res = await fetch(`${API.base}/learning-sessions/${API.sessionId}/answers`,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ question_id: card.questionId, user_answer: text })
+    });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const ev = (await res.json()).evaluation;
+    /* ánh xạ correct_points/missing_points của backend về đúng các ý của thẻ */
+    const hit = s => (ev.correct_points||[]).some(p=>p.toLowerCase().includes(s.toLowerCase()));
+    const got = card.points.map(p=>({p, ok:hit(p.label)}));
+    return { route:'FULL', got, nGot:got.filter(g=>g.ok).length,
+             jargonOnly:false, jargonHits:[], paraphrase:false,
+             words:text.trim().split(/\s+/).length, serverFeedback:ev.feedback };
+  }catch(e){
+    console.warn('Backend không phản hồi, quay về chấm offline:', e.message);
+    return grade(text, card);                       // fallback: không bao giờ vỡ demo
+  }
+}
+
+/* Bỏ dấu để học viên gõ không dấu vẫn được tính đúng —
+   "no ngo lai may chu dung truoc" phải bằng "nó ngó lại mấy chữ đứng trước". */
+const deacc = s => s.normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D');
+function rxHit(rx, text){
+  if(rx.test(text)) return true;
+  return new RegExp(deacc(rx.source), rx.flags).test(deacc(text));
+}
+
 function grade(text, card){
   const w = text.trim().split(/\s+/).filter(Boolean).length;
   if(w < 12) return {route:'ASK_BACK', words:w};
-  const got = card.points.map(p=>({p, ok:p.accept.some(rx=>rx.test(text))}));
+  const got = card.points.map(p=>({p, ok:p.accept.some(rx=>rxHit(rx,text))}));
   const nGot = got.filter(g=>g.ok).length;
   const hits = [...new Set((text.match(card.jargon)||[]).map(s=>s.toLowerCase()))];
   const echo = ['plan','act','observe','adapt','hallucination','misuse','hard-coded','context']
@@ -892,9 +932,12 @@ function showChat(){
 }
 rc_skip.onclick=showChat;
 
-rc_send.onclick=()=>{
+rc_send.onclick=async ()=>{
   const txt=rc_in.value; if(!txt.trim())return;
-  const c=S.card, g=grade(txt,c);
+  const c=S.card;
+  rc_send.disabled=true; rc_send.textContent='Đang đối chiếu…';
+  const g=await evaluate(txt,c);
+  rc_send.disabled=false; rc_send.textContent='Gửi';
   rc_ask.classList.add('hide'); rc_out.classList.remove('hide');
   if(g.route==='ASK_BACK'){
     rc_out.innerHTML=`<div class="vline src" style="background:var(--chip-blue-bg)"><div><b>Mình chưa đủ để đối chiếu.</b>
