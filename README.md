@@ -2,6 +2,34 @@
 
 **SPEC → Prototype → Demo.** Đây không phải cuộc thi code — đây là cuộc thi **tư duy sản phẩm AI**.
 
+## Bài nộp nhóm — Hệ thống Học tập Thích ứng
+
+- **Hướng:** C — Làn mở
+- **Loại:** Tính năng mới
+- **Prototype:** Working
+- **Core JTBD:** Tự kiểm chứng mức độ hiểu và khả năng giải thích một văn bản dài ngay sau khi đọc xong để tránh ảo giác hiểu biết.
+
+### Thành viên và phân công
+
+| Thành viên | Mã học viên | Phụ trách |
+|---|---|---|
+| Trần Hoàng Quân | 2A202601805 | Structure, Workflow, Prompts và Evidence |
+| Đinh Huy Mạnh | 2A202601677 | Prompt |
+| Nguyễn Quang Hưng | 2A202601523 | UI |
+| Lê Minh Khiêm | 2A202601645 | Canvas |
+| Đàm Minh Tuấn | 2A202601169 | Spec, Evaluator, Structure, Workflow và Prompts |
+
+### Artifact chính
+
+| Artifact | Vị trí | Trạng thái |
+|---|---|---|
+| AI Spec | `spec.md` | Đã có |
+| Prototype | `codebase/` | Working |
+| Golden set và runner | `eval/`, `codebase/scripts/run_eval.py` | Đã có 20 case |
+| Validation log | `validation/feedback-log.md` | Chờ user test |
+| Reflection cá nhân | `reflection/` | Mạnh đã hoàn thiện; các thành viên còn lại đang bổ sung |
+| Slide demo 6 trang | `demo-slides.pdf` | Chưa xuất |
+
 - Thời lượng: **1,5 ngày** (một ngày build + một buổi demo)
 - Nhóm: **4-5 người** · zone tối đa 5 nhóm · thi theo lớp
 
