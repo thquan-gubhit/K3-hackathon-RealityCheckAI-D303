@@ -29,14 +29,36 @@ Khi tổng hợp nội dung, dùng thứ tự sau:
 
 ## Phong cách hình ảnh
 
-- Tinh thần: hiện đại, tin cậy, mang cảm giác “learning analytics”, không dùng phong cách robot/chatbot sáo rỗng.
+- Tinh thần: **premium AI product pitch**, hiện đại, tin cậy, mang cảm giác “learning analytics”, không dùng phong cách robot/chatbot sáo rỗng.
 - Nền xanh navy rất đậm `#071426`, thẻ nội dung xanh than `#10233F`.
 - Màu chính cyan `#27D3F2`; màu nhấn lime `#A8F05A`; cảnh báo hổ phách `#FFB547`; lỗi đỏ san hô `#FF6B6B`.
 - Chữ trắng ngà `#F5F7FA`; font sans-serif hiện đại như Be Vietnam Pro, Inter hoặc Aptos.
-- Dùng lưới rõ ràng, nhiều khoảng thở, góc bo 16–20 px, icon nét mảnh đồng nhất.
-- Số liệu chính dùng cỡ chữ rất lớn; tối đa khoảng 35–45 từ hiển thị mỗi slide, không tính nguồn.
-- Dùng hình ảnh/sơ đồ liên quan đến “đọc → tự nhớ → giải thích → áp dụng → nhận feedback”, không dùng ảnh stock người bắt tay.
+- Dùng lưới rõ ràng, nhiều khoảng thở, góc bo 16–20 px, icon nét mảnh đồng nhất, đổ bóng mềm và viền phát sáng rất nhẹ.
+- Số liệu chính dùng cỡ chữ rất lớn; tối đa khoảng 30–40 từ hiển thị mỗi slide, không tính nguồn.
+- Mỗi slide chỉ có **một điểm nhìn chính**: một con số, một sơ đồ hoặc một insight; không chia thành quá nhiều ô nhỏ.
+- Dùng hình minh họa bán trừu tượng liên quan đến “đọc → tự nhớ → giải thích → áp dụng → nhận feedback”, không dùng ảnh stock người bắt tay, robot hoặc não phát sáng sáo rỗng.
+- Có thể dùng các dải gradient cyan–violet, đường kết nối dạng node, vòng tròn mastery và texture lưới mờ để tạo chiều sâu.
 - Có thanh tiến trình nhỏ `01/06` đến `06/06` ở góc dưới.
+
+## Motion design và hiệu ứng trình chiếu
+
+- Dùng transition **Morph** hoặc **Fade Through Black** xuyên suốt để deck có cảm giác liền mạch.
+- Mỗi slide chỉ dùng 2–4 animation có chủ đích; không dùng hiệu ứng xoay, bounce, âm thanh hoặc chữ bay ngẫu nhiên.
+- Reveal nội dung theo đúng nhịp lời nói; không hiện toàn bộ slide ngay từ đầu.
+- Con số chính dùng animation count-up hoặc scale nhẹ trong 0,4–0,6 giây.
+- Sơ đồ workflow dùng line-draw/progressive reveal từ trái sang phải.
+- Card xuất hiện bằng fade + rise 12–20 px; độ trễ giữa các card khoảng 0,15 giây.
+- Highlight quyết định quan trọng bằng glow/pulse một lần, không lặp vô hạn.
+- Chuyển từ slide 1→2 bằng cách biến dấu hỏi thành bảng lựa chọn; slide 2→3 biến ứng viên được chọn thành workflow sản phẩm; slide 3→4 biến output evaluation thành biểu đồ kết quả.
+- Tất cả animation phải chạy tự nhiên khi người thuyết trình click; không auto-play quá nhanh.
+
+## Nhịp kể chuyện
+
+- Mở bằng tension: **“Bạn vừa đọc xong. Nhưng bạn có thực sự giải thích lại được không?”**
+- Mỗi slide phải có một câu takeaway ngắn để người nghe nhớ được ngay cả khi bỏ qua chi tiết.
+- Dùng cấu trúc: **Pain → Quyết định → Trải nghiệm → Bằng chứng → Con người → Tương lai**.
+- Speaker notes phải có một câu chuyển tiếp sang slide tiếp theo, tránh cảm giác sáu trang rời rạc.
+- Ưu tiên động từ và câu nói trực tiếp; tránh thuật ngữ kỹ thuật nếu không phục vụ quyết định sản phẩm.
 
 ## Thông tin sản phẩm
 
@@ -124,6 +146,8 @@ Headline: **“Đọc xong chưa có nghĩa là hiểu thật.”**
 - Ghi rõ ngay cạnh biểu đồ: `Khảo sát n=17`.
 - Đặt một trích dẫn nghiên cứu ngắn về testing effect/rereading, không quá 12 từ, kèm tác giả/năm.
 - Visual: một đường chuyển từ “Đọc” sang “Học tiếp?” bị đứt ở giữa bởi dấu hỏi.
+- Hiệu ứng: mở bằng trang PDF rõ nét rồi làm mờ dần; dấu hỏi xuất hiện; số `70,6%` count-up và trở thành điểm nhìn chính.
+- Câu chuyển: **“Nếu đọc lại chưa đủ, nhóm phải chọn cách kiểm chứng nào?”**
 - Footer: `Nguồn: spec.md §1 · khảo sát n=17 · Callender & McDaniel (2009)`.
 
 ### Slide 2 — Vì sao chọn Reality Check AI, 45 giây
@@ -141,6 +165,8 @@ Tạo bảng impact rút gọn ba ứng viên:
 - Nêu lý do chọn: kiểm tra được Recall–Explain–Apply, feedback có căn cứ, quyết định mastery được rule kiểm soát.
 - Thêm dải so sánh nhỏ: `NotebookLM = grounding tốt nhưng thụ động` · `Khanmigo = Socratic tốt nhưng có thể hỏi ngược quá nhiều`.
 - Đặt thẻ cảnh báo: `[CẦN VALIDATE: khảo sát hiện đo pain chung, chưa đo preference giữa ba ứng viên]`.
+- Hiệu ứng: ba ứng viên reveal lần lượt; hai ứng viên bị loại giảm opacity; Reality Check phóng nhẹ và nối bằng một đường sáng sang slide 3.
+- Câu chuyển: **“Ứng viên được chọn không chỉ tạo câu hỏi—nó khép kín cả vòng học.”**
 - Footer: `Nguồn: spec.md §2–§3`.
 
 ### Slide 3 — Giải pháp & demo live, 2 phút
@@ -155,6 +181,9 @@ Headline: **“Một vòng kiểm chứng: Recall → Explain → Apply.”**
   2. **Case khó:** câu trả lời chứa misconception lặp lại → rule trigger Tutor Agent giới hạn; tắt agent thì dùng remediation xác định.
 - Hiển thị badge: `Rubric được khóa trước khi user trả lời`.
 - Speaker notes phải ghi chính xác thao tác bấm demo trong 2 phút và nhắc không dùng video nếu live chạy được.
+- Hiệu ứng: workflow chạy progressive reveal; khi đến evaluation, tách câu trả lời thành bốn chip `đúng / thiếu / sai / misconception`; mastery ring tăng bằng animation ngắn.
+- Dùng mockup laptop hoặc browser frame lớn ở trung tâm để phần demo trông như sản phẩm thật, không dùng screenshot nhỏ khó đọc.
+- Câu chuyển: **“Vòng học chạy được; câu hỏi tiếp theo là nó phân loại có đủ chính xác không.”**
 - Footer: `Nguồn: spec.md §4–§6 · adaptive-learning-system/docs/06_WORKFLOWS.md`.
 
 ### Slide 4 — Kết quả đo, 45 giây
@@ -168,6 +197,8 @@ Headline: **“20 case: từ 75% lên 100%, vượt quality bar 90%.”**
 - Thêm hàng bằng chứng kỹ thuật nhỏ: `100 tests passed · 3/3 KU · 100% source coverage`.
 - Hiển thị giới hạn: kết quả 75%/100% được báo cáo trong spec; default test dùng fake model và repo chưa có output log độc lập của lượt eval.
 - Không biến “100 tests passed” thành “100% chất lượng AI”.
+- Hiệu ứng: cột `75%` mọc trước, đường quality bar `90%` được vẽ ngang, sau đó cột `100%` vượt qua bar và phát sáng một lần; failure card xuất hiện cuối để giữ tính trung thực.
+- Câu chuyển: **“Điểm số tốt chưa đủ—người học thật phải thấy feedback hữu ích.”**
 - Footer: `Nguồn: spec.md §7 · eval/golden_set.json · docs/PROGRESS.md`.
 
 ### Slide 5 — User thật nói gì, 45 giây
@@ -182,6 +213,8 @@ Headline tạm: **“Validation phải quyết định điều gì?”**
 - Khung “Đã thay đổi sau feedback”: `[CẦN BỔ SUNG: thay đổi + feedback ID]`.
 - Ghi nhỏ: `Owner validation: Đàm Minh Tuấn · yêu cầu ≥5 feedback log có tên`.
 - Slide phải trông hoàn chỉnh về layout nhưng thể hiện trung thực trạng thái “pending”, không giả lập lời khen.
+- Hiệu ứng: hai quote card hiện dưới dạng khung trống có shimmer nhẹ; ba metric card reveal theo câu hỏi validation; tuyệt đối không tạo avatar hoặc tên người dùng giả.
+- Câu chuyển: **“Đây là khoảng trống quan trọng nhất mà một tuần tiếp theo phải đóng lại.”**
 - Footer: `Nguồn: trạng thái repo Manh — chưa có validation/`.
 
 ### Slide 6 — Nếu có thêm 1 tuần, 30 giây
@@ -197,6 +230,8 @@ Chỉ trình bày ba ưu tiên theo thứ tự:
 - Bài học lớn nhất: **“Đừng đo hiểu bài bằng việc đã đọc xong; hãy đo bằng bằng chứng người học tạo ra.”**
 - Footer nhỏ hiển thị phân công 5 thành viên theo vai trò.
 - Kết bằng câu nói, không thêm slide cảm ơn: **“Reality Check AI biến ‘mình nghĩ là hiểu’ thành ‘mình chứng minh được là hiểu’.”**
+- Hiệu ứng: ba ưu tiên xuất hiện theo timeline; cuối cùng các node hội tụ vào logo Reality Check AI và hiện câu kết bằng fade-in chậm 0,6 giây.
+- Kết thúc ở trạng thái sạch, giữ logo và câu kết trên màn hình để chuyển sang Q&A.
 - Nguồn: `adaptive-learning-system/docs/PROGRESS.md · TODO.md · README.md`.
 
 ## Yêu cầu đầu ra
