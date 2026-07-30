@@ -1,8 +1,7 @@
 # Test Plan
 
-> **Delivery status:** Phases 1 and 2 have 69 passing tests on Python 3.11.9.
-> Phase 2 includes a real PDF fixture, fake-LLM API pipeline, rules, adapter,
-> persistence, frontend transport, and Streamlit-page tests.
+> **Delivery status:** Phases 1–6 have 118 passing tests on Python 3.11.9,
+> including the full fake-LLM learning loop and Phase 6 hardening gates.
 
 ## Strategy
 
@@ -59,6 +58,7 @@ coverage run reports **89% total statement/branch coverage** across `app` and
 | KU split rules | Objective, concept, and reading-time thresholds; exact boundaries | 2 |
 | KU merge rules | Small fragment, example-only, no independent question, adjacent overlap | 2 |
 | Structured outputs | Valid/invalid KU, question, rubric, and evaluation JSON | 2–3 |
+| Prompt language policy | Slide language controls KU, question, rubric, feedback, and tutor output language | 2–5 |
 | Question validation | Grounding, objective mismatch, answer leak, ambiguity, external facts, duplicate | 3 |
 | Question selection | First recall, low recall scaffold, score bands, application gap, cap | 4 |
 | Mastery | Formula, difficulty, clamp, repeated evidence weights, all mastery predicates | 4 |
@@ -112,6 +112,8 @@ Integration assertions include:
 | AT-008 | Repeat one misconception | Agent triggers when enabled | Passed |
 | AT-009 | Reach agent step limit | Agent stops at or before configured maximum | Passed |
 | AT-010 | Disable agent | Normal learning workflow remains usable | Passed |
+| AT-011 | Select one PDF in Auto Learning | Upload, map, session, and first question load automatically | Passed |
+| AT-012 | Change KU in Auto Learning | New session/question loads without re-upload or re-process | Passed |
 
 ## Mock strategy
 
@@ -124,7 +126,7 @@ Integration assertions include:
 
 ## Fixtures
 
-Later phases should add:
+The delivered fixture set includes:
 
 - a short machine-learning PDF/text fixture;
 - one valid overfitting KU;

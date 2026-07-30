@@ -1,8 +1,8 @@
 # Local Runbook
 
-> **Delivery status:** Phases 1 and 2 were verified on Windows with Python
-> 3.11.9: database initialization, backend health, PDF upload/processing,
-> Knowledge Map persistence, Streamlit pages, and the 69-test suite succeeded.
+> **Delivery status:** MVP v1.0 was locally verified on Windows with Python
+> 3.11.9. CI runs the same compile/dependency/test gates on Windows, Ubuntu,
+> and macOS.
 
 ## System requirements
 
@@ -79,6 +79,15 @@ The default database is `data/app.db`. Phases 1–5 create the document,
 assessment, learning-state, misconception, and agent-trace tables and write
 schema marker `PRAGMA user_version = 5`.
 
+Optional offline demo seed:
+
+```bash
+python scripts/seed_demo.py
+```
+
+This idempotently creates a ready three-unit document and nine questions without
+calling an LLM provider.
+
 ## Run the backend
 
 Recommended:
@@ -136,6 +145,12 @@ Open `http://127.0.0.1:8501`. Use **Upload Document** to upload/process a
 text-based PDF, **Knowledge Map** to inspect its units, **Study Session** to
 answer adaptive questions, and **Progress Dashboard** to inspect mastery.
 
+For the recommended zero-navigation flow, open **Auto Learning** and select a
+PDF once. The page automatically uploads/processes it, creates the Knowledge
+Map, starts the first KU session, and loads its first question. All source slides
+assigned to the selected KU are displayed in the left column and the KU lesson
+in the right column. Changing the KU automatically prepares its session.
+
 ## Run tests
 
 ```bash
@@ -149,23 +164,26 @@ pytest --cov=app --cov=frontend --cov-report=term-missing
 ```
 
 Default tests use fake settings and a fake structured LLM; they never contact a
-real provider. The verified Phase 5 result is `99 passed` with one non-failing
+real provider. The verified MVP v1.0 result is `118 passed` with one non-failing
 upstream TestClient deprecation warning.
 
 ## Phase 1–5 demo
 
 1. Initialize the database and start backend/frontend as above.
-2. Open **Upload Document** and upload a text-based PDF.
-3. Select the uploaded document and click **Process selected document**.
-4. Confirm `ready`, page coverage, and at least three Knowledge Units.
-5. Open **Knowledge Map** and inspect objectives, concepts, prerequisites,
-   misconceptions, source pages, and reading time.
-6. Open **Study Session**, choose a unit, mark reading complete, and answer the
-   generated Recall, Explain, and Apply questions.
+2. Open **Auto Learning** and select a text-based PDF.
+3. Confirm the automatic pipeline reaches 100% coverage and shows the Knowledge
+   Map without another button.
+4. Confirm the source slides and selected KU appear side by side.
+5. Change KU and confirm its lesson/question loads without re-uploading or
+   re-processing the PDF.
+6. Answer the generated Recall, Explain, and Apply questions.
 7. Inspect separated correct/missing/incorrect feedback and mastery changes.
 8. With `AGENT_ENABLED=true`, repeat a misconception and run the bounded tutor;
    with it `false`, confirm the normal next-question flow remains available.
 9. Open **Progress Dashboard** to inspect dimensions and active misconceptions.
+
+The original step-by-step Upload Document, Knowledge Map, and Study Session
+pages remain available for inspection and manual retry workflows.
 
 For the deterministic test fixture:
 

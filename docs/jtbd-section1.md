@@ -1,59 +1,54 @@
-# Worksheet JTBD — kiểm chứng mức độ hiểu sau khi đọc
+# Worksheet JTBD — lát cắt làm rõ đoạn học chưa hiểu
 
 ## 1. Job executor
 
-**Học viên tự học trên VLearn, vừa đọc xong một đơn vị kiến thức trong tài liệu dạng chữ và cần biết mình đã thực sự hiểu đến đâu trước khi học tiếp.**
+**Học viên đang trong buổi học trên VLearn, vừa gặp một khái niệm, đoạn chữ hoặc biểu đồ trên slide mà mình chưa hiểu.**
 
-Vai này cụ thể hơn “học viên nói chung”: họ đang ở thời điểm chuyển từ đọc nội dung sang quyết định học tiếp, xem lại hay luyện thêm.
+Đây là người trực tiếp thực hiện job ở thời điểm có áp lực theo kịp bài giảng; không phải “học viên nói chung” hay học viên đang ôn tập sau buổi.
 
-## 2. Workflow
+## 2. Workflow hiện tại
 
-| Bước | Học viên đang cố làm gì? | Cách hiện tại | Kẹt ở đâu? | Mức đau |
+| Chặng | Họ đang cố làm gì? | Cách đang dùng | Kẹt ở đâu? | Mức đau |
 |---|---|---|---|:---:|
-| Chọn nội dung | Xác định phần cần học trong tài liệu | Mở slide/PDF, tự chọn trang hoặc chủ đề | Tài liệu dài, mục tiêu học chưa rõ | M |
-| Đọc | Hiểu khái niệm và ví dụ | Đọc lại, tóm tắt, hỏi đáp | Cảm giác “đọc hiểu” chưa phải bằng chứng có thể nhớ hoặc áp dụng | H |
-| Tự kiểm tra | Thử nhớ, giải thích hoặc áp dụng mà không nhìn đáp án | Tự nghĩ câu hỏi, nhờ tạo quiz, hoặc bỏ qua | Câu hỏi có thể quá dễ, lộ đáp án hoặc lệch nguồn; tiêu chí chấm không ổn định | H |
-| Nhận phản hồi | Biết đúng, thiếu hoặc hiểu sai ở đâu | So đáp án mẫu hoặc đọc một nhận xét chung | Một điểm số không chỉ ra ý thiếu, phát biểu sai và misconception | H |
-| Quyết định tiếp theo | Học tiếp, xem lại hay đổi cách giải thích | Tự ước lượng | Thiếu bằng chứng theo từng kỹ năng và dễ học tiếp quá sớm | H |
+| Trước buổi | Chuẩn bị tài liệu và biết chủ đề sắp học | Mở slide/tài liệu | Chưa phải trọng tâm của lát cắt | L |
+| Trong buổi | Làm rõ đoạn vừa gặp để tiếp tục theo bài | Bôi chọn đoạn và hỏi trong hộp hỏi đáp; hoặc hỏi bạn/giảng viên; hoặc bỏ qua | Có lúc không truy được đúng trang; câu trả lời thiếu nguồn; gần như không kiểm tra lại người học đã hiểu | H |
+| Ngay sau buổi | Bù lại phần đã bỏ lỡ | Đọc lại slide, hỏi bạn, tìm kiếm lại | Mất ngữ cảnh câu giảng và phải tự xác định lại chỗ vướng | M |
+| Khi ôn lại | Nhớ và vận dụng khái niệm | Tua/đọc lại, tìm câu hỏi cũ | Khó biết mình đã thực sự hiểu hay chỉ đọc xong lời giải | M |
+
+**Chỗ đau được chọn:** trong buổi học, ngay sau khi học viên chọn đoạn chưa hiểu.
 
 ## 3. Core JTBD
 
-**Kiểm chứng mình có thể nhớ, giải thích và áp dụng một đơn vị kiến thức sau khi đọc để quyết định học tiếp hay ôn lại.**
+**Làm rõ ngay đoạn bài học vừa gặp mà mình chưa hiểu để tiếp tục theo kịp buổi học.**
 
 Tự kiểm:
 
 - Bỏ công cụ đi, job vẫn tồn tại: đạt.
-- Không có tên sản phẩm hay công nghệ: đạt.
-- Có động từ, đối tượng và bối cảnh: đạt.
-- Mô tả outcome của người học, không mô tả feature: đạt.
+- Không có tên sản phẩm, ứng dụng hay công nghệ: đạt.
+- Mô tả kết quả người học muốn hoàn thành: đạt.
 
 ## 4. Job stories
 
 | # | When | I want to | So I can |
 |---|---|---|---|
-| JS1 | Khi vừa đọc xong một phần tài liệu | thử nhớ lại ý chính mà không nhìn nội dung | biết mình nhớ thật hay chỉ thấy quen |
-| JS2 | Khi đã trả lời đúng câu hỏi nhớ | giải thích và áp dụng cùng kiến thức ở mức khó hơn | kiểm tra hiểu sâu thay vì chỉ thuộc câu chữ |
-| JS3 | Khi câu trả lời còn thiếu hoặc có phát biểu sai | thấy rõ ý đúng, ý thiếu, ý sai và cách sửa | tập trung ôn đúng lỗ hổng |
-| JS4 | Khi đã làm vài câu trong một chủ đề | nhận quyết định học tiếp, xem lại hoặc cần hỗ trợ | không học tiếp quá sớm dựa trên cảm giác |
+| JS1 | Khi gặp một thuật ngữ ngắn như “Context” trên slide | hiểu nghĩa của nó trong đúng ngữ cảnh bài đang học | theo kịp phần giảng tiếp theo |
+| JS2 | Khi một đoạn mô tả cơ chế còn trừu tượng | nhận một cách giải thích đơn giản hơn, có ví dụ | nối khái niệm với tình huống thực tế |
+| JS3 | Khi lời giải thích không khớp slide hoặc trỏ sai trang | thấy căn cứ và sửa lại chỗ chưa đúng | không ghi nhớ kiến thức sai |
 
 ## 5. Current alternatives
 
 | Alternative | Làm tốt gì? | Fail ở đâu? | Vì sao chưa bỏ? |
 |---|---|---|---|
-| Đọc lại hoặc tự tóm tắt | Nhanh, không cần chuẩn bị | Dễ tạo ảo giác quen thuộc; không kiểm chứng recall/application | Luôn sẵn có và ít nỗ lực |
-| Tự nghĩ câu hỏi/flashcard | Chủ động, sát mục tiêu cá nhân | Tốn thời gian; khó tự đặt rubric và tự phát hiện misconception | Người học kiểm soát hoàn toàn |
-| Nhờ hộp hỏi đáp tạo quiz/chấm câu trả lời | Tạo nhanh và đối thoại được | Câu hỏi/rubric có thể thay đổi theo câu trả lời; thường kết thúc sau một lượt | Tiện và nằm ngay trong luồng học |
-| Quiz cố định cuối bài | Dễ triển khai và so sánh | Không thích ứng theo lỗ hổng; thường chỉ cho điểm tổng | Quen thuộc, rõ thời điểm hoàn thành |
+| Hộp hỏi đáp ngay trong trang học | Giữ được đoạn đang chọn, không phải rời trang | 27,0% câu trả lời thuộc nhóm làm rõ không có citation; gần như không kiểm tra lại mức hiểu | Nhanh, thuận tiện và giữ được ngữ cảnh thao tác |
+| Hỏi giảng viên hoặc bạn cùng lớp | Có thể đối thoại và hỏi tiếp | Làm gián đoạn buổi học; không phải lúc nào cũng được trả lời ngay | Tin cậy và có thể điều chỉnh theo phản ứng người học |
+| Tự tìm kiếm/đọc lại tài liệu | Chủ động, quen thuộc | Mất thời gian chuyển ngữ cảnh và tự tìm đúng đoạn | Luôn sẵn có, người học kiểm soát được |
+| Bỏ qua và xem lại sau | Không làm chậm nhịp học ngay lúc đó | Dễ tích lũy lỗ hổng và mất ngữ cảnh ban đầu | Chi phí tức thời thấp nhất |
 
-Nếu tính năng không tồn tại, học viên sẽ tiếp tục đọc lại, tự tạo quiz hoặc dùng một hộp hỏi đáp chung; quyết định học tiếp phần lớn vẫn dựa trên cảm giác và điểm tổng.
+Nếu giải pháp mới không tồn tại, học viên nhiều khả năng vẫn bôi chọn đoạn và hỏi trong trang; khi câu trả lời không đủ, họ hỏi người khác, tự tìm kiếm hoặc bỏ qua.
 
-## 6. Leverage point và giả thuyết
+## 6. Giả thuyết cần kiểm tiếp
 
-**Leverage point:** sau khi học viên đọc một Knowledge Unit và trước khi hệ thống quyết định hoạt động tiếp theo.
+Nếu giúp học viên đang trong buổi học nhận lời giải thích ngắn, bám đúng đoạn đã chọn, có căn cứ và một bước kiểm tra hiểu, họ sẽ hoàn thành việc làm rõ ngay tại chỗ thay vì chuyển kênh hoặc bỏ qua.
 
-**Product hypothesis:** Nếu giúp học viên vừa đọc xong một đơn vị kiến thức trả lời câu hỏi Recall–Explain–Apply được chấm theo rubric cố định và chỉ rõ bằng chứng đúng/thiếu/sai, họ sẽ quyết định học tiếp hay ôn lại dựa trên năng lực thể hiện thay vì cảm giác quen thuộc.
-
-**Giả định nguy hiểm nhất:** người học chấp nhận bỏ thêm thời gian trả lời tự do thay vì chọn đáp án nhanh hoặc bỏ qua bước kiểm tra.
-
-**Cần kiểm ở CP5:** thời lượng một vòng, mức hữu ích của phản hồi bốn nhóm và việc quyết định tiếp theo có đúng với tự đánh giá của người học hay không.
+**Giả định nguy hiểm nhất:** học viên thực sự muốn một bước kiểm tra hiểu trong lúc đang học; bước này có thể bị xem là làm chậm nếu không đủ ngắn hoặc không cho phép bỏ qua.
 

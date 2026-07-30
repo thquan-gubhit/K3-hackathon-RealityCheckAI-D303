@@ -1,7 +1,7 @@
 # Adaptive Learning System — Overview
 
-> **Delivery status:** Phases 1–5 are implemented and verified. This document
-> describes the delivered local MVP; Phase 6 hardening remains.
+> **Delivery status:** Phases 1–6 are implemented and verified as local MVP
+> v1.0.
 
 ## Problem
 
@@ -51,7 +51,7 @@ Workflow as the backbone
 | 3 — Question and evaluation | Questions, reference answers, rubrics, answer evaluation, feedback | Complete |
 | 4 — Adaptive learning | Sessions, next-question rules, mastery, remediation, dashboard | Complete |
 | 5 — Tutor Agent | Bounded tools, triggers, trace, disabled mode | Complete |
-| 6 — Hardening | Full tests, error handling, logging, demo data, documentation polish | Pending |
+| 6 — Hardening | Full tests, error handling, logging, demo data, documentation polish | Complete |
 
 ## MVP scope
 
@@ -67,9 +67,9 @@ Workflow as the backbone
 
 ## Delivery boundary
 
-Phases 1–5 supply the complete local MVP learning loop. Production deployment,
-authentication, OCR, migrations, and the Phase 6 hardening work remain outside
-the current delivery.
+Phases 1–6 supply the complete local MVP learning loop and hardening gates.
+Production deployment, authentication, OCR, and migrations remain outside the
+current delivery.
 
 ## Non-goals
 

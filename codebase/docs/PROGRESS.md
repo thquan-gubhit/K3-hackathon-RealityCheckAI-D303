@@ -2,7 +2,7 @@
 
 ## Current phase
 
-**Phases 1–5 — MVP learning loop: completed and verified.**
+**Phases 1–6 — local MVP v1.0: completed and verified.**
 
 The local MVP now covers PDF-to-Knowledge-Map, source-grounded assessment,
 adaptive sessions/mastery, progress UI, and a bounded opt-in Tutor Agent.
@@ -16,7 +16,7 @@ adaptive sessions/mastery, progress UI, and a bounded opt-in Tutor Agent.
 | 3 — Question and evaluation | **Completed and verified** | Validated question/rubric generation and evidence-rich evaluation |
 | 4 — Adaptive learning | **Completed and verified** | Sessions, deterministic routing, mastery, misconceptions, progress UI |
 | 5 — Tutor Agent | **Completed and verified** | Absolute gate, triggers, bounded runner, allow-list tools, redacted traces |
-| 6 — Hardening | Pending | Final cross-phase acceptance, packaging, and production polish |
+| 6 — Hardening | **Completed and verified** | Request correlation, safe errors/logs, seed, CI matrix, docs gates |
 
 ## Completed
 
@@ -50,10 +50,32 @@ adaptive sessions/mastery, progress UI, and a bounded opt-in Tutor Agent.
 - Added an optional Tutor Agent with trigger policy, validated actions,
   service-backed allow-list tools, maximum-step enforcement, and redacted traces.
 - Advanced the SQLite schema marker to version 5.
+- Added generated/preserved request IDs, stable validation/route/unexpected
+  error envelopes, log credential redaction, and bounded log fields.
+- Added an idempotent offline seed with one document, three KUs, and nine
+  immutable questions.
+- Added security/static documentation checks and a Windows–Ubuntu–macOS CI
+  matrix for compile, dependency, and offline tests.
+- Published package/API version 1.0.0 and completed documentation traceability.
+- Added the Auto Learning page: one PDF selection automatically performs
+  upload, Knowledge Map processing, session creation, and first-question load.
+  It renders every source slide for the selected KU beside its lesson and
+  creates a new session automatically when the learner changes KU.
+- Fixed coverage validation for short administrative/closing slides. A terminal
+  exercise-title/email/page-number slide is explicitly excluded with an audit
+  reason instead of forcing the LLM to invent an unrelated Knowledge Unit.
+- Added deterministic immediate coverage repair for continuation/example slide
+  groups that an LLM omits. Before making another provider call, assignment
+  uses semantic token overlap and source-page proximity; unrelated substantive
+  groups are refused and continue through bounded LLM refinement.
+- Made the dominant instructional language of the source slides authoritative
+  across Knowledge Units, questions, reference answers, rubrics, evaluation
+  feedback, and learner-facing Tutor Agent output. Schema keys and enum values
+  remain unchanged.
 
 ## In progress
 
-None. Phase 6 hardening remains.
+None.
 
 ## Blocked
 
@@ -63,7 +85,10 @@ None.
 
 ```text
 pytest -q
-→ 100 passed, 1 upstream TestClient deprecation warning
+→ 118 passed, 1 upstream TestClient deprecation warning
+
+pytest -q --cov=app --cov=frontend --cov-report=term-missing
+→ total coverage 77%
 
 tests/integration/test_document_processing_api.py
 → multipart PDF upload
@@ -76,6 +101,12 @@ python -m compileall -q app frontend scripts tests
 
 python -m pip check
 → No broken requirements found.
+
+MVP v1.0 smoke
+→ health 200 with X-Request-ID
+→ demo document ready, 3 units, 3 questions per unit
+→ unknown route uses ROUTE_NOT_FOUND with request ID
+→ network frontend/backend both return 200
 ```
 
 The fixture PDF was rendered to PNG and all three pages were visually inspected
@@ -94,7 +125,8 @@ for clipping, overlap, and broken glyphs.
 
 ## Next actions
 
-1. Run Phase 6 security/logging/error-code review.
-2. Add a migration tool before changing the stabilized schema further.
-3. Verify cross-platform runbooks and the live-provider demo.
-4. Complete accessibility and final packaging checks.
+1. Add a migration tool before changing the stabilized schema further.
+2. Add authentication/authorization before any public-network deployment.
+3. Move long-running processing to a background worker when measured latency
+   justifies it.
+4. Add backup/export and restore/import for local learning history.

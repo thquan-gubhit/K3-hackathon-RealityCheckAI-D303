@@ -1,0 +1,44 @@
+name: Adaptive Learning CI
+
+on:
+  push:
+    paths:
+      - "codebase/**"
+      - ".github/workflows/adaptive-learning-ci.yml"
+  pull_request:
+    paths:
+      - "codebase/**"
+      - ".github/workflows/adaptive-learning-ci.yml"
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: codebase
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: codebase/requirements.txt
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -r requirements.txt
+      - run: python -m compileall -q app frontend scripts tests
+      - run: python -m pip check
+      - run: python -m pytest -q
+        env:
+          DEBUG: "false"
+          APP_ENV: test
+          DATABASE_URL: sqlite:///./data/ci.db
+          UPLOAD_DIR: ./data/ci-uploads
+          LLM_API_KEY: ci-fake-key
+          LLM_BASE_URL: https://llm.invalid/v1
+          LLM_MODEL: ci-fake-model
+          AGENT_ENABLED: "false"

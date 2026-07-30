@@ -2,7 +2,7 @@
 
 **SPEC → Prototype → Demo.** Đây không phải cuộc thi code — đây là cuộc thi **tư duy sản phẩm AI**.
 
-## Bài nộp nhóm — Reality Check AI
+## Bài nộp nhóm — Hệ thống Học tập Thích ứng
 
 - **Hướng:** C — Làn mở
 - **Loại:** Tính năng mới
@@ -13,11 +13,11 @@
 
 | Thành viên | Mã học viên | Phụ trách |
 |---|---|---|
-| Trần Hoàng Quân | 2A202601805 | Bằng chứng |
-| Đinh Huy Mạnh | 2A202601677 | Prompt |
-| Nguyễn Quang Hưng | 2A202601523 | Build |
-| Lê Minh Khiêm | 2A202601645 | Spec |
-| Đàm Minh Tuấn | 2A202601169 | Validation |
+| Trần Hoàng Quân | 2A202601805 | Structure, Workflow, Prompts và Evidence |
+| Đinh Huy Mạnh | 2A202601677 | Slide |
+| Nguyễn Quang Hưng | 2A202601523 | UI |
+| Lê Minh Khiêm | 2A202601645 | Canvas |
+| Đàm Minh Tuấn | 2A202601169 | Spec, Evaluator, Structure, Workflow và Prompts |
 
 ### Artifact chính
 

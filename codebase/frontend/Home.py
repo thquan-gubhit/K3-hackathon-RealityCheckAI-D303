@@ -37,5 +37,6 @@ st.divider()
 st.subheader("MVP learning loop")
 st.write(
     "Upload and process a PDF, inspect its Knowledge Map, start an adaptive "
-    "study session, and review mastery in the Progress Dashboard."
+    "study session, and review mastery in the Progress Dashboard. For the "
+    "fastest path, open Auto Learning to upload once and start immediately."
 )
