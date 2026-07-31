@@ -9,6 +9,7 @@ from typing import AsyncIterator
 from uuid import uuid4
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -99,6 +100,18 @@ def create_app(
     )
     application.state.settings = runtime_settings
     application.state.llm_client = llm_client
+
+    # Frontend chạy ở cổng khác (Streamlit 8501, prototype 8899) nên là
+    # origin khác. Không có CORS thì trình duyệt vẫn gửi được request nhưng
+    # CHẶN response — fetch ném lỗi và FE tưởng backend chết.
+    application.add_middleware(
+        CORSMiddleware,
+        allow_origin_regex=r"http://(127\.0\.0\.1|localhost)(:\d+)?",
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+        expose_headers=["X-Request-ID"],
+    )
 
     @application.middleware("http")
     async def attach_request_id(request: Request, call_next):
