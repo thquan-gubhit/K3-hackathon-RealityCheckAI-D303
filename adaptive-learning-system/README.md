@@ -154,6 +154,10 @@ PDF, xem Knowledge Map, học theo câu hỏi thích nghi và theo dõi tiến �
 **Auto Learning** là luồng khuyến nghị: chọn PDF một lần để tự động upload,
 process, tạo Knowledge Map, tạo session và nạp câu hỏi đầu tiên.
 
+Giao diện VLearn tích hợp được backend phục vụ trực tiếp tại
+<http://127.0.0.1:8000/vlearn/>. Vào **Khóa học của tôi → Mở khóa học → Chọn
+PDF** để chạy cùng pipeline trong giao diện reader VLearn.
+
 ## Chạy test
 
 ```bash

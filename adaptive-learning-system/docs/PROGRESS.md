@@ -72,6 +72,15 @@ adaptive sessions/mastery, progress UI, and a bounded opt-in Tutor Agent.
   across Knowledge Units, questions, reference answers, rubrics, evaluation
   feedback, and learner-facing Tutor Agent output. Schema keys and enum values
   remain unchanged.
+- Connected the `codebase/noi-lai-di` VLearn reference UI to the existing
+  FastAPI pipeline. The backend now serves `/vlearn/`; one PDF upload drives
+  processing, KU navigation, PDF display, session/question creation, answer
+  evaluation, mastery feedback, and next-question loading in the VLearn reader.
+- Added explicit local-origin CORS support without wildcard access and made the
+  host `DEBUG=WARN` mode resolve safely to non-debug startup.
+- Fixed VLearn PDF upload startup failures caused by an empty SQLite file. The
+  backend launcher now initializes the registered schema before Uvicorn accepts
+  requests, while preserving existing tables and records.
 
 ## In progress
 
@@ -85,7 +94,7 @@ None.
 
 ```text
 pytest -q
-→ 118 passed, 1 upstream TestClient deprecation warning
+→ 122 passed, 1 upstream TestClient deprecation warning
 
 pytest -q --cov=app --cov=frontend --cov-report=term-missing
 → total coverage 77%

@@ -1,0 +1,64 @@
+/* Live backend integration layered onto the existing VLearn prototype. */
+.upload-card{
+  display:flex;align-items:center;gap:18px;padding:22px 24px;margin-bottom:24px;
+  background:var(--surface);border:1px dashed var(--border-strong);
+  border-radius:var(--r);box-shadow:var(--shadow);transition:.18s;
+}
+.upload-card.dragging{border-color:var(--navy);background:var(--chip-blue-bg)}
+.upload-card.busy{border-style:solid;border-color:var(--navy)}
+.upload-icon{
+  width:48px;height:48px;border-radius:13px;display:grid;place-items:center;
+  color:var(--chip-blue-ink);background:var(--chip-blue-bg);
+}
+.upload-copy b{display:block;color:var(--navy-ink);font-size:16px;margin-bottom:3px}
+.upload-copy>span{display:block;color:var(--muted);font-size:13.5px}
+.pipeline-status{display:flex;align-items:center;gap:8px;margin-top:10px;color:var(--muted);font-size:12.5px;font-weight:600}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--faint)}
+.pipeline-status.ok{color:var(--green)}
+.pipeline-status.ok .status-dot{background:var(--green)}
+.pipeline-status.error{color:var(--red-ink)}
+.pipeline-status.error .status-dot{background:var(--red)}
+.pipeline-status.busy .status-dot{background:var(--navy);animation:livePulse 1s ease-in-out infinite}
+@keyframes livePulse{50%{opacity:.25;transform:scale(.7)}}
+.pipeline-retry{margin-left:6px;color:var(--navy);font-weight:800;text-decoration:underline}
+
+.live-doc-head{
+  border:1px solid var(--border);border-radius:12px;padding:13px 14px;
+  margin-bottom:13px;background:var(--surface-2);
+}
+.live-doc-head b{display:block;color:var(--navy-ink);font-size:13.5px}
+.live-doc-head span{color:var(--faint);font-size:11.5px}
+.live-ku{
+  width:100%;text-align:left;border:1px solid var(--border);border-radius:11px;
+  padding:12px 13px;margin-bottom:9px;background:var(--surface);
+}
+.live-ku:hover{border-color:var(--navy);background:var(--chip-blue-bg)}
+.live-ku.on{border-color:var(--navy);background:var(--chip-blue-bg);box-shadow:inset 3px 0 0 var(--navy)}
+.live-ku small{display:block;color:var(--red-ink);font-size:9.5px;font-weight:800;letter-spacing:.8px;text-transform:uppercase}
+.live-ku b{display:block;color:var(--navy-ink);font-size:13px;line-height:1.35;margin:3px 0}
+.live-ku span{display:block;color:var(--muted);font-size:11.5px}
+
+.live-pdf-shell{height:calc(100vh - 168px);min-height:520px;margin-top:8px}
+.pagewrap.live-mode{max-width:none;padding:10px 18px 90px}
+.live-pdf-shell iframe{
+  width:100%;height:100%;border:1px solid var(--border);border-radius:12px;
+  background:#fff;box-shadow:var(--shadow);
+}
+.live-lesson{padding-bottom:16px;margin-bottom:16px;border-bottom:1px solid var(--border)}
+.live-lesson .ku-label{font-size:10px;font-weight:800;letter-spacing:1.1px;color:var(--red-ink);text-transform:uppercase}
+.live-lesson h3{font-size:18px;line-height:1.25;color:var(--navy-ink);margin:5px 0 8px}
+.live-lesson p{font-size:13.5px;color:var(--muted);margin:0 0 11px;line-height:1.55}
+.live-lesson h5{font-size:11.5px;color:var(--navy-deep);margin:11px 0 5px}
+.live-lesson ul{padding-left:18px;margin:0;color:var(--text);font-size:12.5px}
+.live-lesson li{margin-bottom:4px}
+.live-loading{padding:18px;border:1px solid var(--border);border-radius:11px;background:var(--surface-2);color:var(--muted);font-size:13.5px}
+.live-error{padding:14px;border-radius:11px;background:var(--red-soft);color:var(--red-ink);font-size:13px}
+.mastery-line{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;color:var(--muted);font-size:12px}
+.mastery-line b{color:var(--navy-deep);font-size:15px}
+
+@media(max-width:980px){
+  .upload-card{align-items:flex-start;flex-wrap:wrap}
+  .upload-card .sp{display:none}
+  .rd.panel-open{grid-template-columns:260px 1fr}
+  .rd.panel-open .panel{position:absolute;right:0;top:0;bottom:0;width:min(390px,92vw);z-index:45;box-shadow:var(--shadow-pop)}
+}

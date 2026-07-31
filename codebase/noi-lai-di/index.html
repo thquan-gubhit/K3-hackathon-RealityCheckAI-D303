@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>VLearn · Nói Lại Đi (prototype)</title>
+<link rel="stylesheet" href="./backend-integration.css">
 <style>
 /* ============================================================ TOKENS */
 :root{
@@ -421,9 +422,27 @@ svg{flex:0 0 auto}
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg>
       <b>Đã đọc 0/6 ngày</b><span class="tr"><i style="width:0%"></i></span><em>0%</em>
     </div>
-    <button class="btn-primary" id="startRead">Bắt đầu đọc</button>
+    <button class="btn-primary" id="startRead">Upload slide PDF</button>
+    <input id="pdfUpload" type="file" accept="application/pdf,.pdf" hidden>
   </div></div>
-  <div class="wrap" id="daylist"></div>
+  <div class="wrap">
+    <div class="upload-card" id="uploadCard">
+      <div class="upload-icon">
+        <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 15v4a1 1 0 001 1h14a1 1 0 001-1v-4"/></svg>
+      </div>
+      <div class="upload-copy">
+        <b>Upload một lần, học ngay trong VLearn</b>
+        <span>Chọn PDF có text. Knowledge Map, lesson và câu hỏi đầu tiên sẽ được tạo tự động.</span>
+        <div class="pipeline-status" id="pipelineStatus">
+          <span class="status-dot"></span>
+          <span id="pipelineStatusText">Backend đang được kiểm tra…</span>
+        </div>
+      </div>
+      <div class="sp"></div>
+      <button class="btn-primary" id="choosePdf">Chọn PDF</button>
+    </div>
+    <div id="daylist"></div>
+  </div>
 </section>
 
 <!-- ============================ SỔ TAY ============================ -->
@@ -460,6 +479,7 @@ svg{flex:0 0 auto}
     <div class="docico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 4h7a3 3 0 013 3v13a2.5 2.5 0 00-2.5-2.5H2V4zM22 4h-7a3 3 0 00-3 3v13a2.5 2.5 0 012.5-2.5H22V4z"/></svg></div>
     <div><div class="t" id="rdTitle"></div><div class="s" id="rdCode"></div></div>
     <div class="sp"></div>
+    <button class="navbtn live-only hide" id="replacePdf">Đổi PDF</button>
     <button class="navbtn" style="font-weight:800">VI</button>
     <button class="navbtn" data-theme-btn><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
     <div class="avatar"><span class="dot">S</span> Sinh viên ẩn danh</div>
@@ -531,6 +551,7 @@ svg{flex:0 0 auto}
         <div class="hint" id="tryHint" style="border-top:1px solid var(--border);padding-top:14px"></div>
       </div>
       <div class="pbody recall hide" id="recall">
+        <div class="live-lesson hide" id="liveLesson"></div>
         <div id="rc_ask">
           <div class="q" id="rc_q"></div>
           <p class="rule">↳ Đừng dùng lại từ trong slide.</p>
@@ -972,5 +993,6 @@ function paintBook(){
 /* ---- init ---- */
 openDoc('d03b'); showChat(); go('home');
 </script>
+<script src="./backend-integration.js"></script>
 </body>
 </html>

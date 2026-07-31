@@ -1,6 +1,6 @@
 # Test Plan
 
-> **Delivery status:** Phases 1–6 have 118 passing tests on Python 3.11.9,
+> **Delivery status:** Phases 1–6 have 122 passing tests on Python 3.11.9,
 > including the full fake-LLM learning loop and Phase 6 hardening gates.
 
 ## Strategy
@@ -114,6 +114,8 @@ Integration assertions include:
 | AT-010 | Disable agent | Normal learning workflow remains usable | Passed |
 | AT-011 | Select one PDF in Auto Learning | Upload, map, session, and first question load automatically | Passed |
 | AT-012 | Change KU in Auto Learning | New session/question loads without re-upload or re-process | Passed |
+| AT-013 | Open `/vlearn/` from the backend | VLearn reference UI and integration assets load | Passed |
+| AT-014 | Preflight from the local prototype origin | Explicit local origin is allowed without wildcard CORS | Passed |
 
 ## Mock strategy
 

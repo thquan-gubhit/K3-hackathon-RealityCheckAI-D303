@@ -151,6 +151,11 @@ Map, starts the first KU session, and loads its first question. All source slide
 assigned to the selected KU are displayed in the left column and the KU lesson
 in the right column. Changing the KU automatically prepares its session.
 
+Alternatively, keep only the backend running and open the integrated VLearn
+reader at `http://127.0.0.1:8000/vlearn/`. Navigate to **Khóa học của tôi → Mở
+khóa học**, choose a PDF, then use the KU list and Tutor panel. The backend
+serves this UI on the same origin, so no second frontend process is required.
+
 ## Run tests
 
 ```bash
@@ -164,7 +169,7 @@ pytest --cov=app --cov=frontend --cov-report=term-missing
 ```
 
 Default tests use fake settings and a fake structured LLM; they never contact a
-real provider. The verified MVP v1.0 result is `118 passed` with one non-failing
+real provider. The verified MVP v1.0 result is `122 passed` with one non-failing
 upstream TestClient deprecation warning.
 
 ## Phase 1–5 demo

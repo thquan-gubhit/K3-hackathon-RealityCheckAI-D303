@@ -10,16 +10,18 @@ from uuid import uuid4
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.staticfiles import StaticFiles
 
 from app.api.documents import router as documents_router
 from app.api.agent import router as agent_router
 from app.api.knowledge_units import router as knowledge_units_router
 from app.api.learning_sessions import router as learning_sessions_router
 from app.api.progress import router as progress_router
-from app.config import ConfigurationError, Settings, get_settings
+from app.config import ConfigurationError, PROJECT_ROOT, Settings, get_settings
 from app.errors import AppError
 from app.llm.adapter import LLMClient
 from app.logging_config import JsonLogFormatter
@@ -96,6 +98,20 @@ def create_app(
         version="1.0.0",
         debug=runtime_settings.debug,
         lifespan=lifespan,
+    )
+    local_frontend_origins = {
+        f"http://{runtime_settings.frontend_host}:{runtime_settings.frontend_port}",
+        f"http://localhost:{runtime_settings.frontend_port}",
+        "http://127.0.0.1:8899",
+        "http://localhost:8899",
+    }
+    application.add_middleware(
+        CORSMiddleware,
+        allow_origins=sorted(local_frontend_origins),
+        allow_credentials=False,
+        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_headers=["Accept", "Content-Type", "X-Request-ID"],
+        expose_headers=["X-Request-ID"],
     )
     application.state.settings = runtime_settings
     application.state.llm_client = llm_client
@@ -234,6 +250,13 @@ def create_app(
     application.include_router(learning_sessions_router)
     application.include_router(progress_router)
     application.include_router(agent_router)
+    prototype_ui_dir = PROJECT_ROOT.parent / "codebase" / "noi-lai-di"
+    if prototype_ui_dir.is_dir():
+        application.mount(
+            "/vlearn",
+            StaticFiles(directory=prototype_ui_dir, html=True),
+            name="vlearn",
+        )
     return application
 
 

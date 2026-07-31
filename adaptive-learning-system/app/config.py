@@ -162,7 +162,7 @@ class Settings(BaseSettings):
 
         if isinstance(value, str):
             normalized = value.strip().lower()
-            if normalized in {"release", "production"}:
+            if normalized in {"release", "production", "warn", "warning"}:
                 return False
             if normalized in {"debug", "development"}:
                 return True

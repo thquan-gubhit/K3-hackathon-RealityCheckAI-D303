@@ -49,6 +49,18 @@ def test_settings_accept_host_debug_mode_alias(monkeypatch) -> None:
     assert settings.debug is False
 
 
+def test_settings_treat_host_warning_mode_as_non_debug(monkeypatch) -> None:
+    """A host DEBUG=WARN logging mode must not prevent application startup."""
+
+    monkeypatch.setenv("DEBUG", "WARN")
+
+    from app.config import Settings
+
+    settings = Settings(_env_file=None)
+
+    assert settings.debug is False
+
+
 def test_settings_load_values_from_dotenv(
     monkeypatch,
     tmp_path: Path,

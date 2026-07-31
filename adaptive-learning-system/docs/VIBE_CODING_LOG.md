@@ -460,3 +460,62 @@ pytest tests/unit/test_llm_prompt_language_policy.py \
 pytest -q
 → 118 passed, 1 upstream TestClient deprecation warning
 ```
+
+## 2026-07-31 — VLearn reference UI integration
+
+### Goal
+
+Use `codebase/noi-lai-di/index.html` as the visual standard while retaining the
+existing document, Knowledge Map, assessment, and mastery backend.
+
+### Implementation
+
+- Preserved the VLearn navigation, course reader, PDF workspace, KU sidebar,
+  Tutor panel, responsive layout, and light/dark design tokens.
+- Added a one-upload live flow that calls document upload and processing,
+  renders the selected local PDF, lists source-page ranges for every KU,
+  creates one learning session per selected KU, loads its question, submits the
+  learner answer, and displays source-grounded evaluation/mastery evidence.
+- Served the static UI directly from FastAPI at `/vlearn/`, with a bounded CORS
+  allow-list for the optional port-8899 development server.
+- Kept the PDF blob in browser memory only for display; durable document,
+  question, session, and progress data remain in the existing backend.
+- Added safe HTML escaping for provider-generated learner-facing content.
+- Made host `DEBUG=WARN` compatible with the existing typed configuration.
+
+### Verification
+
+```text
+node --check codebase/noi-lai-di/backend-integration.js
+→ passed
+
+pytest -q
+→ 121 passed, 1 upstream TestClient deprecation warning
+```
+
+## 2026-07-31 — VLearn PDF upload database startup fix
+
+### Evidence
+
+The browser reached `POST /documents/upload`, but the backend returned
+`DATABASE_ERROR`. Runtime inspection showed `data/app.db` existed as a zero-byte
+file with no tables, so SQLite raised `OperationalError` while inserting the
+document metadata.
+
+### Fix
+
+- Recreated the registered schema in place without deleting upload files.
+- Updated `scripts/run_backend.py` to run idempotent `init_db()` after
+  configuration validation and before starting Uvicorn.
+- Added a launcher-order test proving validation → database initialization →
+  server startup.
+
+### Verification
+
+```text
+GET /documents
+→ 200 []
+
+pytest -q
+→ 122 passed, 1 upstream TestClient deprecation warning
+```
