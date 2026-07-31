@@ -2,7 +2,13 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_validator,
+    model_validator,
+)
 
 
 class DimensionScores(BaseModel):
@@ -57,12 +63,23 @@ class AnswerEvaluation(BaseModel):
 
 
 class AnswerSubmission(BaseModel):
-    """Free-text learner response for one selected question."""
+    """Learner response: free text, or a chosen option for multiple choice."""
 
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
     question_id: str = Field(min_length=1, max_length=100)
-    user_answer: str = Field(min_length=1, max_length=20_000)
+    user_answer: str | None = Field(default=None, min_length=1, max_length=20_000)
+    selected_option: int | None = Field(default=None, ge=0)
+
+    @model_validator(mode="after")
+    def exactly_one_answer(self) -> "AnswerSubmission":
+        """Đúng một dạng trả lời — tránh gửi cả hai rồi chấm nhập nhằng."""
+
+        if (self.user_answer is None) == (self.selected_option is None):
+            raise ValueError(
+                "provide exactly one of user_answer or selected_option"
+            )
+        return self
 
 
 __all__ = ["AnswerEvaluation", "AnswerSubmission", "DimensionScores"]

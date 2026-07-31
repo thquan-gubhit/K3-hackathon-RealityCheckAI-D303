@@ -108,6 +108,9 @@ class AnswerResultResponse(BaseModel):
     mastery: MasteryRead
     misconceptions: list[MisconceptionRead]
     next_action: str
+    # Đáp án tham chiếu chỉ lộ SAU khi đã nộp bài — trước đó vẫn giấu
+    # (QuestionPublic không có trường này) nên không xem trộm được.
+    reference_answer: str | None = None
 
 
 class ProgressUnitResponse(BaseModel):

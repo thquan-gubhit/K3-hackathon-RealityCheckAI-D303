@@ -74,12 +74,49 @@ def _jaccard(left: set[str], right: set[str]) -> float:
     return len(left & right) / len(left | right)
 
 
+def _choice_reasons(
+    candidate: QuestionCandidate,
+    *,
+    source_text: str | None,
+    grounding_threshold: float = 0.60,
+) -> list[str]:
+    """Gates riêng cho câu trắc nghiệm.
+
+    Đáp án đúng phải bám nguồn: phần lớn từ của nó phải xuất hiện trong
+    source context của Knowledge Unit. Đây là chốt chặn bịa đáp án —
+    LLM tự khai `source_grounded` thì không đủ tin.
+    """
+
+    if candidate.options is None:
+        return []
+
+    reasons: list[str] = []
+    normalized = [" ".join(option.casefold().split()) for option in candidate.options]
+    if len(set(normalized)) != len(normalized):
+        reasons.append("DUPLICATE_OPTION")
+    if candidate.correct_option is None or not (
+        0 <= candidate.correct_option < len(candidate.options)
+    ):
+        reasons.append("INVALID_CORRECT_OPTION")
+        return reasons
+
+    if source_text:
+        source_words = _word_set(source_text)
+        answer_words = _word_set(candidate.options[candidate.correct_option])
+        if answer_words:
+            covered = len(answer_words & source_words) / len(answer_words)
+            if covered < grounding_threshold:
+                reasons.append("ANSWER_NOT_IN_SOURCE")
+    return reasons
+
+
 def validate_question_candidate(
     candidate: QuestionCandidate,
     unit: KnowledgeUnitContent,
     *,
     existing_question_texts: Sequence[str] = (),
     duplicate_threshold: float = 0.80,
+    source_text: str | None = None,
 ) -> QuestionValidationDecision:
     """Apply all source, objective, leakage, clarity, and duplicate gates."""
 
@@ -113,6 +150,8 @@ def validate_question_candidate(
         for existing in existing_question_texts
     ):
         reasons.append("DUPLICATE")
+
+    reasons.extend(_choice_reasons(candidate, source_text=source_text))
 
     return QuestionValidationDecision(
         accepted=not reasons,

@@ -3,11 +3,11 @@ name: Adaptive Learning CI
 on:
   push:
     paths:
-      - "adaptive-learning-system/**"
+      - "codebase/**"
       - ".github/workflows/adaptive-learning-ci.yml"
   pull_request:
     paths:
-      - "adaptive-learning-system/**"
+      - "codebase/**"
       - ".github/workflows/adaptive-learning-ci.yml"
 
 jobs:
@@ -19,7 +19,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     defaults:
       run:
-        working-directory: adaptive-learning-system
+        working-directory: codebase
 
     steps:
       - uses: actions/checkout@v4
@@ -27,7 +27,7 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
-          cache-dependency-path: adaptive-learning-system/requirements.txt
+          cache-dependency-path: codebase/requirements.txt
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -r requirements.txt
       - run: python -m compileall -q app frontend scripts tests

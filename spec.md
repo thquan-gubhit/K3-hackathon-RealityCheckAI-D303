@@ -148,7 +148,7 @@ Loại: [ ] Tối ưu tính năng có sẵn  [x] Tính năng mới
 - **Phân công có tên:** 
   - Spec & Evaluator: Tuấn
   - Structure, Workflow & Prompts: Tuấn + Quân
-  - Slide: Mạnh
+  - Prompt: Mạnh
   - Evidence: Quân
   - Canvas: Khiêm
   - UI: Hưng

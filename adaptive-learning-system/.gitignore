@@ -1,18 +1,4 @@
-.env
-.venv/
+# Python cache
 __pycache__/
 *.py[cod]
-.pytest_cache/
-.coverage
-htmlcov/
-*.log
-
-data/app.db
-data/app.db-*
-data/uploads/*
-!data/uploads/.gitkeep
-
-.streamlit/secrets.toml
-.idea/
-.vscode/
-.DS_Store
+*$py.class
