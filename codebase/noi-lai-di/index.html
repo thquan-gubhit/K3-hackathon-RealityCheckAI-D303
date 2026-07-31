@@ -207,6 +207,12 @@ svg{flex:0 0 auto}
 .gacts{display:flex;flex-direction:column;align-items:center;gap:11px;margin-top:24px}
 .btn-primary.big{padding:14px 30px;font-size:15px}
 
+.fmt{font-family:var(--mono);font-size:9.5px;font-weight:800;letter-spacing:.6px;
+  background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-pill);padding:3px 9px;color:var(--muted)}
+.yours{background:var(--surface-2);border:1px solid var(--border);border-radius:11px;padding:13px 15px;margin-bottom:12px}
+.yours b{display:block;font-size:11px;font-weight:800;letter-spacing:.8px;color:var(--faint);text-transform:uppercase;margin-bottom:6px}
+.yours p{margin:0;font-size:13.5px;line-height:1.6;color:var(--text);white-space:pre-wrap}
+
 /* peek — xem lại slide giữa chừng, có đếm */
 .peekbar{display:flex;align-items:center;gap:12px;padding:11px 18px;background:var(--amber-bg);
   border-bottom:1px solid var(--amber-border);color:var(--amber);font-size:13px;font-weight:700}
@@ -987,9 +993,11 @@ async function makeQuestionsForDoc(docId){
   for(const k of kus) byKU[k.id]=await extractPages(docId,k.from,k.to);
   for(const k of kus){
     const others=kus.filter(x=>x.id!==k.id).flatMap(x=>byKU[x.id]||[]);
-    const built=buildMCQ(k, byKU[k.id]||[], others);
-    if(built.length) k.questions=built;        /* không dựng được thì giữ bộ mẫu */
-    k.grounded=built.length>0;
+    const mcq=buildMCQ(k, byKU[k.id]||[], others, 3);
+    /* Một KU = 3 câu TỰ LUẬN (chấm theo rubric, phần của Tuấn)
+       + 3 câu TRẮC NGHIỆM bám slide. Tự luận đứng trước cho khó dần. */
+    k.questions=[...k.questions, ...mcq];
+    k.grounded=mcq.length>0;
   }
 }
 
@@ -1530,36 +1538,72 @@ function paintQuizStage(){
 
   const q=ku.questions[S.quiz.i], picked=S.quiz.picked;
   const letters=['A','B','C','D','E','F'];
-  stage.innerHTML=quizShell(ku,`
-    <div class="qmeta"><span class="qtype ${q.type}">${q.label}</span>
+  const isMCQ=Array.isArray(q.options) && q.options.length>0;
+  const peekWarn=(()=>{const pk=S.peeks[ku.id]||0; return pk?`<div class="peekwarn">
+       ⚠️ Bạn đã xem lại slide <b>${pk} lần</b> ở phần này. Cố tự nhớ trước đã nhé.</div>`:'';})();
+  const progress=`<p class="hint">Tiến độ: ${S.quiz.score}/${S.quiz.i+(view==='feedback'?1:0)} câu đúng
+       · ngưỡng đạt ${PASS_PCT}% · ${isMCQ?'trắc nghiệm':'tự luận'}</p>`;
+  const head=`<div class="qmeta"><span class="qtype ${q.type}">${q.label}</span>
       <span class="qdiff">${q.difficulty||''}</span>
+      <span class="fmt">${isMCQ?'TRẮC NGHIỆM':'TỰ LUẬN'}</span>
       <span class="sp"></span><span class="qcount">Câu ${S.quiz.i+1}/${ku.questions.length}</span></div>
-    <div class="qtext">${q.text}</div>
-    <div class="opts">${(q.options||[]).map((o,k)=>{
-      let cls=''; if(view==='feedback'){ if(k===q.answer) cls='ok'; else if(k===picked) cls='no'; }
-      else if(k===picked) cls='sel';
-      return `<button class="opt ${cls}" ${view==='feedback'?'disabled':''}
-        onclick="pickOpt(${k})"><span class="ltr">${letters[k]}</span><span>${o}</span></button>`;
-    }).join('')}</div>
-    ${view==='feedback'?`
-      <div class="fbbox ${picked===q.answer?'ok':'no'}">
-        <b>${picked===q.answer?'✅ Chính xác':'❌ Chưa đúng'}</b>
-        ${picked!==q.answer?`<p><b>Đáp án đúng:</b> ${letters[q.answer]}. ${q.options[q.answer]}</p>`:''}
-        <p><b>Nguồn:</b> ${q.explain||''}</p>
-      </div>`:''}
-    ${(()=>{const pk=S.peeks[ku.id]||0; return pk?`<div class="peekwarn">
-       ⚠️ Bạn đã xem lại slide <b>${pk} lần</b> ở phần này. Cố tự nhớ trước đã nhé.</div>`:'';})()}
-    <p class="hint">Tiến độ: ${S.quiz.score}/${S.quiz.i+(view==='feedback'?1:0)} câu đúng
-       · ngưỡng đạt ${PASS_PCT}%</p>`,
-    view==='feedback'
-      ? `${S.quiz.i+1>=ku.questions.length
-           ? `<button class="btn-primary" onclick="finishQuiz()">Xem kết quả</button>`
-           : `<button class="btn-primary" onclick="S.quiz.i++;S.quiz.picked=null;S.quiz.view='ask';paintQuizStage()">Câu tiếp →</button>`}
-         <button class="ghost" onclick="unlock()">Để sau</button>`
-      : `<button class="btn-primary" id="qsend" ${picked==null?'disabled':''} onclick="submitQuizAnswer()">Trả lời</button>
-         <button class="ghost" onclick="startPeek()">👁 Xem lại slide${(S.peeks[ku.id]||0)?` (đã xem ${S.peeks[ku.id]} lần)`:''}</button>
-         <button class="ghost" onclick="unlock()">Để sau</button>`);
+    ${q.learning_objective?`<p class="qobj">Mục tiêu: ${q.learning_objective}</p>`:''}
+    <div class="qtext">${q.text}</div>`;
+
+  const nextBtn = S.quiz.i+1>=ku.questions.length
+    ? `<button class="btn-primary" onclick="finishQuiz()">Xem kết quả</button>`
+    : `<button class="btn-primary" onclick="S.quiz.i++;S.quiz.picked=null;S.quiz.ev=null;S.quiz.view='ask';paintQuizStage()">Câu tiếp →</button>`;
+  const peekBtn = `<button class="ghost" onclick="startPeek()">👁 Xem lại slide${(S.peeks[ku.id]||0)?` (đã xem ${S.peeks[ku.id]} lần)`:''}</button>`;
+
+  /* ---------- TRẮC NGHIỆM ---------- */
+  if(isMCQ){
+    stage.innerHTML=quizShell(ku,`${head}
+      <div class="opts">${q.options.map((o,k)=>{
+        let cls=''; if(view==='feedback'){ if(k===q.answer) cls='ok'; else if(k===picked) cls='no'; }
+        else if(k===picked) cls='sel';
+        return `<button class="opt ${cls}" ${view==='feedback'?'disabled':''}
+          onclick="pickOpt(${k})"><span class="ltr">${letters[k]}</span><span>${o}</span></button>`;
+      }).join('')}</div>
+      ${view==='feedback'?`
+        <div class="fbbox ${picked===q.answer?'ok':'no'}">
+          <b>${picked===q.answer?'✅ Chính xác':'❌ Chưa đúng'}</b>
+          ${picked!==q.answer?`<p><b>Đáp án đúng:</b> ${letters[q.answer]}. ${q.options[q.answer]}</p>`:''}
+          <p><b>Nguồn:</b> ${q.explain||''}</p>
+        </div>`:''}
+      ${peekWarn}${progress}`,
+      view==='feedback' ? `${nextBtn}<button class="ghost" onclick="unlock()">Để sau</button>`
+        : `<button class="btn-primary" id="qsend" ${picked==null?'disabled':''} onclick="submitQuizAnswer()">Trả lời</button>
+           ${peekBtn}<button class="ghost" onclick="unlock()">Để sau</button>`);
+    return;
+  }
+
+  /* ---------- TỰ LUẬN (chấm theo rubric — luồng của Tuấn) ---------- */
+  if(view==='feedback'){
+    const ev=S.quiz.ev||{correct:[],missing:[]};
+    stage.innerHTML=quizShell(ku,`${head}
+      <div class="yours"><b>Câu trả lời của bạn</b><p>${(S.quiz.lastAnswer||'').replace(/</g,'&lt;')}</p></div>
+      ${ev.correct.map(x=>`<div class="vline ok"><span class="g">✅</span>
+         <div><b>Ý bạn đã nêu:</b> ${x}</div></div>`).join('')}
+      ${ev.missing.map(x=>`<div class="vline miss"><span class="g">⭕</span>
+         <div><b>Ý còn thiếu:</b> ${x}</div></div>`).join('')}
+      ${(ev.incorrect||[]).map(x=>`<div class="vline miss"><span class="g">❌</span>
+         <div><b>Ý chưa đúng:</b> ${x}</div></div>`).join('')}
+      ${ev.feedback?`<div class="fbbox ${ev.missing.length?'no':'ok'}"><p>${ev.feedback}</p></div>`:''}
+      <p class="hint">${ev.live?'Chấm bởi backend theo rubric của câu hỏi.'
+        :'Bản offline ước lượng theo độ đầy đủ. Bật backend để chấm đúng rubric.'}</p>
+      ${peekWarn}${progress}`,
+      `${nextBtn}<button class="ghost" onclick="S.quiz.view='ask';paintQuizStage()">Viết lại</button>
+       <button class="ghost" onclick="unlock()">Để sau</button>`);
+    return;
+  }
+  stage.innerHTML=quizShell(ku,`${head}
+    <textarea id="qin" placeholder="Trả lời bằng lời của bạn…">${S.quiz.lastAnswer||''}</textarea>
+    ${peekWarn}${progress}`,
+    `<button class="btn-primary" id="qsend" onclick="submitQuizAnswer()">Gửi</button>
+     ${peekBtn}<button class="ghost" onclick="unlock()">Để sau</button>`);
+  const t=document.getElementById('qin'); if(t) setTimeout(()=>t.focus(),60);
 }
+
 
 function pickOpt(k){ if(S.quiz.view!=='ask')return; S.quiz.picked=k; paintQuizStage(); }
 
@@ -1581,11 +1625,45 @@ function endPeek(){
   renderPdfDoc(S.doc);
 }
 
-function submitQuizAnswer(){
+async function submitQuizAnswer(){
   const q=S.quiz.ku.questions[S.quiz.i];
-  if(S.quiz.picked==null) return;
-  if(S.quiz.picked===q.answer) S.quiz.score++;
-  S.quiz.view='feedback'; paintQuizStage();
+
+  /* trắc nghiệm: so chỉ số, không cần gọi ai */
+  if(Array.isArray(q.options) && q.options.length){
+    if(S.quiz.picked==null) return;
+    if(S.quiz.picked===q.answer) S.quiz.score++;
+    S.quiz.view='feedback'; paintQuizStage(); return;
+  }
+
+  /* tự luận: chấm theo rubric — có backend thì gọi thật */
+  const t=document.getElementById('qin'); if(!t) return;
+  const txt=t.value.trim(); if(!txt) return;
+  const b=document.getElementById('qsend');
+  if(b){ b.disabled=true; b.textContent='Đang đối chiếu…'; }
+  const ev=await evalAnswer(txt,q);
+  if(!ev.missing.length) S.quiz.score++;
+  S.quiz.lastAnswer=txt; S.quiz.ev=ev; S.quiz.view='feedback'; paintQuizStage();
+}
+
+/* Chấm tự luận: có API.base thì POST /learning-sessions/{id}/answers,
+   không thì ước lượng cục bộ theo required_points. */
+async function evalAnswer(txt,q){
+  if(API.base && API.sessionId){
+    try{
+      const r=await fetch(`${API.base}/learning-sessions/${API.sessionId}/answers`,{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({question_id:q.id,user_answer:txt})});
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const ev=(await r.json()).evaluation;
+      return {correct:ev.correct_points||[], missing:ev.missing_points||[],
+              incorrect:ev.incorrect_points||[], feedback:ev.feedback, live:true};
+    }catch(e){ console.warn('BE lỗi, chấm cục bộ:',e.message); }
+  }
+  const w=txt.split(/\s+/).filter(Boolean).length;
+  const req=q.required_points||[];
+  const correct=[], missing=[];
+  req.forEach((pt,k)=>{ (w>=12 && (k===0||w>=25)) ? correct.push(pt) : missing.push(pt); });
+  return {correct,missing,incorrect:[],live:false};
 }
 
 /* ---------- lưu kết quả từng phiên ---------- */
