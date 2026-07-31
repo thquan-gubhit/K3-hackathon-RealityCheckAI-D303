@@ -193,6 +193,20 @@ svg{flex:0 0 auto}
 .pdfbar .kutitle{font-size:12.5px;color:var(--navy-ink);font-weight:700}
 .pdfstage{padding:16px;background:#eef1f6;display:flex;align-items:center;justify-content:center;min-height:min(70vh,620px)}
 .pdfstage canvas{max-width:100%;height:auto;box-shadow:0 3px 14px rgba(15,36,68,.18);border-radius:4px;background:#fff}
+/* SLIDE CHỐT sau mỗi KU — nút nằm giữa slide */
+.pdfstage.gate{background:linear-gradient(160deg,#eaf1fb 0%,#f6f9fd 60%,#eef2f7 100%)}
+:root[data-theme="dark"] .pdfstage.gate{background:linear-gradient(160deg,#13203a 0%,#0e1828 60%,#0c1422 100%)}
+.gatecard{text-align:center;max-width:520px;padding:40px 26px}
+.gatecard .gi{font-size:44px;margin-bottom:14px}
+.gatecard .gt{font-size:11px;font-weight:800;letter-spacing:1.4px;color:var(--chip-blue-ink);text-transform:uppercase}
+.gatecard b{display:block;font-size:23px;color:var(--navy-ink);margin:8px 0 6px;letter-spacing:-.4px}
+.gatecard .gm{font-family:var(--mono);font-size:12px;color:var(--faint)}
+.gatecard .gp{font-size:14px;color:var(--muted);line-height:1.65;margin:16px 0 0}
+.gatecard .gdone{display:inline-block;margin-top:15px;background:var(--green-bg);color:var(--green);
+  border-radius:var(--r-pill);padding:7px 16px;font-size:13px;font-weight:800}
+.gacts{display:flex;flex-direction:column;align-items:center;gap:11px;margin-top:24px}
+.btn-primary.big{padding:14px 30px;font-size:15px}
+
 /* bài ôn hiển thị ngay trong khu vực slide */
 .pdfstage.quiz{align-items:flex-start;padding:0;background:var(--surface)}
 .quizbox{width:100%;max-width:760px;margin:0 auto;padding:26px 30px 24px}
@@ -846,6 +860,8 @@ function grade(text, card){
 /* ============================================================ STATE + ROUTER */
 const S={said:0,blank:0,notes:0,rows:[],sel:null,doc:'d03b',card:null,openDays:{'03':true},
          kus:{},        /* docId -> [KU]  KU = {id,pos,title,from,to,questions[]} */
+         kuPassed:{},   /* kuId -> true khi đã qua slide chốt (làm xong hoặc bỏ qua) */
+         viewIdx:0,     /* vị trí trong chuỗi màn (trang PDF + slide chốt) */
          kuDone:{},     /* kuId -> {score, total, at} */
          quiz:null};    /* phiên ôn đang mở */
 
@@ -961,7 +977,7 @@ function saveState(){
     const dayMap={};
     DAYS.forEach(d=>{ const f=d.files.filter(x=>docs[x]); if(f.length) dayMap[d.n]=f; });
     const kus={}; Object.keys(docs).forEach(id=>{ if(S.kus[id]) kus[id]=S.kus[id]; });
-    localStorage.setItem('nld_state',JSON.stringify({docs,dayMap,kus,kuDone:S.kuDone}));
+    localStorage.setItem('nld_state',JSON.stringify({docs,dayMap,kus,kuDone:S.kuDone,kuPassed:S.kuPassed}));
   }catch(e){ console.warn('Không lưu được trạng thái:',e.message); }
 }
 
@@ -969,7 +985,7 @@ async function restoreState(){
   let st=null;
   try{ st=JSON.parse(localStorage.getItem('nld_state')||'null'); }catch(e){}
   if(!st) return;
-  S.kuDone=st.kuDone||{};
+  S.kuDone=st.kuDone||{}; S.kuPassed=st.kuPassed||{};
   for(const [id,meta] of Object.entries(st.docs||{})){
     let blob=null;
     try{ blob=await idbGet(id); }catch(e){}
@@ -1137,7 +1153,7 @@ function openDoc(id){
            <div style="font-size:13px">Bản prototype mới dựng nội dung cho <b>Day03-D302…pdf</b> (trang 7–9).<br>
            Mở tài liệu đó để thử luồng <b>Nói lại</b>.</div></div>${WMK}</div>
        <div class="pgnote">Kéo đến trang này để mở note riêng của trang.</div></div>`;
-  if(d.blobUrl){ S.pdfPage=1; renderPdfDoc(id); }
+  if(d.blobUrl){ S.viewIdx=0; S.gate=null; S.quiz=null; renderPdfDoc(id); }
   const mine = Object.keys(CARDS).filter(k=>k.startsWith(id+':')).map(k=>+k.split(':')[1]).sort((a,b)=>a-b);
   tryHint.innerHTML = mine.length
     ? `<b style="color:var(--navy-deep)">Thử đi:</b> bôi đen một ý ở <b>trang ${mine.join(' hoặc trang ')}</b>, rồi bấm <b>Nói lại</b>.`
@@ -1172,7 +1188,10 @@ function paintSide(){
 /* ---- trang hiện tại ---- */
 function pageNums(){ return [...pagewrap.querySelectorAll('.pg')].map(e=>+e.dataset.n); }
 function curPage(){
-  if(DOCS[S.doc] && DOCS[S.doc].blobUrl) return S.pdfPage||1;   /* chế độ PDF: trang là state */
+  if(DOCS[S.doc] && DOCS[S.doc].blobUrl){
+    const v=viewSeq(S.doc)[S.viewIdx||0];    /* trang thật của màn đang xem */
+    return v?v.page:1;
+  }
   const mid = doc.scrollTop + doc.clientHeight/2; let best = pageNums()[0]||1;
   pagewrap.querySelectorAll('.pg').forEach(el=>{ if(el.offsetTop<=mid) best=+el.dataset.n; });
   return best;
@@ -1199,35 +1218,48 @@ async function loadPdf(id){
    Xong bài / Bỏ qua / Ôn lại -> unlock() mở lại tất cả. */
 function pageLocked(id,p){ return !!S.gate; }
 
+/* ============================================================
+   CHUỖI MÀN HÌNH = các trang PDF + MỘT SLIDE CHỐT chèn sau trang cuối mỗi KU.
+   Không qua được slide chốt nếu chưa làm bài hoặc chưa bấm bỏ qua.
+   ============================================================ */
+function viewSeq(id){
+  const kus=S.kus[id]||[], total=(DOCS[id]||{}).total||0, out=[];
+  for(let p=1;p<=total;p++){
+    out.push({type:'pdf',page:p});
+    const ku=kus.find(k=>k.to===p);
+    if(ku) out.push({type:'gate',ku,page:p});
+  }
+  return out;
+}
+const gatePassed = ku => !!(S.kuDone[ku.id] || S.kuPassed[ku.id]);
+
 async function renderPdfDoc(id){
-  const d=DOCS[id], p=S.pdfPage||1, ku=kuOfPage(id,p);
-  const lastOfKU = ku && p===ku.to;
-  const locked = !!S.gate;        /* khoá điều hướng trang */
-  const showQuiz = !!S.quiz;      /* đang hiện bài ôn trong khu vực slide */
+  const d=DOCS[id], seq=viewSeq(id);
+  if(S.viewIdx==null || S.viewIdx>=seq.length) S.viewIdx=0;
+  const view=seq[S.viewIdx]||{type:'pdf',page:1};
+  const p=view.page, ku=view.type==='gate'?view.ku:kuOfPage(id,p);
+  const showQuiz=!!S.quiz;
+  const isGate=view.type==='gate' && !showQuiz;
+
   pagewrap.innerHTML=`
     <div class="pdfwrap">
       <div class="pdfbar">
-        <span class="pgn">Trang ${p} / ${d.total}</span>
+        <span class="pgn">${view.type==='gate'?`Chốt KU${ku.pos}`:`Trang ${p} / ${d.total}`}</span>
         ${ku?`<span class="ku-badge">KU${ku.pos} · trang ${ku.from}–${ku.to}</span>
               <span class="kutitle">${ku.title}</span>`:''}
         <span class="sp"></span>
         ${S.gate?`<span class="lockchip">🔒 đang làm bài KU${S.gate.pos}</span>`:''}
+        ${(view.type==='gate'&&!gatePassed(ku))?`<span class="lockchip">🔒 chưa qua chốt</span>`:''}
         <span class="pgn">${d.name}</span>
       </div>
-      <div class="pdfstage ${showQuiz?'quiz':''}" id="pdfStage">
-        ${showQuiz?'':`<canvas id="pdfCanvas"></canvas>`}
+      <div class="pdfstage ${showQuiz?'quiz':''} ${isGate?'gate':''}" id="pdfStage">
+        ${showQuiz?'':isGate?gateSlide(ku):`<canvas id="pdfCanvas"></canvas>`}
       </div>
-      ${(lastOfKU&&!showQuiz)?`
-      <div class="kuend">
-        <div><b>Hết phần KU${ku.pos} — ${ku.title}</b>
-          <p>Bạn vừa đọc xong trang ${ku.from}–${ku.to}. Kiểm tra xem mình có thật sự nắm không?</p></div>
-        <span class="sp"></span>
-        <button class="btn-primary" onclick="openReview()">
-          ${S.kuDone[ku.id]?'Ôn lại KU'+ku.pos:'Ôn tập theo Knowledge Unit'} →</button>
-      </div>`:''}
     </div>`;
-  pvNum.textContent=p; syncReviewBtn();
-  if(showQuiz){ paintQuizStage(); return; }    /* bài ôn nằm ngay trong khu vực slide */
+  pvNum.textContent = view.type==='gate' ? `chốt KU${ku.pos}` : p;
+  syncReviewBtn();
+  if(showQuiz){ paintQuizStage(); return; }
+  if(isGate) return;
 
   const pdf=await loadPdf(id);
   const cv=document.getElementById('pdfCanvas'); if(!cv) return;
@@ -1242,22 +1274,62 @@ async function renderPdfDoc(id){
   await page.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;
 }
 
+/* slide chốt — nút nằm giữa slide */
+function gateSlide(ku){
+  const done=S.kuDone[ku.id], passed=gatePassed(ku);
+  return `<div class="gatecard">
+    <div class="gi">${done?'✓':'🎯'}</div>
+    <div class="gt">Hết phần Knowledge Unit ${ku.pos}</div>
+    <b>${ku.title}</b>
+    <div class="gm">Bạn vừa đọc xong trang ${ku.from}–${ku.to}</div>
+    ${done?`<div class="gdone">Đã ôn — nói lại được ${done.score}/${done.total} câu</div>`
+          :`<p class="gp">Kiểm tra xem mình có thật sự nắm không.<br>
+             Làm xong hoặc bấm bỏ qua thì mới đọc tiếp KU sau được.</p>`}
+    <div class="gacts">
+      <button class="btn-primary big" onclick="startQuiz(S.kus[S.doc].find(k=>k.id==='${ku.id}')${done?',true':''})">
+        ${done?'Ôn lại KU'+ku.pos:'Ôn tập theo Knowledge Unit'} →</button>
+      ${passed?`<button class="ghost" onclick="nextView()">Đọc tiếp KU sau →</button>`
+              :`<button class="ghost" onclick="skipGate('${ku.id}')">Bỏ qua phần ôn</button>`}
+    </div>
+  </div>`;
+}
+function skipGate(kuId){ S.kuPassed[kuId]=true; saveState(); nextView(); }
+function nextView(){ gotoView(S.viewIdx+1); }
+
+function gotoView(i){
+  const seq=viewSeq(S.doc);
+  const t=Math.max(0,Math.min(seq.length-1,i));
+  if(S.gate) return;                       /* đang làm bài: không rời màn */
+  /* không vượt qua slide chốt chưa xong */
+  const from=Math.min(S.viewIdx,t), to=Math.max(S.viewIdx,t);
+  if(t>S.viewIdx){
+    for(let k=from;k<to;k++){
+      const v=seq[k];
+      if(v && v.type==='gate' && !gatePassed(v.ku)){ S.viewIdx=k; renderPdfDoc(S.doc); return; }
+    }
+  }
+  S.viewIdx=t; renderPdfDoc(S.doc);
+}
+
 function gotoPdfPage(n){
   const d=DOCS[S.doc]; if(!d||!d.blobUrl) return;
-  const t=Math.max(1,Math.min(d.total,n));
-  if(pageLocked(S.doc,t)) return;            /* không cho lách sang trang bị khoá */
-  S.pdfPage=t; renderPdfDoc(S.doc);
+  const seq=viewSeq(S.doc);
+  const i=seq.findIndex(v=>v.type==='pdf' && v.page===Math.max(1,Math.min(d.total,n)));
+  if(i>=0) gotoView(i);
 }
 
 /* ============================================================ ÔN TẬP THEO TRANG */
 /* Nút chỉ hiện ở TRANG CUỐI của mỗi KU — đọc hết phần rồi mới được ôn. */
-function syncReviewBtn(){
-  const list=S.kus[S.doc], p=curPage(), ku=list&&list.length?kuOfPage(S.doc,p):null;
-  if(!ku || p!==ku.to){ reviewBtn.classList.add('hide'); return; }
-  reviewBtn.classList.remove('hide');
-  const done=S.kuDone[ku.id];
-  reviewBtn.classList.toggle('done', !!done);
-  reviewLbl.textContent = done ? `KU${ku.pos} · đã học` : `Ôn tập KU${ku.pos}`;
+/* Cửa vào phần ôn là SLIDE CHỐT sau mỗi KU, không phải nút trên thanh công cụ. */
+function syncReviewBtn(){ reviewBtn.classList.add('hide'); }
+
+/* đọc slide đầu tiên của một KU */
+function readKU(id){
+  const ku=(S.kus[S.doc]||[]).find(k=>k.id===id); if(!ku) return;
+  const seq=viewSeq(S.doc);
+  const i=seq.findIndex(v=>v.type==='pdf' && v.page===ku.from);
+  S.gate=null; S.quiz=null;
+  if(i>=0){ S.viewIdx=i; renderPdfDoc(S.doc); }
 }
 
 function openReview(){
@@ -1269,9 +1341,10 @@ function openReview(){
 }
 function jumpToKU(id){
   const ku=(S.kus[S.doc]||[]).find(k=>k.id===id); if(!ku)return;
-  S.pdfPage=ku.to;                       /* nhảy tới trang cuối của KU đó */
-  S.gate={kuId:ku.id,pos:ku.pos};
-  S.quiz={ku,i:0,score:0,again:false,view:S.kuDone[ku.id]?'done':'ask',done:S.kuDone[ku.id]};
+  const seq=viewSeq(S.doc);
+  const gi=seq.findIndex(v=>v.type==='gate' && v.ku.id===ku.id);
+  S.viewIdx = gi>=0 ? gi : 0;              /* nhảy tới slide chốt của KU đó */
+  S.gate=null; S.quiz=null;
   renderPdfDoc(S.doc);
 }
 function startQuiz(ku,again){
@@ -1303,9 +1376,9 @@ function paintQuizStage(){
       `<div class="doneCard"><b>✓ Bạn đã ôn phần này rồi</b>
          <p>Lần trước bạn nói lại được <b>${d.score}/${d.total}</b> câu.</p></div>`,
       `<button class="btn-primary" onclick="startQuiz(S.quiz.ku,true)">Ôn lại</button>
-       ${next?`<button class="ghost" onclick="jumpToKU('${next.id}')">Bỏ qua → KU${next.pos}</button>`
-             :`<button class="ghost" onclick="unlock()">Bỏ qua</button>`}
-       <button class="ghost" onclick="unlock()">Quay lại đọc slide</button>`);
+       ${next?`<button class="ghost" onclick="readKU('${next.id}')">Đọc tiếp KU${next.pos} →</button>`
+             :`<button class="ghost" onclick="unlock()">Đóng</button>`}
+       <button class="ghost" onclick="unlock()">Xem lại slide</button>`);
     return;
   }
 
@@ -1315,9 +1388,9 @@ function paintQuizStage(){
       `<div class="doneCard"><b>✓ Xong Knowledge Unit ${ku.pos}</b>
          <p>Bạn nói lại được <b>${S.quiz.score}/${ku.questions.length}</b> câu của phần này.
          Slide đã mở lại — xem lại phần vừa học hoặc đọc tiếp.</p></div>`,
-      `${next?`<button class="btn-primary" onclick="jumpToKU('${next.id}')">Sang KU${next.pos} →</button>`
+      `${next?`<button class="btn-primary" onclick="readKU('${next.id}')">Đọc tiếp KU${next.pos} →</button>`
              :`<button class="btn-primary" onclick="unlock()">Đã ôn hết tài liệu</button>`}
-       <button class="ghost" onclick="unlock()">Quay lại đọc slide</button>`);
+       <button class="ghost" onclick="unlock()">Xem lại slide vừa học</button>`);
     return;
   }
 
@@ -1403,7 +1476,7 @@ function syncPage(){
 }
 function jumpTo(n){ const el=document.getElementById('pg'+n); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }
 function step(d){
-  if(DOCS[S.doc] && DOCS[S.doc].blobUrl){ gotoPdfPage((S.pdfPage||1)+d); return; }
+  if(DOCS[S.doc] && DOCS[S.doc].blobUrl){ gotoView((S.viewIdx||0)+d); return; }
   const a=pageNums(), i=a.indexOf(curPage()); jumpTo(a[Math.max(0,Math.min(a.length-1,i+d))]);
 }
 pvPrev.onclick=()=>step(-1); pvNext.onclick=()=>step(1);
