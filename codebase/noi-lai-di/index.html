@@ -213,6 +213,11 @@ svg{flex:0 0 auto}
 .yours b{display:block;font-size:11px;font-weight:800;letter-spacing:.8px;color:var(--faint);text-transform:uppercase;margin-bottom:6px}
 .yours p{margin:0;font-size:13.5px;line-height:1.6;color:var(--text);white-space:pre-wrap}
 
+.refans{background:var(--chip-blue-bg);border-left:3px solid var(--navy);border-radius:0 11px 11px 0;
+  padding:14px 16px;margin-top:12px}
+.refans b{display:block;font-size:12px;font-weight:800;color:var(--chip-blue-ink);margin-bottom:7px}
+.refans p{margin:0;font-size:13.5px;line-height:1.65;color:var(--text)}
+
 /* peek — xem lại slide giữa chừng, có đếm */
 .peekbar{display:flex;align-items:center;gap:12px;padding:11px 18px;background:var(--amber-bg);
   border-bottom:1px solid var(--amber-border);color:var(--amber);font-size:13px;font-weight:700}
@@ -1615,6 +1620,7 @@ function paintQuizStage(){
       ${(ev.incorrect||[]).map(x=>`<div class="vline miss"><span class="g">❌</span>
          <div><b>Ý chưa đúng:</b> ${x}</div></div>`).join('')}
       ${ev.feedback?`<div class="fbbox ${ev.missing.length?'no':'ok'}"><p>${ev.feedback}</p></div>`:''}
+      ${ev.reference?`<div class="refans"><b>📘 Đáp án tham chiếu</b><p>${ev.reference}</p></div>`:''}
       <p class="hint">${ev.live?'Chấm bởi backend theo rubric của câu hỏi.'
         :'Bản offline ước lượng theo độ đầy đủ. Bật backend để chấm đúng rubric.'}</p>
       ${peekWarn}${progress}`,
@@ -1681,8 +1687,10 @@ async function evalAnswer(txt,q){
         body:JSON.stringify({question_id:q.id,user_answer:txt})});
       if(!r.ok) throw new Error('HTTP '+r.status);
       const ev=(await r.json()).evaluation;
+      const j=await r.clone().json().catch(()=>({}));
       return {correct:ev.correct_points||[], missing:ev.missing_points||[],
-              incorrect:ev.incorrect_points||[], feedback:ev.feedback, live:true};
+              incorrect:ev.incorrect_points||[], feedback:ev.feedback,
+              reference:j.reference_answer||null, live:true};
     }catch(e){ console.warn('BE lỗi, chấm cục bộ:',e.message); }
   }
   const w=txt.split(/\s+/).filter(Boolean).length;

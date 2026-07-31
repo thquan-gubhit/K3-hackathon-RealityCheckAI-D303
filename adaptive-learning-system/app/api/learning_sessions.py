@@ -14,6 +14,7 @@ from app.database import get_db
 from app.errors import AppError
 from app.llm import InvalidLLMOutputError, LLMProviderError, LLMTimeoutError
 from app.repositories.learning_repository import LearningRepository
+from app.repositories.question_repository import QuestionRepository
 from app.schemas.evaluation import AnswerSubmission
 from app.schemas.learning import (
     AnswerResultResponse,
@@ -166,12 +167,15 @@ def submit_answer(
             selected_option=payload.selected_option,
         )
         session.commit()
+        # Chỉ lộ đáp án tham chiếu SAU khi học viên đã nộp bài.
+        question = QuestionRepository(session).get(payload.question_id)
         return AnswerResultResponse(
             attempt=result.attempt,
             evaluation=result.evaluation,
             mastery=result.mastery,
             misconceptions=list(result.misconceptions),
             next_action=result.next_action,
+            reference_answer=question.reference_answer if question else None,
         )
     except LearningWorkflowError as exc:
         session.rollback()
