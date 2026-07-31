@@ -863,7 +863,25 @@ const CARDS = {
      POST /learning-sessions/{id}/answers  {question_id, user_answer}
      -> { evaluation: { correct_points[], missing_points[], feedback, ... } }
    ============================================================ */
-const API = { base: null, sessionId: null };
+/* Đổi base thành 'http://127.0.0.1:8000' là chạy thật với backend.
+   Để null thì toàn bộ chạy cục bộ, không gọi mạng. */
+const API = { base: null, sessionId: null, docId: null, kuMap: {} };
+
+/* Mở một learning session cho KU đang ôn — bắt buộc trước khi chấm tự luận. */
+async function ensureSession(ku){
+  if(!API.base) return false;
+  const beKU = API.kuMap[ku.id] || ku.beId;
+  if(!beKU || !API.docId) return false;
+  try{
+    const r = await fetch(`${API.base}/learning-sessions`,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ user_id:'local-user', document_id:API.docId,
+                             knowledge_unit_id:beKU })});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    API.sessionId = (await r.json()).id;
+    return true;
+  }catch(e){ console.warn('Không mở được learning session:', e.message); return false; }
+}
 
 async function evaluate(text, card){
   if(!API.base) return grade(text, card);          // offline: chấm bằng luật
@@ -1045,6 +1063,7 @@ async function buildKUs(docId, total, name, onStep){
     await onStep(0);
     const up = await fetch(`${API.base}/documents/upload`,{method:'POST',body:S.pendingForm});
     const doc = await up.json();
+    API.docId = doc.id;                          /* cần cho learning session */
     await onStep(1);
     await fetch(`${API.base}/documents/${doc.id}/process`,{method:'POST'});
     const map = await (await fetch(`${API.base}/documents/${doc.id}/knowledge-map`)).json();
@@ -1054,9 +1073,15 @@ async function buildKUs(docId, total, name, onStep){
     await onStep(2, units);
     for(const u of units){
       const r = await fetch(`${API.base}/knowledge-units/${u.id}/generate-questions`,{method:'POST'});
+      API.kuMap[u.id]=u.id;                      /* KU do backend cấp id */
       u.questions = ((await r.json()).questions||[]).map(q=>({
         id:q.id, type:(q.question_type||'recall').toLowerCase(),
-        label:(q.question_type||'RECALL').toUpperCase(), text:q.question_text }));
+        label:(q.question_type||'RECALL').toUpperCase(),
+        difficulty:(q.difficulty||'').toUpperCase(),
+        learning_objective:q.learning_objective,
+        text:q.question_text, source_pages:q.source_pages,
+        options:q.options||null,               /* BE có trắc nghiệm thì dùng luôn */
+        required_points:[] }));
     }
     return units;
   }catch(e){
@@ -1478,6 +1503,7 @@ function jumpToKU(id){
 function startQuiz(ku,again){
   S.gate={kuId:ku.id,pos:ku.pos};
   S.quiz={ku,i:0,score:0,again:!!again,view:'ask',picked:null};
+  ensureSession(ku);                             /* có backend thì mở phiên chấm */
   renderPdfDoc(S.doc);
 }
 /* mở khoá: xem lại được KU vừa làm + đọc tiếp KU sau */
