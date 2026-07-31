@@ -207,6 +207,18 @@ svg{flex:0 0 auto}
 .gacts{display:flex;flex-direction:column;align-items:center;gap:11px;margin-top:24px}
 .btn-primary.big{padding:14px 30px;font-size:15px}
 
+/* peek — xem lại slide giữa chừng, có đếm */
+.peekbar{display:flex;align-items:center;gap:12px;padding:11px 18px;background:var(--amber-bg);
+  border-bottom:1px solid var(--amber-border);color:var(--amber);font-size:13px;font-weight:700}
+.peekwarn{background:var(--amber-bg);border:1px solid var(--amber-border);color:var(--amber);
+  border-radius:10px;padding:11px 15px;font-size:13px;margin-top:14px;line-height:1.55}
+/* mastery */
+.mastery{border:1px solid var(--border);border-radius:12px;padding:15px 17px;margin-top:14px;background:var(--surface-2)}
+.mrow{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.mrow b{font-size:15px;color:var(--navy-ink)}
+.kucount{font-size:12px;font-weight:700;color:var(--muted);font-family:var(--mono)}
+.nextact{margin-top:11px;font-size:12.5px;color:var(--muted);line-height:1.55}
+
 /* trắc nghiệm */
 .opts{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:16px 0 4px}
 @media(max-width:820px){.opts{grid-template-columns:1fr}}
@@ -893,7 +905,9 @@ function grade(text, card){
 const S={said:0,blank:0,notes:0,rows:[],sel:null,doc:'d03b',card:null,openDays:{'03':true},
          kus:{},        /* docId -> [KU]  KU = {id,pos,title,from,to,questions[]} */
          kuPassed:{},   /* kuId -> true khi đã qua slide chốt (làm xong hoặc bỏ qua) */
-         sessions:[],   /* mỗi lần làm bài: {kuId,correct,total,pct,passed,at} */
+         sessions:[],   /* mỗi lần làm bài: {kuId,correct,total,pct,passed,peeks,at} */
+         peeks:{},      /* kuId -> số lần xem lại slide giữa chừng */
+         peeking:false, /* đang tạm xem lại slide trong lúc làm bài */
          viewIdx:0,     /* vị trí trong chuỗi màn (trang PDF + slide chốt) */
          kuDone:{},     /* kuId -> {score, total, at} */
          quiz:null};    /* phiên ôn đang mở */
@@ -1073,7 +1087,7 @@ function saveState(){
     const dayMap={};
     DAYS.forEach(d=>{ const f=d.files.filter(x=>docs[x]); if(f.length) dayMap[d.n]=f; });
     const kus={}; Object.keys(docs).forEach(id=>{ if(S.kus[id]) kus[id]=S.kus[id]; });
-    localStorage.setItem('nld_state',JSON.stringify({docs,dayMap,kus,kuDone:S.kuDone,kuPassed:S.kuPassed,sessions:S.sessions}));
+    localStorage.setItem('nld_state',JSON.stringify({docs,dayMap,kus,kuDone:S.kuDone,kuPassed:S.kuPassed,sessions:S.sessions,peeks:S.peeks}));
   }catch(e){ console.warn('Không lưu được trạng thái:',e.message); }
 }
 
@@ -1082,6 +1096,7 @@ async function restoreState(){
   try{ st=JSON.parse(localStorage.getItem('nld_state')||'null'); }catch(e){}
   if(!st) return;
   S.kuDone=st.kuDone||{}; S.kuPassed=st.kuPassed||{}; S.sessions=st.sessions||[];
+  S.peeks=st.peeks||{};
   for(const [id,meta] of Object.entries(st.docs||{})){
     let blob=null;
     try{ blob=await idbGet(id); }catch(e){}
@@ -1339,7 +1354,7 @@ async function renderPdfDoc(id){
   if(S.viewIdx==null || S.viewIdx>=seq.length) S.viewIdx=0;
   const view=seq[S.viewIdx]||{type:'pdf',page:1};
   const p=view.page, ku=view.type==='gate'?view.ku:kuOfPage(id,p);
-  const showQuiz=!!S.quiz;
+  const showQuiz=!!S.quiz && !S.peeking;   /* đang peek -> tạm nhường chỗ cho slide */
   const isGate=view.type==='gate' && !showQuiz;
 
   pagewrap.innerHTML=`
@@ -1353,6 +1368,10 @@ async function renderPdfDoc(id){
         ${(view.type==='gate'&&!gatePassed(ku))?`<span class="lockchip">🔒 chưa qua chốt</span>`:''}
         <span class="pgn">${d.name}</span>
       </div>
+      ${(S.quiz&&S.peeking)?`<div class="peekbar">
+        <span>👁 Đang xem lại slide — lần thứ ${(S.peeks[S.quiz.ku.id]||0)}</span>
+        <span class="sp"></span>
+        <button class="btn-primary" onclick="endPeek()">Quay lại câu hỏi →</button></div>`:''}
       <div class="pdfstage ${showQuiz?'quiz':''} ${isGate?'gate':''}" id="pdfStage">
         ${showQuiz?'':isGate?gateSlide(ku):`<canvas id="pdfCanvas"></canvas>`}
       </div>
@@ -1487,6 +1506,7 @@ function paintQuizStage(){
 
   if(view==='finished'){
     const st=S.quiz.result, next=(S.kus[S.doc]||[]).find(k=>!S.kuDone[k.id]);
+    const m=masteryOf(ku.id);
     stage.innerHTML=quizShell(ku,
       `<div class="doneCard ${st.passed?'':'warn'}">
          <b>${st.passed?'✓ Đạt':'Chưa đạt'} — ${st.correct}/${st.total} câu đúng · ${st.pct}%</b>
@@ -1494,6 +1514,12 @@ function paintQuizStage(){
                        :`Ngưỡng đánh giá là ${PASS_PCT}%. Đây chỉ để bạn biết mình hiểu tới đâu —
                          không ảnh hưởng tới việc đọc tiếp.`}</p>
          <div class="bar2"><i style="width:${st.pct}%" class="${st.passed?'ok':'no'}"></i></div></div>
+       <div class="mastery">
+         <div class="mrow"><b>Mastery — ${m}%</b>
+           <span class="sp"></span><span class="kucount">${masteredCount()}/${(S.kus[S.doc]||[]).length} KU đã thạo</span></div>
+         <div class="bar2"><i style="width:${m}%" class="${m>=PASS_PCT?'ok':'no'}"></i></div>
+         <div class="nextact">Next action: ${nextAction(st)}</div>
+       </div>
        ${sessionTable(ku.id)}`,
       `${next?`<button class="btn-primary" onclick="readKU('${next.id}')">Đọc tiếp KU${next.pos} →</button>`
              :`<button class="btn-primary" onclick="unlock()">Đã ôn hết tài liệu</button>`}
@@ -1521,6 +1547,8 @@ function paintQuizStage(){
         ${picked!==q.answer?`<p><b>Đáp án đúng:</b> ${letters[q.answer]}. ${q.options[q.answer]}</p>`:''}
         <p><b>Nguồn:</b> ${q.explain||''}</p>
       </div>`:''}
+    ${(()=>{const pk=S.peeks[ku.id]||0; return pk?`<div class="peekwarn">
+       ⚠️ Bạn đã xem lại slide <b>${pk} lần</b> ở phần này. Cố tự nhớ trước đã nhé.</div>`:'';})()}
     <p class="hint">Tiến độ: ${S.quiz.score}/${S.quiz.i+(view==='feedback'?1:0)} câu đúng
        · ngưỡng đạt ${PASS_PCT}%</p>`,
     view==='feedback'
@@ -1529,10 +1557,29 @@ function paintQuizStage(){
            : `<button class="btn-primary" onclick="S.quiz.i++;S.quiz.picked=null;S.quiz.view='ask';paintQuizStage()">Câu tiếp →</button>`}
          <button class="ghost" onclick="unlock()">Để sau</button>`
       : `<button class="btn-primary" id="qsend" ${picked==null?'disabled':''} onclick="submitQuizAnswer()">Trả lời</button>
-         <button class="ghost" onclick="unlock()">Để sau, mở lại slide</button>`);
+         <button class="ghost" onclick="startPeek()">👁 Xem lại slide${(S.peeks[ku.id]||0)?` (đã xem ${S.peeks[ku.id]} lần)`:''}</button>
+         <button class="ghost" onclick="unlock()">Để sau</button>`);
 }
 
 function pickOpt(k){ if(S.quiz.view!=='ask')return; S.quiz.picked=k; paintQuizStage(); }
+
+/* ---------- peek: cho xem lại slide, nhưng đếm ----------
+   Không khoá cứng nữa. Bí thì vẫn xem được, chỉ là số lần nhìn lại
+   được ghi lại và hiện ra — giữ áp lực tự nhớ mà không nhốt người dùng. */
+function startPeek(){
+  const id=S.quiz.ku.id;
+  S.peeks[id]=(S.peeks[id]||0)+1;
+  S.peeking=true; S.pdfPeekReturn=S.viewIdx;
+  const seq=viewSeq(S.doc);
+  const i=seq.findIndex(v=>v.type==='pdf' && v.page===S.quiz.ku.from);
+  if(i>=0) S.viewIdx=i;                       /* mở lại từ trang đầu của KU */
+  saveState(); renderPdfDoc(S.doc);
+}
+function endPeek(){
+  S.peeking=false;
+  if(S.pdfPeekReturn!=null) S.viewIdx=S.pdfPeekReturn;
+  renderPdfDoc(S.doc);
+}
 
 function submitQuizAnswer(){
   const q=S.quiz.ku.questions[S.quiz.i];
@@ -1542,6 +1589,24 @@ function submitQuizAnswer(){
 }
 
 /* ---------- lưu kết quả từng phiên ---------- */
+/* Mastery = trung bình % các lần làm, trừ hao mỗi lần xem lại slide.
+   Xem lại nhiều thì điểm nhớ thật thấp hơn điểm bài làm. */
+function masteryOf(kuId){
+  const list=(S.sessions||[]).filter(s=>s.kuId===kuId);
+  if(!list.length) return 0;
+  const avg=list.reduce((a,b)=>a+b.pct,0)/list.length;
+  const peeks=(S.peeks||{})[kuId]||0;
+  return Math.max(0, Math.round(avg - peeks*5));
+}
+const masteredCount = () =>
+  (S.kus[S.doc]||[]).filter(k=>masteryOf(k.id)>=PASS_PCT).length;
+
+function nextAction(st){
+  if(!st.passed) return 'Đọc lại phần này rồi thử lại — bạn còn thiếu ý.';
+  if(st.peeks>0) return `Bạn xem lại slide ${st.peeks} lần. Thử lại mà không nhìn xem có ra không.`;
+  return 'Đọc tiếp phần sau.';
+}
+
 function kuStat(kuId){
   const list=(S.sessions||[]).filter(s=>s.kuId===kuId);
   const last=list[list.length-1];
@@ -1564,7 +1629,8 @@ function finishQuiz(){
   const {ku,score}=S.quiz, total=ku.questions.length;
   const pct=total?Math.round(score/total*100):0, passed=pct>=PASS_PCT;
   const rec={kuId:ku.id, kuPos:ku.pos, kuTitle:ku.title, doc:S.doc,
-             correct:score, total, pct, passed, at:Date.now()};
+             correct:score, total, pct, passed,
+             peeks:(S.peeks||{})[ku.id]||0, at:Date.now()};
   (S.sessions=S.sessions||[]).push(rec);
   S.kuDone[ku.id]={score,total,pct,passed,at:rec.at};
   S.quiz.result=rec;
