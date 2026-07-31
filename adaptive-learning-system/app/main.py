@@ -115,6 +115,21 @@ def create_app(
         response.headers["X-Request-ID"] = request_id
         return response
 
+    from app.i18n import request_language
+    
+    @application.middleware("http")
+    async def attach_request_language(request: Request, call_next):
+        lang = request.headers.get("Accept-Language", "vi")
+        if not lang or lang not in ("vi", "en"):
+            lang = "vi"
+        
+        token = request_language.set(lang)
+        try:
+            response = await call_next(request)
+            return response
+        finally:
+            request_language.reset(token)
+
     @application.exception_handler(AppError)
     async def handle_app_error(
         request: Request,
