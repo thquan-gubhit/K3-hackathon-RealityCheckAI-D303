@@ -178,7 +178,8 @@ else:
                                 _show_error("Evaluation failed", exc)
                             else:
                                 st.session_state["study_result"] = result
-                                st.session_state.pop("study_next", None)
+                                if result.get("next_action") != "ASK_CLARIFICATION":
+                                    st.session_state.pop("study_next", None)
                                 st.rerun()
                     elif next_activity.get("next_action") == "ACTIVATE_TUTOR_AGENT":
                         if st.button("Chạy Gia sư AI", type="primary"):
@@ -223,13 +224,20 @@ else:
                         "Mastery",
                         f"{float(mastery.get('mastery_score', 0)):.0%}",
                     )
+                    next_action = result.get('next_action', 'CONTINUE')
                     st.caption(
-                        f"Next action: {result.get('next_action', 'CONTINUE')}"
+                        f"Next action: {next_action}"
                     )
-                    if st.button("Tiếp tục"):
-                        st.session_state.pop("study_result", None)
-                        _load_next(session_id)
-                        st.rerun()
+                    if next_action == "ASK_CLARIFICATION":
+                        st.info("Hãy đọc phản hồi ở trên và thử giải thích chi tiết hơn nhé!")
+                        if st.button("Trả lời lại"):
+                            st.session_state.pop("study_result", None)
+                            st.rerun()
+                    else:
+                        if st.button("Tiếp tục"):
+                            st.session_state.pop("study_result", None)
+                            _load_next(session_id)
+                            st.rerun()
 
                 agent_result = st.session_state.get("agent_result")
                 if isinstance(agent_result, dict):

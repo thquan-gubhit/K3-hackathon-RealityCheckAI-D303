@@ -390,7 +390,8 @@ class AdaptiveLearningWorkflow:
             session_id,
             remediation=remediation,
         )
-        repository.set_current_question(session_id, None)
+        if evaluation.recommended_next_action != "ASK_CLARIFICATION":
+            repository.set_current_question(session_id, None)
         attempt = repository.create_attempt(
             session_id=session_id,
             question_id=question_id,
