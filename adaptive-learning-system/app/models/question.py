@@ -100,6 +100,9 @@ class Question(Base):
         JSON,
         nullable=False,
     )
+    # Trắc nghiệm (nullable): không có options nghĩa là câu tự luận.
+    options: Mapped[list[str] | None] = mapped_column(JSON, nullable=True)
+    correct_option: Mapped[int | None] = mapped_column(Integer, nullable=True)
     validation_status: Mapped[str] = mapped_column(
         String(32),
         nullable=False,

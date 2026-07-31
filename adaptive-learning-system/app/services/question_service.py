@@ -15,7 +15,7 @@ from app.models.question import Question, QuestionType
 from app.repositories.knowledge_unit_repository import KnowledgeUnitRepository
 from app.repositories.question_repository import QuestionRepository
 from app.rules.question_rules import validate_question_candidate
-from app.schemas.evaluation import AnswerEvaluation
+from app.schemas.evaluation import AnswerEvaluation, DimensionScores
 from app.schemas.question import (
     MANDATORY_QUESTION_TYPES,
     QuestionBatch,
@@ -100,6 +100,7 @@ class QuestionService:
                         *existing_texts,
                         *(payload.question_text for payload in accepted),
                     ],
+                    source_text=source_context,
                 )
                 if not decision.accepted:
                     continue
@@ -145,12 +146,53 @@ class EvaluationService:
         self.settings = settings
         self.llm_client = llm_client
 
+    @staticmethod
+    def _evaluate_choice(question: Question, selected_option: int) -> AnswerEvaluation:
+        """Chấm trắc nghiệm bằng luật — không gọi LLM, không có chỗ để bịa."""
+
+        options: list[str] = list(question.options or [])
+        if not 0 <= selected_option < len(options):
+            raise AssessmentServiceError(
+                "INVALID_OPTION",
+                "The selected option does not exist for this question.",
+            )
+        correct_index = int(question.correct_option or 0)
+        is_correct = selected_option == correct_index
+        score = 1.0 if is_correct else 0.0
+        pages = ", ".join(str(page) for page in question.source_pages)
+        feedback = (
+            f"Chính xác. Nội dung này nằm ở trang {pages} của tài liệu."
+            if is_correct
+            else (
+                f"Chưa đúng. Đáp án đúng là: {options[correct_index]} "
+                f"— nằm ở trang {pages} của tài liệu."
+            )
+        )
+        return AnswerEvaluation(
+            overall_score=score,
+            dimension_scores=DimensionScores(
+                correctness=score,
+                coverage=score,
+                reasoning=score,
+                application=score,
+            ),
+            correct_points=[options[correct_index]] if is_correct else [],
+            missing_points=[] if is_correct else [options[correct_index]],
+            incorrect_points=[] if is_correct else [options[selected_option]],
+            contradictions=[],
+            detected_misconceptions=[],
+            feedback=feedback,
+            recommended_next_action="CONTINUE" if is_correct else "REVIEW_SOURCE",
+            confidence=1.0,
+        )
+
     def evaluate(
         self,
         session: Session,
         *,
         question_id: str,
-        user_answer: str,
+        user_answer: str | None = None,
+        selected_option: int | None = None,
     ) -> AnswerEvaluation:
         """Return deterministic-score-normalized evaluation evidence."""
 
@@ -159,6 +201,18 @@ class EvaluationService:
             raise AssessmentServiceError(
                 "QUESTION_NOT_FOUND",
                 "The requested question does not exist.",
+            )
+        if question.options:
+            if selected_option is None:
+                raise AssessmentServiceError(
+                    "OPTION_REQUIRED",
+                    "This question is multiple choice; selected_option is required.",
+                )
+            return self._evaluate_choice(question, selected_option)
+        if user_answer is None:
+            raise AssessmentServiceError(
+                "ANSWER_REQUIRED",
+                "This question is free text; user_answer is required.",
             )
         unit = KnowledgeUnitRepository(session).get(question.knowledge_unit_id)
         if unit is None:

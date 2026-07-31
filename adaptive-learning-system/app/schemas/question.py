@@ -124,12 +124,44 @@ class QuestionContent(BaseModel):
     rubric: QuestionRubric
     source_pages: list[int] = Field(min_length=1, max_length=1_000)
 
+    # Trắc nghiệm (tuỳ chọn). Không có options -> câu tự luận như trước.
+    options: list[str] | None = Field(default=None, min_length=2, max_length=6)
+    correct_option: int | None = Field(default=None, ge=0)
+
     @field_validator("source_pages")
     @classmethod
     def normalize_pages(cls, pages: list[int]) -> list[int]:
         if any(page < 1 for page in pages):
             raise ValueError("source pages must be positive")
         return sorted(set(pages))
+
+    @field_validator("options")
+    @classmethod
+    def normalize_options(cls, values: list[str] | None) -> list[str] | None:
+        """Phương án phải khác nhau thật — trùng nhau là câu hỏi hỏng."""
+
+        if values is None:
+            return None
+        options = _unique_strings(values)
+        if len(options) != len(values):
+            raise ValueError("multiple-choice options must be distinct")
+        return options
+
+    @model_validator(mode="after")
+    def check_choice_shape(self) -> "QuestionContent":
+        """Có options thì phải có đúng một đáp án hợp lệ, và ngược lại."""
+
+        if self.options is None:
+            if self.correct_option is not None:
+                raise ValueError(
+                    "correct_option requires options to be provided"
+                )
+            return self
+        if self.correct_option is None:
+            raise ValueError("multiple-choice questions require correct_option")
+        if self.correct_option >= len(self.options):
+            raise ValueError("correct_option must index an existing option")
+        return self
 
 
 class QuestionCandidate(QuestionContent):
@@ -180,6 +212,8 @@ class QuestionPublic(BaseModel):
     source_pages: list[int]
     validation_status: QuestionValidationStatus
     created_at: datetime
+    # Học viên thấy các phương án, KHÔNG thấy đáp án đúng.
+    options: list[str] | None = None
 
 
 class QuestionInternalRead(QuestionPublic):
@@ -188,6 +222,7 @@ class QuestionInternalRead(QuestionPublic):
     reference_answer: str
     rubric: QuestionRubric
     rubric_version: int
+    correct_option: int | None = None
 
 
 class QuestionGenerationResponse(BaseModel):

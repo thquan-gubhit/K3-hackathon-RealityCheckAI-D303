@@ -163,6 +163,7 @@ def submit_answer(
             session_id=session_id,
             question_id=payload.question_id,
             user_answer=payload.user_answer,
+            selected_option=payload.selected_option,
         )
         session.commit()
         return AnswerResultResponse(
