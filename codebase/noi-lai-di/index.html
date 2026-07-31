@@ -865,7 +865,7 @@ const CARDS = {
    ============================================================ */
 /* Đổi base thành 'http://127.0.0.1:8000' là chạy thật với backend.
    Để null thì toàn bộ chạy cục bộ, không gọi mạng. */
-const API = { base: null, sessionId: null, docId: null, kuMap: {} };
+const API = { base: 'http://127.0.0.1:8000', sessionId: null, docId: null, kuMap: {} };
 
 /* Mở một learning session cho KU đang ôn — bắt buộc trước khi chấm tự luận. */
 async function ensureSession(ku){
