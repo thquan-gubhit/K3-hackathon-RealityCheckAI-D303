@@ -207,6 +207,38 @@ svg{flex:0 0 auto}
 .gacts{display:flex;flex-direction:column;align-items:center;gap:11px;margin-top:24px}
 .btn-primary.big{padding:14px 30px;font-size:15px}
 
+/* trắc nghiệm */
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:16px 0 4px}
+@media(max-width:820px){.opts{grid-template-columns:1fr}}
+.opt{display:flex;align-items:flex-start;gap:12px;text-align:left;padding:15px 16px;
+  border:1.5px solid var(--border);border-radius:11px;background:var(--surface);
+  font-size:14px;line-height:1.5;color:var(--text)}
+.opt:hover:not(:disabled){border-color:var(--navy);background:var(--chip-blue-bg)}
+.opt .ltr{font-weight:800;color:var(--chip-blue-ink);flex:0 0 auto;font-family:var(--mono)}
+.opt.sel{border-color:var(--navy);background:var(--chip-blue-bg)}
+.opt.ok{border-color:var(--green);background:var(--green-bg)}
+.opt.ok .ltr{color:var(--green)}
+.opt.no{border-color:var(--red-ink);background:var(--red-soft)}
+.opt.no .ltr{color:var(--red-ink)}
+.opt:disabled{cursor:default}
+.fbbox{border-radius:11px;padding:15px 17px;margin-top:15px;font-size:13.5px;line-height:1.6}
+.fbbox.ok{background:var(--green-bg)} .fbbox.ok b{color:var(--green)}
+.fbbox.no{background:var(--red-soft)} .fbbox.no b{color:var(--red-ink)}
+.fbbox p{margin:8px 0 0}
+.bar2{height:7px;background:var(--border);border-radius:9px;overflow:hidden;margin-top:12px}
+.bar2 i{display:block;height:100%} .bar2 i.ok{background:var(--green)} .bar2 i.no{background:var(--red)}
+.passtag{border-radius:var(--r-pill);padding:3px 11px;font-size:11px;font-weight:800;margin-left:8px}
+.passtag.ok{background:var(--green-bg);color:var(--green)}
+.passtag.no{background:var(--red-soft);color:var(--red-ink)}
+.doneCard.warn{background:var(--amber-bg)} .doneCard.warn b{color:var(--amber)}
+.sess{margin-top:16px;border-top:1px solid var(--border);padding-top:13px}
+.sess .sh{font-size:10.5px;font-weight:800;letter-spacing:1px;color:var(--faint);text-transform:uppercase;margin-bottom:9px}
+.sr{display:flex;align-items:center;gap:12px;padding:7px 0;font-size:12.5px;border-bottom:1px solid var(--border)}
+.sr:last-child{border-bottom:0}
+.sd{font-family:var(--mono);font-size:11px;color:var(--faint);flex:1}
+.sp2{font-weight:700;color:var(--text)}
+.pctv{font-weight:800;font-family:var(--mono)} .pctv.ok{color:var(--green)} .pctv.no{color:var(--red-ink)}
+
 /* bài ôn hiển thị ngay trong khu vực slide */
 .pdfstage.quiz{align-items:flex-start;padding:0;background:var(--surface)}
 .quizbox{width:100%;max-width:760px;margin:0 auto;padding:26px 30px 24px}
@@ -861,6 +893,7 @@ function grade(text, card){
 const S={said:0,blank:0,notes:0,rows:[],sel:null,doc:'d03b',card:null,openDays:{'03':true},
          kus:{},        /* docId -> [KU]  KU = {id,pos,title,from,to,questions[]} */
          kuPassed:{},   /* kuId -> true khi đã qua slide chốt (làm xong hoặc bỏ qua) */
+         sessions:[],   /* mỗi lần làm bài: {kuId,correct,total,pct,passed,at} */
          viewIdx:0,     /* vị trí trong chuỗi màn (trang PDF + slide chốt) */
          kuDone:{},     /* kuId -> {score, total, at} */
          quiz:null};    /* phiên ôn đang mở */
@@ -883,6 +916,69 @@ const S={said:0,blank:0,notes:0,rows:[],sel:null,doc:'d03b',card:null,openDays:{
    không phải trắc nghiệm. Offline chỉ là khung mẫu; câu hỏi và rubric
    thật do backend sinh từ chính nội dung PDF.
    ============================================================ */
+/* ============================================================
+   NGƯỠNG ĐẠT — chỉ để hiển thị mức hiểu, KHÔNG chặn xem slide tiếp
+   ============================================================ */
+const PASS_PCT = 70;
+
+/* ============================================================
+   SINH CÂU HỎI TRẮC NGHIỆM BÁM SLIDE
+   Mọi đáp án đúng là câu lấy NGUYÊN VĂN từ đúng cụm trang của KU đó,
+   kèm số trang để kiểm lại -> không bịa.
+   Phương án nhiễu lấy từ KU khác trong cùng tài liệu: sai nhưng hợp lý.
+   ============================================================ */
+async function extractPages(docId, from, to){
+  const pdf = await loadPdf(docId); if(!pdf) return [];
+  const out=[];
+  for(let p=from; p<=Math.min(to, pdf.numPages); p++){
+    const tc = await (await pdf.getPage(p)).getTextContent();
+    const raw = tc.items.map(i=>i.str).join(' ').replace(/\s+/g,' ').trim();
+    raw.split(/(?<=[.!?:;])\s+|\s{2,}/)
+       .map(s=>s.trim())
+       .filter(s=>s.length>=25 && s.length<=180 && /[a-zà-ỹ]/i.test(s) && !/^\d+$/.test(s))
+       .forEach(s=>out.push({text:s, page:p}));
+  }
+  return out;
+}
+
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+/* dựng bộ câu hỏi cho MỘT KU từ câu của chính nó + câu của KU khác làm nhiễu */
+function buildMCQ(ku, mine, others, n=4){
+  const qs=[];
+  const pool=shuffle(mine.slice());
+  const dis =shuffle(others.slice());
+  for(const item of pool){
+    if(qs.length>=n) break;
+    const wrong = dis.filter(d=>d.text!==item.text).slice(qs.length*3, qs.length*3+3);
+    if(wrong.length<3) break;
+    const opts = shuffle([{t:item.text,ok:true}, ...wrong.map(w=>({t:w.text,ok:false}))]);
+    qs.push({
+      id:`${ku.id}-q${qs.length+1}`,
+      type:'recall', label:'RECALL', difficulty:'EASY',
+      learning_objective:`Nhận ra nội dung thuộc ${ku.title}`,
+      text:`Ý nào sau đây <b>xuất hiện trong ${ku.title}</b> (trang ${ku.from}–${ku.to})?`,
+      options:opts.map(o=>o.t),
+      answer:opts.findIndex(o=>o.ok),
+      source_page:item.page,
+      explain:`Câu này nằm ở <b>trang ${item.page}</b> của tài liệu. Các phương án còn lại lấy từ phần khác nên không thuộc KU này.`
+    });
+  }
+  return qs;
+}
+
+async function makeQuestionsForDoc(docId){
+  const kus=S.kus[docId]||[];
+  const byKU={};
+  for(const k of kus) byKU[k.id]=await extractPages(docId,k.from,k.to);
+  for(const k of kus){
+    const others=kus.filter(x=>x.id!==k.id).flatMap(x=>byKU[x.id]||[]);
+    const built=buildMCQ(k, byKU[k.id]||[], others);
+    if(built.length) k.questions=built;        /* không dựng được thì giữ bộ mẫu */
+    k.grounded=built.length>0;
+  }
+}
+
 const QTPL=[
   {type:'recall', label:'RECALL', diff:'EASY',
    obj:t=>`Nhớ lại được các ý chính của ${t}`,
@@ -977,7 +1073,7 @@ function saveState(){
     const dayMap={};
     DAYS.forEach(d=>{ const f=d.files.filter(x=>docs[x]); if(f.length) dayMap[d.n]=f; });
     const kus={}; Object.keys(docs).forEach(id=>{ if(S.kus[id]) kus[id]=S.kus[id]; });
-    localStorage.setItem('nld_state',JSON.stringify({docs,dayMap,kus,kuDone:S.kuDone,kuPassed:S.kuPassed}));
+    localStorage.setItem('nld_state',JSON.stringify({docs,dayMap,kus,kuDone:S.kuDone,kuPassed:S.kuPassed,sessions:S.sessions}));
   }catch(e){ console.warn('Không lưu được trạng thái:',e.message); }
 }
 
@@ -985,7 +1081,7 @@ async function restoreState(){
   let st=null;
   try{ st=JSON.parse(localStorage.getItem('nld_state')||'null'); }catch(e){}
   if(!st) return;
-  S.kuDone=st.kuDone||{}; S.kuPassed=st.kuPassed||{};
+  S.kuDone=st.kuDone||{}; S.kuPassed=st.kuPassed||{}; S.sessions=st.sessions||[];
   for(const [id,meta] of Object.entries(st.docs||{})){
     let blob=null;
     try{ blob=await idbGet(id); }catch(e){}
@@ -1116,6 +1212,11 @@ async function runUpload(dayN, file){
   day.files.push(docId);
   S.kus[docId]=kus;
   S.openDays[dayN]=true;
+  /* đọc text đúng cụm trang của từng KU rồi dựng câu hỏi bám slide */
+  draw(2,kus);
+  try{ await makeQuestionsForDoc(docId); }
+  catch(e){ console.warn('Không đọc được text PDF, dùng bộ câu mẫu:',e.message); }
+
   try{ await idbPut(docId,file); }catch(e){ console.warn('Không lưu được file:',e.message); }
   saveState();                                  /* F5 vẫn còn */
 
@@ -1336,7 +1437,7 @@ function openReview(){
   const ku=kuOfPage(S.doc,curPage()); if(!ku) return;
   const done=S.kuDone[ku.id];
   S.gate={kuId:ku.id,pos:ku.pos};
-  S.quiz={ku,i:0,score:0,again:false,view:done?'done':'ask',done};
+  S.quiz={ku,i:0,score:0,again:false,view:done?'done':'ask',done,picked:null};
   renderPdfDoc(S.doc);
 }
 function jumpToKU(id){
@@ -1349,7 +1450,7 @@ function jumpToKU(id){
 }
 function startQuiz(ku,again){
   S.gate={kuId:ku.id,pos:ku.pos};
-  S.quiz={ku,i:0,score:0,again:!!again,view:'ask'};
+  S.quiz={ku,i:0,score:0,again:!!again,view:'ask',picked:null};
   renderPdfDoc(S.doc);
 }
 /* mở khoá: xem lại được KU vừa làm + đọc tiếp KU sau */
@@ -1371,10 +1472,12 @@ function paintQuizStage(){
   const {ku,view}=S.quiz;
 
   if(view==='done'){
-    const d=S.quiz.done, next=(S.kus[S.doc]||[]).find(k=>!S.kuDone[k.id]);
+    const st=kuStat(ku.id), next=(S.kus[S.doc]||[]).find(k=>!S.kuDone[k.id]);
     stage.innerHTML=quizShell(ku,
       `<div class="doneCard"><b>✓ Bạn đã ôn phần này rồi</b>
-         <p>Lần trước bạn nói lại được <b>${d.score}/${d.total}</b> câu.</p></div>`,
+         <p>Lần gần nhất: <b>${st.correct}/${st.total} câu · ${st.pct}%</b>
+            ${st.pct>=PASS_PCT?'<span class="passtag ok">ĐẠT</span>':'<span class="passtag no">CHƯA ĐẠT</span>'}</p></div>
+       ${sessionTable(ku.id)}`,
       `<button class="btn-primary" onclick="startQuiz(S.quiz.ku,true)">Ôn lại</button>
        ${next?`<button class="ghost" onclick="readKU('${next.id}')">Đọc tiếp KU${next.pos} →</button>`
              :`<button class="ghost" onclick="unlock()">Đóng</button>`}
@@ -1383,86 +1486,88 @@ function paintQuizStage(){
   }
 
   if(view==='finished'){
-    const next=(S.kus[S.doc]||[]).find(k=>!S.kuDone[k.id]);
+    const st=S.quiz.result, next=(S.kus[S.doc]||[]).find(k=>!S.kuDone[k.id]);
     stage.innerHTML=quizShell(ku,
-      `<div class="doneCard"><b>✓ Xong Knowledge Unit ${ku.pos}</b>
-         <p>Bạn nói lại được <b>${S.quiz.score}/${ku.questions.length}</b> câu của phần này.
-         Slide đã mở lại — xem lại phần vừa học hoặc đọc tiếp.</p></div>`,
+      `<div class="doneCard ${st.passed?'':'warn'}">
+         <b>${st.passed?'✓ Đạt':'Chưa đạt'} — ${st.correct}/${st.total} câu đúng · ${st.pct}%</b>
+         <p>${st.passed?`Bạn nắm phần này ổn (ngưỡng ${PASS_PCT}%).`
+                       :`Ngưỡng đánh giá là ${PASS_PCT}%. Đây chỉ để bạn biết mình hiểu tới đâu —
+                         không ảnh hưởng tới việc đọc tiếp.`}</p>
+         <div class="bar2"><i style="width:${st.pct}%" class="${st.passed?'ok':'no'}"></i></div></div>
+       ${sessionTable(ku.id)}`,
       `${next?`<button class="btn-primary" onclick="readKU('${next.id}')">Đọc tiếp KU${next.pos} →</button>`
              :`<button class="btn-primary" onclick="unlock()">Đã ôn hết tài liệu</button>`}
+       <button class="ghost" onclick="startQuiz(S.quiz.ku,true)">Làm lại</button>
        <button class="ghost" onclick="unlock()">Xem lại slide vừa học</button>`);
     return;
   }
 
-  const q=ku.questions[S.quiz.i];
-  if(view==='ask'){
-    stage.innerHTML=quizShell(ku,`
-      <div class="qmeta"><span class="qtype ${q.type}">${q.label}</span>
-        <span class="qdiff">${q.difficulty||''}</span>
-        <span class="sp"></span><span class="qcount">Câu ${S.quiz.i+1}/${ku.questions.length}</span></div>
-      ${q.learning_objective?`<p class="qobj">Mục tiêu: ${q.learning_objective}</p>`:''}
-      <div class="qtext">${q.text}</div>
-      <textarea id="qin" placeholder="Trả lời bằng lời của bạn…"></textarea>
-      <p class="hint">🔒 Slide đang tạm khoá. Nói lại bằng lời của mình trước đã —
-         nhìn lại được thì không còn là tự kiểm nữa.</p>`,
-      `<button class="btn-primary" id="qsend">Gửi</button>
-       <button class="ghost" onclick="unlock()">Để sau, mở lại slide</button>`);
-    const b=document.getElementById('qsend'); if(b) b.onclick=submitQuizAnswer;
-    const t=document.getElementById('qin'); if(t) setTimeout(()=>t.focus(),60);
-    return;
-  }
-
-  /* view === 'feedback' */
-  const ev=S.quiz.ev, last=S.quiz.i+1>=ku.questions.length;
+  const q=ku.questions[S.quiz.i], picked=S.quiz.picked;
+  const letters=['A','B','C','D','E','F'];
   stage.innerHTML=quizShell(ku,`
     <div class="qmeta"><span class="qtype ${q.type}">${q.label}</span>
+      <span class="qdiff">${q.difficulty||''}</span>
       <span class="sp"></span><span class="qcount">Câu ${S.quiz.i+1}/${ku.questions.length}</span></div>
-    ${ev.correct.map(x=>`<div class="vline ok"><span class="g">✅</span>
-       <div><b>Bạn đã nêu:</b> ${x}</div></div>`).join('')}
-    ${ev.missing.map(x=>`<div class="vline miss"><span class="g">⭕</span>
-       <div><b>Bạn chưa nêu:</b> ${x}</div></div>`).join('')}
-    ${ev.feedback?`<div class="vline src"><div>${ev.feedback}</div></div>`:''}
-    <p class="hint">${ev.live?'Chấm bởi backend theo rubric của câu hỏi.'
-      :'Bản offline chỉ ước lượng theo độ đầy đủ. Bật backend để chấm đúng theo rubric.'}</p>`,
-    `${last?`<button class="btn-primary" onclick="finishQuiz()">Xong KU${ku.pos}</button>`
-           :`<button class="btn-primary" onclick="S.quiz.i++;S.quiz.view='ask';paintQuizStage()">Câu tiếp →</button>`}
-     <button class="ghost" onclick="S.quiz.view='ask';paintQuizStage()">Viết lại</button>`);
+    <div class="qtext">${q.text}</div>
+    <div class="opts">${(q.options||[]).map((o,k)=>{
+      let cls=''; if(view==='feedback'){ if(k===q.answer) cls='ok'; else if(k===picked) cls='no'; }
+      else if(k===picked) cls='sel';
+      return `<button class="opt ${cls}" ${view==='feedback'?'disabled':''}
+        onclick="pickOpt(${k})"><span class="ltr">${letters[k]}</span><span>${o}</span></button>`;
+    }).join('')}</div>
+    ${view==='feedback'?`
+      <div class="fbbox ${picked===q.answer?'ok':'no'}">
+        <b>${picked===q.answer?'✅ Chính xác':'❌ Chưa đúng'}</b>
+        ${picked!==q.answer?`<p><b>Đáp án đúng:</b> ${letters[q.answer]}. ${q.options[q.answer]}</p>`:''}
+        <p><b>Nguồn:</b> ${q.explain||''}</p>
+      </div>`:''}
+    <p class="hint">Tiến độ: ${S.quiz.score}/${S.quiz.i+(view==='feedback'?1:0)} câu đúng
+       · ngưỡng đạt ${PASS_PCT}%</p>`,
+    view==='feedback'
+      ? `${S.quiz.i+1>=ku.questions.length
+           ? `<button class="btn-primary" onclick="finishQuiz()">Xem kết quả</button>`
+           : `<button class="btn-primary" onclick="S.quiz.i++;S.quiz.picked=null;S.quiz.view='ask';paintQuizStage()">Câu tiếp →</button>`}
+         <button class="ghost" onclick="unlock()">Để sau</button>`
+      : `<button class="btn-primary" id="qsend" ${picked==null?'disabled':''} onclick="submitQuizAnswer()">Trả lời</button>
+         <button class="ghost" onclick="unlock()">Để sau, mở lại slide</button>`);
 }
 
-/* Chấm theo đúng shape của backend: correct_points / missing_points. */
-async function evalAnswer(txt,q){
-  if(API.base && API.sessionId){
-    try{
-      const r=await fetch(`${API.base}/learning-sessions/${API.sessionId}/answers`,{
-        method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({question_id:q.id,user_answer:txt})});
-      if(!r.ok) throw new Error('HTTP '+r.status);
-      const ev=(await r.json()).evaluation;
-      return {correct:ev.correct_points||[], missing:ev.missing_points||[],
-              feedback:ev.feedback, score:ev.overall_score, live:true};
-    }catch(e){ console.warn('BE lỗi, chấm cục bộ:',e.message); }
-  }
-  const w=txt.trim().split(/\s+/).filter(Boolean).length;
-  const req=q.required_points||[];
-  const correct=[], missing=[];
-  req.forEach((pt,k)=>{ (w>=12 && (k===0||w>=25)) ? correct.push(pt) : missing.push(pt); });
-  return {correct,missing,score:req.length?correct.length/req.length:0,live:false};
-}
+function pickOpt(k){ if(S.quiz.view!=='ask')return; S.quiz.picked=k; paintQuizStage(); }
 
-async function submitQuizAnswer(){
-  const t=document.getElementById('qin'); if(!t) return;
-  const txt=t.value.trim(); if(!txt) return;
-  const b=document.getElementById('qsend');
-  if(b){ b.disabled=true; b.textContent='Đang đối chiếu…'; }
+function submitQuizAnswer(){
   const q=S.quiz.ku.questions[S.quiz.i];
-  const ev=await evalAnswer(txt,q);
-  if(ev.missing.length===0) S.quiz.score++;
-  S.quiz.ev=ev; S.quiz.view='feedback'; paintQuizStage();
+  if(S.quiz.picked==null) return;
+  if(S.quiz.picked===q.answer) S.quiz.score++;
+  S.quiz.view='feedback'; paintQuizStage();
 }
+
+/* ---------- lưu kết quả từng phiên ---------- */
+function kuStat(kuId){
+  const list=(S.sessions||[]).filter(s=>s.kuId===kuId);
+  const last=list[list.length-1];
+  return last||{correct:0,total:0,pct:0};
+}
+function sessionTable(kuId){
+  const list=(S.sessions||[]).filter(s=>s.kuId===kuId);
+  if(!list.length) return '';
+  return `<div class="sess"><div class="sh">Các lần đã làm</div>
+    ${list.slice(-5).reverse().map((s,i)=>`<div class="sr">
+      <span class="sd">${new Date(s.at).toLocaleString('vi-VN',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</span>
+      <span class="sp2">${s.correct}/${s.total}</span>
+      <span class="pctv ${s.passed?'ok':'no'}">${s.pct}%</span>
+      <span class="passtag ${s.passed?'ok':'no'}">${s.passed?'ĐẠT':'CHƯA ĐẠT'}</span></div>`).join('')}
+  </div>`;
+}
+
 
 function finishQuiz(){
-  const {ku,score}=S.quiz;
-  S.kuDone[ku.id]={score,total:ku.questions.length,at:Date.now()};
+  const {ku,score}=S.quiz, total=ku.questions.length;
+  const pct=total?Math.round(score/total*100):0, passed=pct>=PASS_PCT;
+  const rec={kuId:ku.id, kuPos:ku.pos, kuTitle:ku.title, doc:S.doc,
+             correct:score, total, pct, passed, at:Date.now()};
+  (S.sessions=S.sessions||[]).push(rec);
+  S.kuDone[ku.id]={score,total,pct,passed,at:rec.at};
+  S.quiz.result=rec;
   S.gate=null;                                  /* mở khoá slide ngay */
   S.quiz.view='finished';
   saveState(); renderPdfDoc(S.doc);
