@@ -16,6 +16,7 @@ from pydantic import BaseModel
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.api.documents import router as documents_router
+from app.api.slides import router as slides_router
 from app.api.agent import router as agent_router
 from app.api.knowledge_units import router as knowledge_units_router
 from app.api.learning_sessions import router as learning_sessions_router
@@ -258,6 +259,7 @@ def create_app(
         )
 
     application.include_router(documents_router)
+    application.include_router(slides_router)
     application.include_router(knowledge_units_router)
     application.include_router(learning_sessions_router)
     application.include_router(progress_router)
