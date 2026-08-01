@@ -164,7 +164,6 @@ def submit_answer(
             session_id=session_id,
             question_id=payload.question_id,
             user_answer=payload.user_answer,
-            selected_option=payload.selected_option,
         )
         session.commit()
         # Chỉ lộ đáp án tham chiếu SAU khi học viên đã nộp bài.

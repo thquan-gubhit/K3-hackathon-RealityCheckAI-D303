@@ -1,6 +1,47 @@
+# Operating System files
 .DS_Store
-node_modules/
+Thumbs.db
+*.swp
+*~
+
+# Environment & Virtual environments
+.env
 *.env
-. v e n v /  
- a d a p t i v e - l e a r n i n g - s y s t e m / . v e n v /  
+.venv/
+venv/
+ENV/
+env/
+adaptive-learning-system/.venv/
+
+# Node & Frontend build
+node_modules/
+dist/
+build/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.eslintcache
+.vite/
+
+# Database & Storage
 *.db
+*.sqlite
+*.sqlite3
+adaptive-learning-system/data/uploads/*.pdf
+adaptive-learning-system/data/uploads/*.docx
+adaptive-learning-system/data/uploads/*.txt
+
+# IDEs & Editors
+.vscode/
+.idea/
+
+# Python cache & build logs
+__pycache__/
+*.py[cod]
+*$py.class
+*.log
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/

@@ -1,4 +1,26 @@
-# Python cache
+# Python cache & byte code
 __pycache__/
 *.py[cod]
 *$py.class
+
+# Environment
+.env
+.venv/
+venv/
+
+# Database and file uploads
+data/app.db
+data/*.db
+data/uploads/*.pdf
+data/uploads/*.docx
+data/uploads/*.txt
+!data/uploads/.gitkeep
+
+# Testing & Logs
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.log
+backend.log

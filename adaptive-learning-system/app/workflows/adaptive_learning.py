@@ -266,7 +266,6 @@ class AdaptiveLearningWorkflow:
         session_id: str,
         question_id: str,
         user_answer: str | None = None,
-        selected_option: int | None = None,
     ) -> AnswerWorkflowResult:
         """Evaluate and atomically update attempt, mastery, and misconceptions."""
 
@@ -299,7 +298,6 @@ class AdaptiveLearningWorkflow:
             session,
             question_id=question_id,
             user_answer=user_answer,
-            selected_option=selected_option,
         )
         prior_user_attempts = repository.count_user_question_attempts(
             user_id=learning_session.user_id,
@@ -397,11 +395,7 @@ class AdaptiveLearningWorkflow:
         attempt = repository.create_attempt(
             session_id=session_id,
             question_id=question_id,
-            user_answer=(
-                user_answer
-                if user_answer is not None
-                else f"[chọn phương án {selected_option}]"
-            ),
+            user_answer=user_answer or "",
             evaluation=evaluation,
             attempt_number=attempt_number,
             evidence_weight=calculation.evidence_weight,
