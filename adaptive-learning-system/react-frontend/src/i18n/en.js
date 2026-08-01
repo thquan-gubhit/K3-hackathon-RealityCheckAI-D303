@@ -95,10 +95,17 @@ const en = {
   completionTime: 'study time',
   completionNext: '← Choose next topic',
 
-  // Sidebar
+  // Sidebar & Library
   sidebarProgress: 'Learning Progress',
   sidebarMastered: 'Mastered',
   sidebarOverall: 'Overall Progress',
+  sidebarDocs: 'STUDY LIBRARY',
+  sidebarUploadNew: '📤 + Upload New Slide',
+  sidebarTopics: 'TOPICS LIST',
+  recommendedNext: '🔥 Recommended Next',
+  stepNumber: 'Step {n}',
+  aiMisconceptionNotice: '💡 AI Detected Misconception:',
+  aiTutorInlineNotice: '🤖 (Interactive 1:1 AI Tutor chat to resolve this topic will be available in the upcoming release 🚀)',
   language: 'Language',
   settings: 'Settings',
 };

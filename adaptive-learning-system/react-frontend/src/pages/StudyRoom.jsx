@@ -92,11 +92,7 @@ export default function StudyRoom({ document: doc, unit, session, onBack }) {
       const res = await submitAnswer(session.id, nextData.question.id, answer);
       setResult(res);
       setQuestionCount((n) => n + 1);
-      if (res.evaluation?.recommended_next_action === 'ASK_CLARIFICATION' || (res.misconceptions?.length > 0)) {
-        setPhase('tutor');
-      } else {
-        setPhase('evaluated');
-      }
+      setPhase('evaluated'); // Seamless workflow: instantly display evaluation score with integrated AI misconception notes!
     } catch (e) {
       alert(e.message);
     } finally {
@@ -392,6 +388,21 @@ export default function StudyRoom({ document: doc, unit, session, onBack }) {
       {/* ── EVALUATED PHASE ──────────────────────────────────── */}
       {phase === 'evaluated' && evaluation && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          {/* Inline AI Misconception Warning & Future 1:1 Coaching Notice */}
+          {(misconception || (evaluation.detected_misconceptions && evaluation.detected_misconceptions.length > 0)) && (
+            <div className="glass-card" style={{ borderLeft: '4px solid var(--c-warning)', background: 'rgba(234, 179, 8, 0.08)', padding: '18px 22px' }}>
+              <div style={{ fontWeight: 700, color: '#facc15', fontSize: '0.95rem', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span>⚠️ {t('aiMisconceptionNotice') || t('tutorDetectedNotice')}</span>
+              </div>
+              <div style={{ color: 'var(--c-text)', fontStyle: 'italic', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: 12, background: 'rgba(0,0,0,0.25)', padding: '12px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                {misconception || evaluation.detected_misconceptions.join('; ')}
+              </div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--c-text-muted)', borderTop: '1px dashed rgba(234,179,8,0.3)', paddingTop: 10 }}>
+                {t('aiTutorInlineNotice')}
+              </div>
+            </div>
+          )}
+
           {/* Score summary */}
           <div className="glass-card">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>

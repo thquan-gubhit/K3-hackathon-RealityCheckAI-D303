@@ -4,21 +4,18 @@ import subprocess
 from pathlib import Path
 
 root_dir = Path(__file__).resolve().parent.parent
-if str(root_dir) not in sys.path:
-    sys.path.insert(0, str(root_dir))
+react_dir = root_dir / "react-frontend"
 
 if __name__ == "__main__":
-    print("Starting Adaptive Learning System Streamlit Frontend...")
-    os.environ["PYTHONPATH"] = str(root_dir)
-    streamlit_path = sys.executable
-    cmd = [
-        streamlit_path,
-        "-m", "streamlit", "run",
-        str(root_dir / "frontend" / "Home.py"),
-        "--server.port", "8501",
-        "--server.address", "127.0.0.1"
-    ]
+    print("Starting Reality Check AI (Modern React/Vite Frontend)...")
+    if not react_dir.exists():
+        print(f"Error: Directory {react_dir} does not exist.", file=sys.stderr)
+        sys.exit(1)
+        
     try:
-        subprocess.run(cmd, cwd=root_dir, check=True)
+        subprocess.run(["npm", "run", "dev"], cwd=react_dir, check=True)
     except KeyboardInterrupt:
-        print("\nStreamlit application stopped.")
+        print("\nFrontend dev server stopped.")
+    except Exception as e:
+        print(f"\nError running 'npm run dev' in {react_dir}: {e}", file=sys.stderr)
+        sys.exit(1)

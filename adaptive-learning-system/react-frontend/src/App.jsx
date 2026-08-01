@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import './index.css';
 import { LangProvider } from './context/LangContext';
-import { getKnowledgeMap, getUserProgress } from './api/client';
+import { getKnowledgeMap, getUserProgress, createLearningSession, listDocuments } from './api/client';
 import LandingPage from './pages/LandingPage';
 import LearningPath from './pages/LearningPath';
 import StudyRoom from './pages/StudyRoom';
@@ -15,6 +15,24 @@ export default function App() {
   const [progress, setProgress] = useState({});
   const [activeUnit, setActiveUnit] = useState(null);
   const [activeSession, setActiveSession] = useState(null);
+
+  // Auto-restore previous document session from localStorage so users don't waste AI tokens re-uploading on reload!
+  useEffect(() => {
+    const savedDocId = localStorage.getItem('reality_check_active_doc');
+    if (savedDocId) {
+      listDocuments()
+        .then((data) => {
+          if (Array.isArray(data)) {
+            const found = data.find((d) => d.id === savedDocId && d.status === 'ready');
+            if (found) {
+              setDocument(found);
+              setScreen('path');
+            }
+          }
+        })
+        .catch(() => {});
+    }
+  }, []);
 
   // Load knowledge map after document ready
   useEffect(() => {
@@ -42,6 +60,7 @@ export default function App() {
   }, [screen]);
 
   function handleDocumentReady(doc) {
+    localStorage.setItem('reality_check_active_doc', doc.id);
     setDocument(doc);
     setScreen('path');
   }
@@ -66,22 +85,51 @@ export default function App() {
       .catch(() => {});
   }
 
-  const showSidebar = screen !== 'landing' && units.length > 0;
+  function handleSelectDocument(doc) {
+    if (doc.id === document?.id && screen === 'path') return;
+    localStorage.setItem('reality_check_active_doc', doc.id);
+    setDocument(doc);
+    setActiveUnit(null);
+    setActiveSession(null);
+    setScreen('path');
+  }
+
+  function handleNewUpload() {
+    localStorage.removeItem('reality_check_active_doc');
+    setActiveUnit(null);
+    setActiveSession(null);
+    setScreen('landing');
+  }
+
+  async function handleSelectSidebarUnit(unitId) {
+    const target = units.find((u) => u.id === unitId);
+    if (!target || !document) return;
+    try {
+      const session = await createLearningSession(document.id, target.id);
+      setActiveUnit(target);
+      setActiveSession(session);
+      setScreen('study');
+    } catch (e) {
+      alert(e.message || 'Failed to start topic');
+    }
+  }
+
+  const showSidebar = screen !== 'landing';
 
   return (
     <LangProvider>
       <div className="app-layout">
-        {/* Sidebar — only visible after upload */}
+        {/* Sidebar — visible after upload or when browsing courses */}
         {showSidebar && (
           <Sidebar
+            screen={screen}
             units={units}
             activeUnitId={activeUnit?.id}
             progress={progress}
-            documentName={document?.filename}
-            onSelectUnit={(unitId) => {
-              // Switch to path screen for unit selection
-              setScreen('path');
-            }}
+            document={document}
+            onSelectDocument={handleSelectDocument}
+            onNewUpload={handleNewUpload}
+            onSelectUnit={handleSelectSidebarUnit}
           />
         )}
 

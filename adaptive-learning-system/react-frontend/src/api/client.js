@@ -1,6 +1,6 @@
 // API client — maps 1-1 to FastAPI endpoints at /api (proxied to localhost:8000)
 
-const BASE = '/api';
+const BASE = import.meta.env.VITE_API_URL || '/api';
 
 async function request(method, path, body, isFormData = false) {
   const opts = { method, headers: {} };

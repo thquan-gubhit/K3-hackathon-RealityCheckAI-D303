@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useLang } from '../context/LangContext';
-import { uploadDocument, processDocument, checkHealth } from '../api/client';
+import { uploadDocument, processDocument, checkHealth, listDocuments } from '../api/client';
 import { useEffect } from 'react';
 
 const STEPS = ['uploadStep1', 'uploadStep2', 'uploadStep3'];
@@ -11,12 +11,38 @@ export default function LandingPage({ onDocumentReady }) {
   const [step, setStep] = useState(-1); // -1 = idle, 0/1/2 = processing steps
   const [error, setError] = useState(null);
   const [isOnline, setIsOnline] = useState(null);
+  const [thinkIdx, setThinkIdx] = useState(0);
+  const [savedDocs, setSavedDocs] = useState([]);
 
   useEffect(() => {
     checkHealth()
       .then(() => setIsOnline(true))
       .catch(() => setIsOnline(false));
+
+    listDocuments()
+      .then((data) => {
+        if (Array.isArray(data)) {
+          const ready = data.filter((d) => d.status === 'ready');
+          const uniqueMap = new Map();
+          for (const doc of ready) {
+            if (!uniqueMap.has(doc.filename) || new Date(doc.created_at) > new Date(uniqueMap.get(doc.filename).created_at)) {
+              uniqueMap.set(doc.filename, doc);
+            }
+          }
+          setSavedDocs(Array.from(uniqueMap.values()).slice(0, 6));
+        }
+      })
+      .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (step === 1) {
+      const timer = setInterval(() => {
+        setThinkIdx((idx) => (idx + 1) % 4);
+      }, 2600);
+      return () => clearInterval(timer);
+    }
+  }, [step]);
 
   async function handleFile(file) {
     if (!file || !file.name.endsWith('.pdf')) {
@@ -24,6 +50,7 @@ export default function LandingPage({ onDocumentReady }) {
       return;
     }
     setError(null);
+    setThinkIdx(0);
     try {
       // Step 0: upload
       setStep(0);
@@ -53,6 +80,19 @@ export default function LandingPage({ onDocumentReady }) {
   };
 
   const isProcessing = step >= 0 && step < 2;
+
+  const thinkingMessagesVi = [
+    '📖 Đang bóc tách và phân tích các trang slide PDF...',
+    '🧠 Trí tuệ AI đang suy luận các đơn vị kiến thức trọng tâm...',
+    '🔗 Đang liên kết các khái niệm và bóc tách điểm ngộ nhận...',
+    '⚡ Đang đóng gói Bản đồ lộ trình học cá nhân hóa cho bạn!'
+  ];
+  const thinkingMessagesEn = [
+    '📖 Parsing and inspecting slide document pages...',
+    '🧠 AI intelligence identifying core topic units...',
+    '🔗 Mapping concept relationships and potential misconceptions...',
+    '⚡ Finalizing your personalized adaptive study roadmap!'
+  ];
 
   return (
     <div className="page-wrapper" style={{ maxWidth: 680, marginTop: 80, width: '100%' }}>
@@ -106,11 +146,18 @@ export default function LandingPage({ onDocumentReady }) {
               </div>
             ))}
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, justifyContent: 'center' }}>
-            {step < 2 && <div className="spinner" />}
-            <span style={{ color: 'var(--c-text-muted)', fontSize: '0.9rem' }}>
-              {step < 2 ? t('uploadProcessing') : t('uploadDone')}
-            </span>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, justifyContent: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              {step < 2 && <div className="spinner" style={{ width: 22, height: 22, borderWidth: 3 }} />}
+              <span style={{ color: 'var(--c-text)', fontSize: '0.98rem', fontWeight: 600 }}>
+                {step === 0 ? t('uploadProcessing') : step === 1 ? (lang === 'vi' ? thinkingMessagesVi[thinkIdx] : thinkingMessagesEn[thinkIdx]) : t('uploadDone')}
+              </span>
+            </div>
+            {step === 1 && (
+              <div className="progress-bar-wrap" style={{ width: '75%', height: '6px' }}>
+                <div className="progress-bar-fill" style={{ width: `${(thinkIdx + 1) * 25}%`, background: 'linear-gradient(90deg, var(--c-primary), #5ce1e6)', transition: 'width 0.5s ease' }} />
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -118,6 +165,58 @@ export default function LandingPage({ onDocumentReady }) {
       {error && (
         <div style={{ marginTop: 16, padding: '12px 16px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 10, color: 'var(--c-danger)', fontSize: '0.9rem' }}>
           ⚠️ {error}
+        </div>
+      )}
+
+      {/* Existing Library right on Landing Page to save token processing & time */}
+      {step < 0 && savedDocs.length > 0 && (
+        <div style={{ marginTop: 44 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8, color: 'var(--c-text)' }}>
+              <span>📚 {lang === 'vi' ? 'Slide Đã Tải & Phân Tích Sẵn (0 Tốn Token)' : 'Saved & Analyzed Slides (0 Token Cost)'}</span>
+            </h3>
+            <span style={{ fontSize: '0.78rem', padding: '3px 10px', background: 'rgba(34, 197, 94, 0.15)', color: '#22c55e', borderRadius: '20px', fontWeight: 700 }}>
+              ⚡ {lang === 'vi' ? 'Mở ngay tức thì' : 'Instant Load'}
+            </span>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: 14 }}>
+            {savedDocs.map((docItem) => (
+              <div
+                key={docItem.id}
+                className="glass-card"
+                onClick={() => onDocumentReady(docItem)}
+                style={{
+                  padding: '14px 18px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  border: '1px solid var(--c-border)',
+                  transition: 'all 0.2s ease',
+                  background: 'rgba(255,255,255,0.02)'
+                }}
+                onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--c-primary)'; e.currentTarget.style.background = 'rgba(124, 58, 237, 0.08)'; }}
+                onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--c-border)'; e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, overflow: 'hidden', flex: 1 }}>
+                  <span style={{ fontSize: '1.5rem' }}>📄</span>
+                  <div style={{ overflow: 'hidden', flex: 1 }}>
+                    <div style={{ fontWeight: 700, fontSize: '0.92rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--c-text)' }}>
+                      {docItem.filename}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--c-text-muted)', marginTop: 3, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span>{docItem.page_count || '?'} {lang === 'vi' ? 'trang' : 'pages'}</span>
+                      <span>•</span>
+                      <span style={{ color: '#22c55e', fontWeight: 600 }}>Ready 🟢</span>
+                    </div>
+                  </div>
+                </div>
+                <button className="btn btn-ghost" style={{ padding: '6px 10px', fontSize: '0.8rem', fontWeight: 700, color: 'var(--c-primary)', marginLeft: 8 }}>
+                  {lang === 'vi' ? 'Mở →' : 'Open →'}
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

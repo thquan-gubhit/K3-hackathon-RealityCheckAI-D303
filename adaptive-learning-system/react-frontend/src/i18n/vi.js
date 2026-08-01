@@ -95,10 +95,17 @@ const vi = {
   completionTime: 'thời gian học',
   completionNext: '← Chọn chủ đề tiếp theo',
 
-  // Sidebar
+  // Sidebar & Library
   sidebarProgress: 'Tiến độ học tập',
   sidebarMastered: 'Đã thành thạo',
   sidebarOverall: 'Tổng tiến độ',
+  sidebarDocs: 'KHO TÀI LIỆU HỌC TẬP',
+  sidebarUploadNew: '📤 + Tải Slide Mới',
+  sidebarTopics: 'DANH SÁCH CHỦ ĐỀ',
+  recommendedNext: '🔥 Khuyên học tiếp',
+  stepNumber: 'Bước {n}',
+  aiMisconceptionNotice: '💡 AI Nhận diện điểm hiểu chưa chính xác:',
+  aiTutorInlineNotice: '🤖 (Tính năng Thảo luận trực tiếp 1:1 với Gia sư AI về điểm này đang được phát triển cho phiên bản tiếp theo 🚀)',
   language: 'Ngôn ngữ',
   settings: 'Cài đặt',
 };
