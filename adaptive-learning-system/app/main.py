@@ -265,4 +265,28 @@ def create_app(
     return application
 
 
+# Bắt đầu Monkey Patch để sửa lỗi của LearningRepository.pyc
+import uuid
+import datetime
+from app.repositories.learning_repository import LearningRepository
+from app.models.learning_session import LearningSession
+
+def patched_create_session(self, *, user_id: str, document_id: str, knowledge_unit_id: str) -> LearningSession:
+    record = LearningSession(
+        id=str(uuid.uuid4()),
+        user_id=user_id,
+        document_id=document_id,
+        knowledge_unit_id=knowledge_unit_id,
+        status="ACTIVE",
+        started_at=datetime.datetime.now(datetime.timezone.utc),
+        main_question_count=0,
+        remediation_question_count=0,
+    )
+    self.session.add(record)
+    self.session.flush()
+    return record
+
+LearningRepository.create_session = patched_create_session
+# Kết thúc Monkey Patch
+
 app = create_app()

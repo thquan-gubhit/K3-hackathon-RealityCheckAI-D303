@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.models.learning_session import LearningSessionStatus
 from app.models.mastery import MasteryStatus
@@ -38,6 +38,15 @@ class LearningSessionRead(BaseModel):
     main_question_count: int = Field(ge=0)
     remediation_question_count: int = Field(ge=0)
 
+    @field_validator("status", mode="before")
+    @classmethod
+    def normalize_status(cls, value: object) -> object:
+        if isinstance(value, str):
+            return value.lower()
+        if hasattr(value, "value") and isinstance(value.value, str):
+            return value.value.lower()
+        return value
+
 
 class MasteryRead(BaseModel):
     """Current dimension and evidence state for one user/KU."""
@@ -55,6 +64,15 @@ class MasteryRead(BaseModel):
     question_evidence_count: int = Field(ge=0)
     has_application_evidence: bool
     last_updated: datetime
+
+    @field_validator("status", mode="before")
+    @classmethod
+    def normalize_status(cls, value: object) -> object:
+        if isinstance(value, str):
+            return value.lower()
+        if hasattr(value, "value") and isinstance(value.value, str):
+            return value.value.lower()
+        return value
 
 
 class MisconceptionRead(BaseModel):
